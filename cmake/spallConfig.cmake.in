@@ -1,0 +1,12 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+if(@SPALL_ENABLE_VULKAN@)
+	find_dependency(Vulkan)
+	find_dependency(VulkanMemoryAllocator CONFIG)
+endif()
+
+include("${CMAKE_CURRENT_LIST_DIR}/spallTargets.cmake")
+
+check_required_components(spall)

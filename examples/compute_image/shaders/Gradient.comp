@@ -1,0 +1,25 @@
+#version 450
+
+layout(local_size_x = 8, local_size_y = 8) in;
+
+layout(binding = 0, rgba8) uniform writeonly image2D uOutput;
+
+layout(push_constant) uniform Constants
+{
+	float uTime;
+};
+
+void main()
+{
+	ivec2 pixel = ivec2(gl_GlobalInvocationID.xy);
+	ivec2 size = imageSize(uOutput);
+
+	if (pixel.x >= size.x || pixel.y >= size.y)
+	{
+		return;
+	}
+
+	vec2 uv = vec2(pixel) / vec2(size - 1);
+	float wave = 0.5 + 0.5 * sin(uTime + (uv.x + uv.y) * 6.2831853);
+	imageStore(uOutput, pixel, vec4(uv, wave, 1.0));
+}
