@@ -482,6 +482,7 @@ namespace spall::vk
 		enabledFeatures.fragmentStoresAndAtomics = supportedFeatures.fragmentStoresAndAtomics;
 		enabledFeatures.tessellationShader = supportedFeatures.tessellationShader;
 		enabledFeatures.geometryShader = supportedFeatures.geometryShader;
+		enabledFeatures.dualSrcBlend = supportedFeatures.dualSrcBlend;
 
 		VkPhysicalDeviceRayTracingPipelineFeaturesKHR rayTracingPipelineFeatures = {};
 		rayTracingPipelineFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR;

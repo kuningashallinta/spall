@@ -137,6 +137,26 @@ namespace spall::vk
 				return VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
 			}
 
+			case BlendFactor::Source1Color:
+			{
+				return VK_BLEND_FACTOR_SRC1_COLOR;
+			}
+
+			case BlendFactor::OneMinusSource1Color:
+			{
+				return VK_BLEND_FACTOR_ONE_MINUS_SRC1_COLOR;
+			}
+
+			case BlendFactor::Source1Alpha:
+			{
+				return VK_BLEND_FACTOR_SRC1_ALPHA;
+			}
+
+			case BlendFactor::OneMinusSource1Alpha:
+			{
+				return VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA;
+			}
+
 			case BlendFactor::One:
 			default:
 			{

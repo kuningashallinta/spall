@@ -106,7 +106,7 @@ namespace spall
 
 			for (const BlendFactor blendFactor : blendFactors)
 			{
-				if ((blendFactor < BlendFactor::Zero) or (blendFactor > BlendFactor::OneMinusDestinationAlpha))
+				if ((blendFactor < BlendFactor::Zero) or (blendFactor > BlendFactor::OneMinusSource1Alpha))
 				{
 					return ERR_INVALID_ARGUMENT;
 				}

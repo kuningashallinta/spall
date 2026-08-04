@@ -137,6 +137,26 @@ namespace spall::d3d12
 				return D3D12_BLEND_INV_DEST_ALPHA;
 			}
 
+			case BlendFactor::Source1Color:
+			{
+				return D3D12_BLEND_SRC1_COLOR;
+			}
+
+			case BlendFactor::OneMinusSource1Color:
+			{
+				return D3D12_BLEND_INV_SRC1_COLOR;
+			}
+
+			case BlendFactor::Source1Alpha:
+			{
+				return D3D12_BLEND_SRC1_ALPHA;
+			}
+
+			case BlendFactor::OneMinusSource1Alpha:
+			{
+				return D3D12_BLEND_INV_SRC1_ALPHA;
+			}
+
 			case BlendFactor::One:
 			default:
 			{

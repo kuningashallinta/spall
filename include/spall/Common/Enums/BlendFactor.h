@@ -13,6 +13,10 @@ namespace spall
 		SourceAlpha,
 		OneMinusSourceAlpha,
 		DestinationAlpha,
-		OneMinusDestinationAlpha
+		OneMinusDestinationAlpha,
+		Source1Color,
+		OneMinusSource1Color,
+		Source1Alpha,
+		OneMinusSource1Alpha
 	};
 } // namespace spall
