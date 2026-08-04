@@ -320,6 +320,7 @@ namespace spall::d3d12
 		SwapChain* m_ReferencedSwapChain = nullptr;
 
 		Texture* m_RenderPassColorTextures[MaxColorAttachments] = {};
+		Texture* m_RenderPassResolveTextures[MaxColorAttachments] = {};
 		std::uint32_t m_RenderPassColorTextureCount = 0;
 		Texture* m_RenderPassDepthTexture = nullptr;
 

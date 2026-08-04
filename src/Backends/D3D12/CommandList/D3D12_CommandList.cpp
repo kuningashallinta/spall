@@ -327,6 +327,7 @@ namespace spall::d3d12
 		for (std::uint32_t attachmentIndex = 0; attachmentIndex < MaxColorAttachments; ++attachmentIndex)
 		{
 			m_RenderPassColorTextures[attachmentIndex] = nullptr;
+			m_RenderPassResolveTextures[attachmentIndex] = nullptr;
 		}
 
 		m_RenderPassColorTextureCount = 0;
@@ -550,6 +551,9 @@ namespace spall::d3d12
 
 			colorHandles[attachmentIndex] = m_Device->m_RenderTargetViews.cpuHandle(colorView->m_RenderTargetViewIndex);
 			m_RenderPassColorTextures[attachmentIndex] = colorView->m_Texture.get();
+
+			TextureView* const resolveView = framebuffer->m_ResolveViews[attachmentIndex].get();
+			m_RenderPassResolveTextures[attachmentIndex] = resolveView != nullptr ? resolveView->m_Texture.get() : nullptr;
 		}
 
 		TextureView* depthView = framebuffer->m_DepthView.get();
@@ -642,6 +646,23 @@ namespace spall::d3d12
 		m_CommandList->OMSetRenderTargets(0, nullptr, FALSE, nullptr);
 		m_RenderPassActive = false;
 
+		for (std::uint32_t attachmentIndex = 0; attachmentIndex < m_RenderPassColorTextureCount; ++attachmentIndex)
+		{
+			Texture* const resolveTexture = m_RenderPassResolveTextures[attachmentIndex];
+
+			if (resolveTexture == nullptr)
+			{
+				continue;
+			}
+
+			Status resolveError = m_StateTracker.requireTextureState(*resolveTexture, ResourceStateFlags::RenderTarget);
+
+			if (resolveError != SUCCESS)
+			{
+				return fail(resolveError);
+			}
+		}
+
 		Status error = m_StateTracker.commitBarriers();
 
 		if (error != SUCCESS)
@@ -651,7 +672,30 @@ namespace spall::d3d12
 
 		for (std::uint32_t attachmentIndex = 0; attachmentIndex < m_RenderPassColorTextureCount; ++attachmentIndex)
 		{
+			Texture* const sourceTexture = m_RenderPassColorTextures[attachmentIndex];
+			Texture* const resolveTexture = m_RenderPassResolveTextures[attachmentIndex];
+
+			if (sourceTexture == nullptr or resolveTexture == nullptr)
+			{
+				continue;
+			}
+
+			ID3D12Resource& sourceResource = *sourceTexture->m_Resource.Get();
+			ID3D12Resource& resolveResource = *resolveTexture->m_Resource.Get();
+
+			transitionScratchBuffer(sourceResource, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_RESOLVE_SOURCE);
+			transitionScratchBuffer(resolveResource, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_RESOLVE_DEST);
+
+			m_CommandList->ResolveSubresource(&resolveResource, 0, &sourceResource, 0, resolveResource.GetDesc().Format);
+
+			transitionScratchBuffer(sourceResource, D3D12_RESOURCE_STATE_RESOLVE_SOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+			transitionScratchBuffer(resolveResource, D3D12_RESOURCE_STATE_RESOLVE_DEST, D3D12_RESOURCE_STATE_RENDER_TARGET);
+		}
+
+		for (std::uint32_t attachmentIndex = 0; attachmentIndex < m_RenderPassColorTextureCount; ++attachmentIndex)
+		{
 			m_RenderPassColorTextures[attachmentIndex] = nullptr;
+			m_RenderPassResolveTextures[attachmentIndex] = nullptr;
 		}
 
 		m_RenderPassColorTextureCount = 0;
