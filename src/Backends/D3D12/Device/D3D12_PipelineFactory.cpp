@@ -235,8 +235,9 @@ namespace spall::d3d12
 
 		for (std::uint32_t targetIndex = 0; targetIndex < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; ++targetIndex)
 		{
-			const std::uint32_t sourceIndex = (targetIndex < info.ColorTargetFormatCount) ? targetIndex : 0;
-			pipelineDesc.BlendState.RenderTarget[targetIndex] = renderTargetBlendDescription(info.BlendStates[sourceIndex]);
+			pipelineDesc.BlendState.RenderTarget[targetIndex] = (targetIndex < info.ColorTargetFormatCount)
+				? renderTargetBlendDescription(info.BlendStates[targetIndex])
+				: renderTargetBlendDescription(BlendStateInfo {});
 		}
 
 		pipelineDesc.SampleMask = UINT_MAX;
