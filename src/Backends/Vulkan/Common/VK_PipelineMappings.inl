@@ -10,6 +10,11 @@ namespace spall::vk
 				return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 			}
 
+			case PrimitiveTopology::LineList:
+			{
+				return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+			}
+
 			case PrimitiveTopology::PatchList:
 			{
 				return VK_PRIMITIVE_TOPOLOGY_PATCH_LIST;

@@ -54,6 +54,7 @@ namespace spall
 	{
 		if ((info.PrimitiveTopology != PrimitiveTopology::TriangleStrip) and
 			(info.PrimitiveTopology != PrimitiveTopology::TriangleList) and
+			(info.PrimitiveTopology != PrimitiveTopology::LineList) and
 			(info.PrimitiveTopology != PrimitiveTopology::PatchList))
 		{
 			return ERR_INVALID_ARGUMENT;

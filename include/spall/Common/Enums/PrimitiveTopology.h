@@ -6,6 +6,7 @@ namespace spall
 	{
 		TriangleStrip,
 		TriangleList,
+		LineList,
 		PatchList
 	};
 } // namespace spall

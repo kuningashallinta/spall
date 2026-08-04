@@ -11,6 +11,11 @@ namespace spall::d3d12
 				return D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 			}
 
+			case PrimitiveTopology::LineList:
+			{
+				return D3D_PRIMITIVE_TOPOLOGY_LINELIST;
+			}
+
 			case PrimitiveTopology::PatchList:
 			{
 				return static_cast<D3D12_PRIMITIVE_TOPOLOGY>(
@@ -31,6 +36,11 @@ namespace spall::d3d12
 		if (topology == PrimitiveTopology::PatchList)
 		{
 			return D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
+		}
+
+		if (topology == PrimitiveTopology::LineList)
+		{
+			return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
 		}
 
 		return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
