@@ -49,4 +49,4 @@ Link the highest layer used by the application:
 
 ## License
 
-[Apache-2.0](LICENSE). Copyright 2026 King Hallinta.
+[Apache-2.0](LICENSE)
