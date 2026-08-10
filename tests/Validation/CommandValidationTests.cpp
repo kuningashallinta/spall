@@ -5,36 +5,45 @@
 
 #include <limits>
 
-namespace
+static FakeTexture mippedTexture()
 {
-	using spall::tests::FakeBuffer;
-	using spall::tests::FakeTexture;
+	return FakeTexture(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.MipLevels = 7,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::TransferDestination});
+}
 
-	FakeTexture mippedTexture()
-	{
-		return FakeTexture(spall::tests::textureInfo(spall::TextureUsageFlags::TransferDestination, 7));
-	}
+static FakeTexture layeredTexture()
+{
+	return FakeTexture(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.MipLevels = 7,
+		.ArrayLayers = 6,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::TransferDestination});
+}
 
-	FakeTexture layeredTexture()
-	{
-		return FakeTexture(spall::tests::textureInfo(spall::TextureUsageFlags::TransferDestination, 7, 6));
-	}
+static FakeBuffer uploadBuffer(
+	std::uint32_t size = 64 * 64 * 4)
+{
+	return FakeBuffer(spall::BufferInfo {.Size = size, .Usage = spall::BufferUsageFlags::TransferSource});
+}
 
-	FakeBuffer uploadBuffer(
-		std::uint32_t size = 64 * 64 * 4)
-	{
-		return FakeBuffer(spall::tests::bufferInfo(spall::BufferUsageFlags::TransferSource, size));
-	}
+static FakeTexture compressedTexture(
+	spall::Format format = spall::Format::BC1RGBAUnorm)
+{
+	spall::TextureInfo info = {
+		.Width = 64,
+		.Height = 64,
+		.MipLevels = 7,
+		.Format = format,
+		.Usage = spall::TextureUsageFlags::TransferDestination};
 
-	FakeTexture compressedTexture(
-		spall::Format format = spall::Format::BC1RGBAUnorm)
-	{
-		spall::TextureInfo info = spall::tests::textureInfo(spall::TextureUsageFlags::TransferDestination, 7);
-		info.Format = format;
-
-		return FakeTexture(info);
-	}
-} // namespace
+	return FakeTexture(info);
+}
 
 TEST_CASE(
 	"A mip extent halves per level",
@@ -146,9 +155,14 @@ TEST_CASE(
 	"A partial mip readback accepts padding and checks the final row",
 	"[command][copy][readback]")
 {
-	const FakeTexture texture(spall::tests::textureInfo(spall::TextureUsageFlags::TransferSource, 7));
-	const FakeBuffer exact(spall::tests::bufferInfo(spall::BufferUsageFlags::TransferDestination, 72));
-	const FakeBuffer short1(spall::tests::bufferInfo(spall::BufferUsageFlags::TransferDestination, 71));
+	const FakeTexture texture(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.MipLevels = 7,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::TransferSource});
+	const FakeBuffer exact(spall::BufferInfo {.Size = 72, .Usage = spall::BufferUsageFlags::TransferDestination});
+	const FakeBuffer short1(spall::BufferInfo {.Size = 71, .Usage = spall::BufferUsageFlags::TransferDestination});
 	const spall::TextureRegion region = {3, 2, 1, 4, 3};
 
 	CHECK(spall::validateTextureBufferCopyArguments(texture, region, exact, 8, 24) == spall::SUCCESS);
@@ -183,7 +197,12 @@ TEST_CASE(
 	"A texture region resolves against its mip level",
 	"[command][region]")
 {
-	const spall::TextureInfo info = spall::tests::textureInfo(spall::TextureUsageFlags::TransferDestination, 7);
+	const spall::TextureInfo info = {
+		.Width = 64,
+		.Height = 64,
+		.MipLevels = 7,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::TransferDestination};
 
 	const spall::TextureRegion fullMip = spall::resolveTextureRegion(info, spall::TextureRegion {3});
 	CHECK(fullMip.Width == 8);
@@ -205,8 +224,13 @@ TEST_CASE(
 	"A volume region resolves its depth extent against its mip",
 	"[command][region]")
 {
-	spall::TextureInfo info = spall::tests::textureInfo(spall::TextureUsageFlags::TransferDestination, 7);
-	info.Depth = 64;
+	spall::TextureInfo info = {
+		.Width = 64,
+		.Height = 64,
+		.Depth = 64,
+		.MipLevels = 7,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::TransferDestination};
 
 	const spall::TextureRegion fullMip = spall::resolveTextureRegion(info, spall::TextureRegion {3});
 	CHECK(fullMip.Depth == 8);
@@ -222,7 +246,13 @@ TEST_CASE(
 	CHECK(explicitRegion.Depth == 4);
 
 	const spall::TextureRegion planar = spall::resolveTextureRegion(
-		spall::tests::textureInfo(spall::TextureUsageFlags::TransferDestination, 7), spall::TextureRegion {3});
+		spall::TextureInfo {
+			.Width = 64,
+			.Height = 64,
+			.MipLevels = 7,
+			.Format = spall::Format::RGBA8,
+			.Usage = spall::TextureUsageFlags::TransferDestination},
+		spall::TextureRegion {3});
 	CHECK(planar.Depth == 1);
 }
 
@@ -288,9 +318,23 @@ TEST_CASE(
 	"A texture copy requires matching mip counts",
 	"[command][copy]")
 {
-	const FakeTexture source(spall::tests::textureInfo(spall::TextureUsageFlags::TransferSource, 7));
-	const FakeTexture destination(spall::tests::textureInfo(spall::TextureUsageFlags::TransferDestination, 7));
-	const FakeTexture flat(spall::tests::textureInfo(spall::TextureUsageFlags::TransferDestination));
+	const FakeTexture source(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.MipLevels = 7,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::TransferSource});
+	const FakeTexture destination(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.MipLevels = 7,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::TransferDestination});
+	const FakeTexture flat(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::TransferDestination});
 
 	CHECK(spall::validateCopyTextureArguments(destination, source) == spall::SUCCESS);
 	CHECK(spall::validateCopyTextureArguments(flat, source) != spall::SUCCESS);
@@ -300,8 +344,11 @@ TEST_CASE(
 	"A texture copy rejects a shared source and destination",
 	"[command][copy]")
 {
-	const FakeTexture texture(spall::tests::textureInfo(
-		spall::TextureUsageFlags::TransferSource | spall::TextureUsageFlags::TransferDestination));
+	const FakeTexture texture(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::TransferSource | spall::TextureUsageFlags::TransferDestination});
 
 	CHECK(spall::validateCopyTextureArguments(texture, texture) == spall::ERR_INVALID_RESOURCE);
 }
@@ -310,9 +357,21 @@ TEST_CASE(
 	"A texture copy requires transfer-compatible usage",
 	"[command][copy]")
 {
-	const FakeTexture source(spall::tests::textureInfo(spall::TextureUsageFlags::TransferSource));
-	const FakeTexture destination(spall::tests::textureInfo(spall::TextureUsageFlags::TransferDestination));
-	const FakeTexture sampled(spall::tests::textureInfo(spall::TextureUsageFlags::Sampled));
+	const FakeTexture source(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::TransferSource});
+	const FakeTexture destination(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::TransferDestination});
+	const FakeTexture sampled(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::Sampled});
 
 	CHECK(spall::validateCopyTextureArguments(destination, sampled) == spall::ERR_INVALID_USAGE_FLAGS);
 	CHECK(spall::validateCopyTextureArguments(sampled, source) == spall::ERR_INVALID_USAGE_FLAGS);
@@ -322,19 +381,32 @@ TEST_CASE(
 	"A texture copy requires matching dimensions and formats",
 	"[command][copy]")
 {
-	spall::TextureInfo sourceInfo = spall::tests::textureInfo(spall::TextureUsageFlags::TransferSource);
+	spall::TextureInfo sourceInfo = {
+		.Width = 64,
+		.Height = 64,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::TransferSource};
 	const FakeTexture source(sourceInfo);
 
-	spall::TextureInfo widthInfo = spall::tests::textureInfo(spall::TextureUsageFlags::TransferDestination);
-	widthInfo.Width = 32;
+	spall::TextureInfo widthInfo = {
+		.Width = 32,
+		.Height = 64,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::TransferDestination};
 	const FakeTexture differentWidth(widthInfo);
 
-	spall::TextureInfo heightInfo = spall::tests::textureInfo(spall::TextureUsageFlags::TransferDestination);
-	heightInfo.Height = 32;
+	spall::TextureInfo heightInfo = {
+		.Width = 64,
+		.Height = 32,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::TransferDestination};
 	const FakeTexture differentHeight(heightInfo);
 
-	spall::TextureInfo formatInfo = spall::tests::textureInfo(spall::TextureUsageFlags::TransferDestination);
-	formatInfo.Format = spall::Format::BGRA8;
+	spall::TextureInfo formatInfo = {
+		.Width = 64,
+		.Height = 64,
+		.Format = spall::Format::BGRA8,
+		.Usage = spall::TextureUsageFlags::TransferDestination};
 	const FakeTexture differentFormat(formatInfo);
 
 	CHECK(spall::validateCopyTextureArguments(differentWidth, source) == spall::ERR_INVALID_RESOURCE);
@@ -350,7 +422,12 @@ TEST_CASE(
 		spall::TextureUsageFlags::Sampled |
 		spall::TextureUsageFlags::TransferSource |
 		spall::TextureUsageFlags::TransferDestination;
-	const FakeTexture texture(spall::tests::textureInfo(usage, 7));
+	const FakeTexture texture(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.MipLevels = 7,
+		.Format = spall::Format::RGBA8,
+		.Usage = usage});
 
 	CHECK(spall::validateGenerateMipsArguments(texture) == spall::SUCCESS);
 }
@@ -364,7 +441,11 @@ TEST_CASE(
 		spall::TextureUsageFlags::TransferSource |
 		spall::TextureUsageFlags::TransferDestination;
 
-	const FakeTexture texture(spall::tests::textureInfo(usage));
+	const FakeTexture texture(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.Format = spall::Format::RGBA8,
+		.Usage = usage});
 
 	CHECK(spall::validateGenerateMipsArguments(texture) == spall::ERR_INVALID_RANGE);
 }
@@ -373,17 +454,26 @@ TEST_CASE(
 	"Mipmap generation requires sampled and bidirectional transfer usage",
 	"[command][mips]")
 {
-	const FakeTexture missingSampled(spall::tests::textureInfo(
-		spall::TextureUsageFlags::TransferSource | spall::TextureUsageFlags::TransferDestination,
-		7));
+	const FakeTexture missingSampled(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.MipLevels = 7,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::TransferSource | spall::TextureUsageFlags::TransferDestination});
 
-	const FakeTexture missingSource(spall::tests::textureInfo(
-		spall::TextureUsageFlags::Sampled | spall::TextureUsageFlags::TransferDestination,
-		7));
+	const FakeTexture missingSource(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.MipLevels = 7,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::Sampled | spall::TextureUsageFlags::TransferDestination});
 
-	const FakeTexture missingDestination(spall::tests::textureInfo(
-		spall::TextureUsageFlags::Sampled | spall::TextureUsageFlags::TransferSource,
-		7));
+	const FakeTexture missingDestination(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.MipLevels = 7,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::Sampled | spall::TextureUsageFlags::TransferSource});
 
 	CHECK(spall::validateGenerateMipsArguments(missingSampled) == spall::ERR_INVALID_USAGE_FLAGS);
 	CHECK(spall::validateGenerateMipsArguments(missingSource) == spall::ERR_INVALID_USAGE_FLAGS);
@@ -454,8 +544,12 @@ TEST_CASE(
 		spall::TextureUsageFlags::TransferSource |
 		spall::TextureUsageFlags::TransferDestination;
 
-	spall::TextureInfo info = spall::tests::textureInfo(usage, 7);
-	info.Format = spall::Format::BC3RGBAUnorm;
+	spall::TextureInfo info = {
+		.Width = 64,
+		.Height = 64,
+		.MipLevels = 7,
+		.Format = spall::Format::BC3RGBAUnorm,
+		.Usage = usage};
 	const FakeTexture texture(info);
 
 	CHECK(spall::validateGenerateMipsArguments(texture) == spall::ERR_UNSUPPORTED_FORMAT);
@@ -470,8 +564,12 @@ TEST_CASE(
 		spall::TextureUsageFlags::TransferSource |
 		spall::TextureUsageFlags::TransferDestination;
 
-	spall::TextureInfo info = spall::tests::textureInfo(usage, 7);
-	info.Format = spall::Format::Depth32Float;
+	spall::TextureInfo info = {
+		.Width = 64,
+		.Height = 64,
+		.MipLevels = 7,
+		.Format = spall::Format::Depth32Float,
+		.Usage = usage};
 	const FakeTexture texture(info);
 
 	CHECK(spall::validateGenerateMipsArguments(texture) == spall::ERR_INVALID_FORMAT);
@@ -481,12 +579,16 @@ TEST_CASE(
 	"A texture upload rejects zero-sized destinations",
 	"[command][copy]")
 {
-	spall::TextureInfo zeroWidthInfo = spall::tests::textureInfo(spall::TextureUsageFlags::TransferDestination);
-	zeroWidthInfo.Width = 0;
+	spall::TextureInfo zeroWidthInfo = {
+		.Height = 64,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::TransferDestination};
 	const FakeTexture zeroWidth(zeroWidthInfo);
 
-	spall::TextureInfo zeroHeightInfo = spall::tests::textureInfo(spall::TextureUsageFlags::TransferDestination);
-	zeroHeightInfo.Height = 0;
+	spall::TextureInfo zeroHeightInfo = {
+		.Width = 64,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::TransferDestination};
 	const FakeTexture zeroHeight(zeroHeightInfo);
 
 	const FakeBuffer buffer = uploadBuffer();
@@ -499,8 +601,11 @@ TEST_CASE(
 	"A texture upload rejects formats without a pixel size",
 	"[command][copy]")
 {
-	spall::TextureInfo info = spall::tests::textureInfo(spall::TextureUsageFlags::TransferDestination);
-	info.Format = spall::Format::RGB32Float;
+	spall::TextureInfo info = {
+		.Width = 64,
+		.Height = 64,
+		.Format = spall::Format::RGB32Float,
+		.Usage = spall::TextureUsageFlags::TransferDestination};
 	const FakeTexture texture(info);
 	const FakeBuffer buffer = uploadBuffer();
 
@@ -730,9 +835,24 @@ TEST_CASE(
 	"A texture copy requires matching layer counts",
 	"[command][layers]")
 {
-	const FakeTexture source(spall::tests::textureInfo(spall::TextureUsageFlags::TransferSource, 1, 6));
-	const FakeTexture matching(spall::tests::textureInfo(spall::TextureUsageFlags::TransferDestination, 1, 6));
-	const FakeTexture mismatched(spall::tests::textureInfo(spall::TextureUsageFlags::TransferDestination, 1, 3));
+	const FakeTexture source(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.ArrayLayers = 6,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::TransferSource});
+	const FakeTexture matching(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.ArrayLayers = 6,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::TransferDestination});
+	const FakeTexture mismatched(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.ArrayLayers = 3,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::TransferDestination});
 
 	CHECK(spall::validateCopyTextureArguments(matching, source) == spall::SUCCESS);
 	CHECK(spall::validateCopyTextureArguments(mismatched, source) == spall::ERR_INVALID_RESOURCE);
@@ -742,8 +862,8 @@ TEST_CASE(
 	"Indirect arguments require an indirect buffer",
 	"[command][indirect]")
 {
-	const FakeBuffer indirect(spall::tests::bufferInfo(spall::BufferUsageFlags::Indirect, 256));
-	const FakeBuffer storage(spall::tests::bufferInfo(spall::BufferUsageFlags::Storage, 256));
+	const FakeBuffer indirect(spall::BufferInfo {.Size = 256, .Usage = spall::BufferUsageFlags::Indirect});
+	const FakeBuffer storage(spall::BufferInfo {.Size = 256, .Usage = spall::BufferUsageFlags::Storage});
 
 	CHECK(spall::validateIndirectArguments(indirect, 0, sizeof(spall::DrawIndirectCommand)) == spall::SUCCESS);
 	CHECK(spall::validateIndirectArguments(storage, 0, sizeof(spall::DrawIndirectCommand)) == spall::ERR_INVALID_USAGE_FLAGS);
@@ -753,7 +873,7 @@ TEST_CASE(
 	"Indirect arguments must be four-byte aligned",
 	"[command][indirect]")
 {
-	const FakeBuffer indirect(spall::tests::bufferInfo(spall::BufferUsageFlags::Indirect, 256));
+	const FakeBuffer indirect(spall::BufferInfo {.Size = 256, .Usage = spall::BufferUsageFlags::Indirect});
 
 	CHECK(spall::validateIndirectArguments(indirect, 4, sizeof(spall::DrawIndirectCommand)) == spall::SUCCESS);
 	CHECK(spall::validateIndirectArguments(indirect, 16, sizeof(spall::DrawIndirectCommand)) == spall::SUCCESS);
@@ -765,7 +885,7 @@ TEST_CASE(
 	"Indirect arguments stay inside the argument buffer",
 	"[command][indirect]")
 {
-	const FakeBuffer indirect(spall::tests::bufferInfo(spall::BufferUsageFlags::Indirect, 32));
+	const FakeBuffer indirect(spall::BufferInfo {.Size = 32, .Usage = spall::BufferUsageFlags::Indirect});
 	const std::uint32_t maximum = (std::numeric_limits<std::uint32_t>::max)();
 
 	CHECK(spall::validateIndirectArguments(indirect, 16, sizeof(spall::DrawIndirectCommand)) == spall::SUCCESS);

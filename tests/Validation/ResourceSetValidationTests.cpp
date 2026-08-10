@@ -6,36 +6,27 @@
 #include <array>
 #include <span>
 
-namespace
+static spall::ResourceBindingInfo binding(
+	std::uint32_t slot,
+	spall::ResourceBindingType type,
+	spall::ShaderStageFlags stages)
 {
-	using spall::tests::FakeBuffer;
-	using spall::tests::FakeResourceSetLayout;
-	using spall::tests::FakeSampler;
-	using spall::tests::FakeTexture;
-	using spall::tests::FakeTextureView;
+	spall::ResourceBindingInfo info = {};
+	info.Binding = slot;
+	info.Type = type;
+	info.Stages = stages;
 
-	spall::ResourceBindingInfo binding(
-		std::uint32_t slot,
-		spall::ResourceBindingType type,
-		spall::ShaderStageFlags stages)
-	{
-		spall::ResourceBindingInfo info = {};
-		info.Binding = slot;
-		info.Type = type;
-		info.Stages = stages;
+	return info;
+}
 
-		return info;
-	}
+static spall::ResourceSetLayoutCreateInfo layout(
+	std::span<const spall::ResourceBindingInfo> bindings)
+{
+	spall::ResourceSetLayoutCreateInfo info = {};
+	info.Bindings = bindings;
 
-	spall::ResourceSetLayoutCreateInfo layout(
-		std::span<const spall::ResourceBindingInfo> bindings)
-	{
-		spall::ResourceSetLayoutCreateInfo info = {};
-		info.Bindings = bindings;
-
-		return info;
-	}
-} // namespace
+	return info;
+}
 
 TEST_CASE(
 	"A layout requires at least one binding",
@@ -169,7 +160,7 @@ TEST_CASE(
 	"A uniform-buffer write requires a buffer",
 	"[resourceset]")
 {
-	FakeBuffer buffer(spall::tests::bufferInfo(spall::BufferUsageFlags::Uniform));
+	FakeBuffer buffer(spall::BufferInfo {.Size = 256, .Usage = spall::BufferUsageFlags::Uniform});
 
 	spall::ResourceWrite withBuffer = {};
 	withBuffer.Type = spall::ResourceBindingType::UniformBuffer;
@@ -201,7 +192,7 @@ TEST_CASE(
 	"A storage-buffer write accepts a buffer",
 	"[resourceset]")
 {
-	FakeBuffer buffer(spall::tests::bufferInfo(spall::BufferUsageFlags::Storage));
+	FakeBuffer buffer(spall::BufferInfo {.Size = 256, .Usage = spall::BufferUsageFlags::Storage});
 
 	spall::ResourceWrite write = {};
 	write.Type = spall::ResourceBindingType::StorageBuffer;
@@ -224,7 +215,7 @@ TEST_CASE(
 	"Resource-set writes reject duplicate binding slots",
 	"[resourceset]")
 {
-	FakeBuffer buffer(spall::tests::bufferInfo(spall::BufferUsageFlags::Uniform));
+	FakeBuffer buffer(spall::BufferInfo {.Size = 256, .Usage = spall::BufferUsageFlags::Uniform});
 
 	spall::ResourceWrite first = {};
 	first.Binding = 1;
@@ -242,7 +233,11 @@ TEST_CASE(
 	"A sampled-texture write requires both a view and a sampler",
 	"[resourceset]")
 {
-	FakeTexture texture(spall::tests::textureInfo(spall::TextureUsageFlags::Sampled));
+	FakeTexture texture(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::Sampled});
 	FakeTextureView view(texture, spall::TextureAspectFlags::Color);
 	FakeSampler sampler;
 
@@ -266,7 +261,11 @@ TEST_CASE(
 	"A sampled-texture write requires sampled usage on the texture",
 	"[resourceset]")
 {
-	FakeTexture texture(spall::tests::textureInfo(spall::TextureUsageFlags::ColorAttachment));
+	FakeTexture texture(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::ColorAttachment});
 	FakeTextureView view(texture, spall::TextureAspectFlags::Color);
 	FakeSampler sampler;
 
@@ -282,7 +281,12 @@ TEST_CASE(
 	"A storage-texture write requires a single color mip and no sampler",
 	"[resourceset][storage][texture]")
 {
-	FakeTexture texture(spall::tests::textureInfo(spall::TextureUsageFlags::Storage, 4));
+	FakeTexture texture(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.MipLevels = 4,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::Storage});
 	FakeTextureView singleMip(texture, spall::TextureAspectFlags::Color, 2, 1);
 	FakeTextureView mipRange(texture, spall::TextureAspectFlags::Color, 0, 4);
 	FakeTextureView depthAspect(texture, spall::TextureAspectFlags::Depth);
@@ -312,7 +316,11 @@ TEST_CASE(
 	"A storage-texture write requires storage texture usage",
 	"[resourceset][storage][texture]")
 {
-	FakeTexture texture(spall::tests::textureInfo(spall::TextureUsageFlags::Sampled));
+	FakeTexture texture(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::Sampled});
 	FakeTextureView view(texture, spall::TextureAspectFlags::Color);
 	spall::ResourceWrite write = {};
 	write.Type = spall::ResourceBindingType::StorageTexture;
@@ -337,8 +345,11 @@ TEST_CASE(
 	"An acceleration-structure write requires an acceleration structure",
 	"[resourceset][acceleration]")
 {
-	spall::tests::FakeAccelerationStructure structure(
-		spall::tests::accelerationStructureInfo(spall::AccelerationStructureType::TopLevel));
+	FakeAccelerationStructure structure(spall::AccelerationStructureInfo {
+		.Type = spall::AccelerationStructureType::TopLevel,
+		.Flags = spall::AccelerationStructureBuildFlags::PreferFastTrace,
+		.Size = 1024,
+		.BuildScratchSize = 512});
 
 	spall::ResourceWrite write = {};
 	write.Type = spall::ResourceBindingType::AccelerationStructure;

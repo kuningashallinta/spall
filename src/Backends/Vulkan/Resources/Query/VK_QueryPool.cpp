@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 #include <src/Backends/Vulkan/Resources/Query/VK_QueryPool.h>
 
 #include <spall/Common/Enums/RenderBackendType.h>
@@ -13,6 +16,7 @@ namespace spall::vk
 		: m_Device(&device), m_DebugName(info.DebugName != nullptr ? info.DebugName : ""), m_Info(info), m_QueryPool(queryPool)
 	{
 		m_Info.DebugName = m_DebugName.empty() ? nullptr : m_DebugName.c_str();
+
 		setDebugName(
 			m_Device->m_Device,
 			VK_OBJECT_TYPE_QUERY_POOL,

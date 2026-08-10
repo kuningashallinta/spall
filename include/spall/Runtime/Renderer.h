@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 #pragma once
 
 #include <spall/Common/Enums/RenderBackendType.h>
@@ -64,6 +67,8 @@ namespace spall
 			std::uint32_t height);
 
 	private:
+		static void destroy(std::unique_ptr<RendererImpl>& impl);
+
 		std::unique_ptr<RendererImpl> m_Impl;
 	};
 } // namespace spall

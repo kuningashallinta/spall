@@ -1,4 +1,4 @@
-namespace spall::dxgi
+namespace spall::d3d12
 {
 	inline DXGI_FORMAT nativeFormat(
 		Format format)
@@ -361,4 +361,4 @@ namespace spall::dxgi
 			}
 		}
 	}
-} // namespace spall::dxgi
+} // namespace spall::d3d12

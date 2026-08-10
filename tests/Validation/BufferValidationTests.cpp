@@ -2,20 +2,17 @@
 
 #include <src/Validation/Common/BufferValidation.h>
 
-namespace
+static spall::BufferCreateInfo bufferCreateInfo(
+	spall::BufferUsageFlags usage,
+	spall::ResourceStateFlags initialState)
 {
-	spall::BufferCreateInfo bufferCreateInfo(
-		spall::BufferUsageFlags usage,
-		spall::ResourceStateFlags initialState)
-	{
-		spall::BufferCreateInfo info = {};
-		info.Size = 256;
-		info.Usage = usage;
-		info.InitialState = initialState;
+	spall::BufferCreateInfo info = {};
+	info.Size = 256;
+	info.Usage = usage;
+	info.InitialState = initialState;
 
-		return info;
-	}
-} // namespace
+	return info;
+}
 
 TEST_CASE(
 	"A buffer rejects a zero size",

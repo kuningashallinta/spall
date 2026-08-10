@@ -2,23 +2,20 @@
 
 #include <src/Validation/Common/SwapChainValidation.h>
 
-namespace
+static int WindowStorage = 0;
+
+static spall::SwapChainCreateInfo swapChainCreateInfo()
 {
-	int WindowStorage = 0;
+	spall::SwapChainCreateInfo info = {};
+	info.Window.Type = spall::WindowHandleType::Win32;
+	info.Window.Value = &WindowStorage;
+	info.Width = 1280;
+	info.Height = 720;
+	info.Format = spall::Format::BGRA8;
+	info.PresentMode = spall::PresentMode::VSync;
 
-	spall::SwapChainCreateInfo swapChainCreateInfo()
-	{
-		spall::SwapChainCreateInfo info = {};
-		info.Window.Type = spall::WindowHandleType::Win32;
-		info.Window.Value = &WindowStorage;
-		info.Width = 1280;
-		info.Height = 720;
-		info.Format = spall::Format::BGRA8;
-		info.PresentMode = spall::PresentMode::VSync;
-
-		return info;
-	}
-} // namespace
+	return info;
+}
 
 TEST_CASE(
 	"A well-formed swap chain is valid",

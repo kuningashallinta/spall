@@ -5,7 +5,7 @@
 
 #include <dxgiformat.h>
 
-namespace spall::dxgi
+namespace spall::d3d12
 {
 	inline DXGI_FORMAT nativeFormat(
 		Format format);
@@ -15,6 +15,6 @@ namespace spall::dxgi
 
 	inline DXGI_FORMAT nativeIndexFormat(
 		IndexFormat format);
-} // namespace spall::dxgi
+} // namespace spall::d3d12
 
 #include <src/Common/DXGI/DXGIFormatMappings.inl>

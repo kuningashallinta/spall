@@ -5,20 +5,17 @@
 #include <spall/Common/Enums/TextureUsageFlags.h>
 #include <src/Validation/Common/FlagValidation.h>
 
-namespace
+enum class TestFlags : std::uint32_t
 {
-	enum class TestFlags : std::uint32_t
-	{
-		None = 0,
-		First = BIT(0),
-		Second = BIT(1),
-		Third = BIT(2),
-		High = BIT(31)
-	};
+	None = 0,
+	First = BIT(0),
+	Second = BIT(1),
+	Third = BIT(2),
+	High = BIT(31)
+};
 
-	ENUM_CLASS_BITWISE_OPERATORS(
-		TestFlags)
-} // namespace
+ENUM_CLASS_BITWISE_OPERATORS(
+	TestFlags)
 
 static_assert(spall::hasOnlyKnownFlags(TestFlags::First, TestFlags::First | TestFlags::Second));
 static_assert(not spall::hasOnlyKnownFlags(TestFlags::Third, TestFlags::First | TestFlags::Second));

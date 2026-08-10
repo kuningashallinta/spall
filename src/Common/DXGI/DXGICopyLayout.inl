@@ -1,4 +1,4 @@
-namespace spall::dxgi
+namespace spall::d3d12
 {
 	inline RegionLayout regionLayout(
 		Format format,
@@ -15,4 +15,4 @@ namespace spall::dxgi
 
 		return layout;
 	}
-} // namespace spall::dxgi
+} // namespace spall::d3d12

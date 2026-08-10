@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 #pragma once
 
 #include <spall/Common/Enums/PresentMode.h>
@@ -10,6 +13,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <vector>
 
 namespace spall::vk
@@ -66,6 +70,25 @@ namespace spall::vk
 			std::uint32_t height);
 
 	private:
+		struct SurfaceFormatSelection
+		{
+			VkFormat VkSurfaceFormat = VK_FORMAT_UNDEFINED;
+			VkColorSpaceKHR ColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+			Format SelectedFormat = Format::Unknown;
+		};
+
+		static std::optional<SurfaceFormatSelection> chooseSurfaceFormat(
+			const std::vector<VkSurfaceFormatKHR>& availableFormats,
+			Format requestedFormat);
+
+		static VkExtent2D chooseSwapExtent(
+			const VkSurfaceCapabilitiesKHR& capabilities,
+			std::uint32_t width,
+			std::uint32_t height);
+
+		static VkCompositeAlphaFlagBitsKHR chooseCompositeAlpha(
+			const VkSurfaceCapabilitiesKHR& capabilities);
+
 		Status createFrameResources(std::uint32_t frameCount);
 		void destroyFrameResources(void);
 

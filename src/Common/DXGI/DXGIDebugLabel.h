@@ -9,7 +9,7 @@
 
 #include <windows.h>
 
-namespace spall::dxgi
+namespace spall::d3d12
 {
 	/// Marker payload versions the D3D12 event API accepts; a wide string is the widest understood form.
 	inline constexpr UINT UnicodeEventVersion = 0;
@@ -25,6 +25,6 @@ namespace spall::dxgi
 	{
 		return static_cast<UINT>((wideLabel.size() + 1) * sizeof(wchar_t));
 	}
-} // namespace spall::dxgi
+} // namespace spall::d3d12
 
 #include <src/Common/DXGI/DXGIDebugLabel.inl>

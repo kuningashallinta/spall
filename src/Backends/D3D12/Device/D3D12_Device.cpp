@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 #include <src/Backends/D3D12/Device/D3D12_Device.h>
 
 #include <src/Backends/D3D12/CommandList/D3D12_CommandList.h>
@@ -43,7 +46,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return dxgi::mapHResult(hr);
+			return mapHResult(hr);
 		}
 
 		m_GraphicsQueue = std::make_unique<GraphicsQueue>(*this, *m_CommandQueue.Get());
@@ -59,7 +62,7 @@ namespace spall::d3d12
 
 		if (FAILED(computeHr))
 		{
-			return dxgi::mapHResult(computeHr);
+			return mapHResult(computeHr);
 		}
 
 		m_ComputeQueue = std::make_unique<ComputeQueue>(*this, *m_ComputeCommandQueue.Get());
@@ -170,7 +173,7 @@ namespace spall::d3d12
 
 			if (FAILED(hr))
 			{
-				return dxgi::mapHResult(hr);
+				return mapHResult(hr);
 			}
 
 			*signatures[signatureIndex] = std::move(signature);
@@ -196,7 +199,7 @@ namespace spall::d3d12
 		SPALL_TRY(validateFormatCapabilityQuery(format, capabilities));
 
 		D3D12_FEATURE_DATA_FORMAT_SUPPORT formatSupport = {};
-		formatSupport.Format = dxgi::nativeFormat(format);
+		formatSupport.Format = nativeFormat(format);
 
 		if (formatSupport.Format == DXGI_FORMAT_UNKNOWN)
 		{
@@ -207,7 +210,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return dxgi::mapHResult(hr);
+			return mapHResult(hr);
 		}
 
 		*capabilities = formatCapabilities(format, formatSupport.Support1);

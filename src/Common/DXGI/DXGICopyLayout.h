@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 #pragma once
 
 #include <spall/Common/Enums/Format.h>
@@ -6,7 +9,7 @@
 
 #include <cstdint>
 
-namespace spall::dxgi
+namespace spall::d3d12
 {
 	/// Describes the tightly packed rows a texture region occupies in a buffer.
 	struct RegionLayout
@@ -22,6 +25,6 @@ namespace spall::dxgi
 	inline RegionLayout regionLayout(
 		Format format,
 		const TextureRegion& region);
-} // namespace spall::dxgi
+} // namespace spall::d3d12
 
 #include <src/Common/DXGI/DXGICopyLayout.inl>

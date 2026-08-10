@@ -4,42 +4,39 @@
 
 #include <span>
 
-namespace
+static int VertexBufferA = 0;
+static int VertexBufferB = 0;
+
+static spall::VertexBindingInfo binding(
+	std::uint32_t slot,
+	std::uint32_t stride)
 {
-	int VertexBufferA = 0;
-	int VertexBufferB = 0;
+	spall::VertexBindingInfo info = {};
+	info.Binding = slot;
+	info.Stride = stride;
 
-	spall::VertexBindingInfo binding(
-		std::uint32_t slot,
-		std::uint32_t stride)
-	{
-		spall::VertexBindingInfo info = {};
-		info.Binding = slot;
-		info.Stride = stride;
+	return info;
+}
 
-		return info;
-	}
+static spall::BoundVertexBuffer bound(
+	const void* resource,
+	std::uint32_t stride)
+{
+	spall::BoundVertexBuffer slot = {};
+	slot.Resource = resource;
+	slot.Stride = stride;
 
-	spall::BoundVertexBuffer bound(
-		const void* resource,
-		std::uint32_t stride)
-	{
-		spall::BoundVertexBuffer slot = {};
-		slot.Resource = resource;
-		slot.Stride = stride;
+	return slot;
+}
 
-		return slot;
-	}
-
-	spall::Status drawState(
-		std::span<const spall::VertexBindingInfo> pipelineBindings,
-		std::span<const spall::BoundVertexBuffer> boundSlots,
-		bool hasIndexBuffer = true,
-		bool indexed = false)
-	{
-		return spall::validateDrawState(true, true, true, true, pipelineBindings, boundSlots, hasIndexBuffer, indexed);
-	}
-} // namespace
+static spall::Status drawState(
+	std::span<const spall::VertexBindingInfo> pipelineBindings,
+	std::span<const spall::BoundVertexBuffer> boundSlots,
+	bool hasIndexBuffer = true,
+	bool indexed = false)
+{
+	return spall::validateDrawState(true, true, true, true, pipelineBindings, boundSlots, hasIndexBuffer, indexed);
+}
 
 TEST_CASE(
 	"Recording state must match what the call expects",

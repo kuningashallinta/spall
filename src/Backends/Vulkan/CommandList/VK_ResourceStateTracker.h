@@ -1,8 +1,12 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 #pragma once
 
 #include <spall/Common/Enums/ResourceStateFlags.h>
 #include <spall/Resources/Texture/TextureSubresourceRange.h>
 #include <src/Backends/Vulkan/Common/VK_Error.h>
+#include <src/Backends/Vulkan/Common/VK_TextureStateInfo.h>
 
 #include <cstdint>
 #include <unordered_map>
@@ -75,6 +79,16 @@ namespace spall::vk
 		void reset(void);
 
 	private:
+		static void appendImageBarrier(
+			std::vector<VkImageMemoryBarrier>& barriers,
+			VkImage image,
+			VkImageAspectFlags aspectMask,
+			const TextureStateInfo& before,
+			const TextureStateInfo& after,
+			std::uint32_t mipLevel,
+			std::uint32_t baseArrayLayer,
+			std::uint32_t arrayLayers);
+
 		static ResourceStateFlags globalSubresourceState(
 			const Texture& texture,
 			std::uint32_t subresource);

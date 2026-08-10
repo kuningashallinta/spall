@@ -4,24 +4,21 @@
 
 #include <limits>
 
-namespace
-{
-	constexpr spall::Filter EveryFilter[] = {spall::Filter::Nearest, spall::Filter::Linear};
-	constexpr spall::AddressMode EveryAddressMode[] = {spall::AddressMode::ClampToEdge, spall::AddressMode::Repeat};
-	constexpr spall::CompareOp EveryCompareOp[] = {
-		spall::CompareOp::Never,
-		spall::CompareOp::Less,
-		spall::CompareOp::Equal,
-		spall::CompareOp::LessOrEqual,
-		spall::CompareOp::Greater,
-		spall::CompareOp::NotEqual,
-		spall::CompareOp::GreaterOrEqual,
-		spall::CompareOp::Always};
+static constexpr spall::Filter EveryFilter[] = {spall::Filter::Nearest, spall::Filter::Linear};
+static constexpr spall::AddressMode EveryAddressMode[] = {spall::AddressMode::ClampToEdge, spall::AddressMode::Repeat};
+static constexpr spall::CompareOp EveryCompareOp[] = {
+	spall::CompareOp::Never,
+	spall::CompareOp::Less,
+	spall::CompareOp::Equal,
+	spall::CompareOp::LessOrEqual,
+	spall::CompareOp::Greater,
+	spall::CompareOp::NotEqual,
+	spall::CompareOp::GreaterOrEqual,
+	spall::CompareOp::Always};
 
-	constexpr spall::Filter InvalidFilter = static_cast<spall::Filter>(99);
-	constexpr spall::AddressMode InvalidAddressMode = static_cast<spall::AddressMode>(99);
-	constexpr spall::CompareOp InvalidCompareOp = static_cast<spall::CompareOp>(99);
-} // namespace
+static constexpr spall::Filter InvalidFilter = static_cast<spall::Filter>(99);
+static constexpr spall::AddressMode InvalidAddressMode = static_cast<spall::AddressMode>(99);
+static constexpr spall::CompareOp InvalidCompareOp = static_cast<spall::CompareOp>(99);
 
 TEST_CASE(
 	"A default sampler is valid",

@@ -7,28 +7,22 @@
 #include <limits>
 #include <span>
 
-namespace
+static FakeShader VertexShader;
+static FakeShader FragmentShader;
+
+static spall::PipelineCreateInfo validPipeline()
 {
-	using spall::tests::FakeResourceSetLayout;
-	using spall::tests::FakeShader;
+	spall::PipelineCreateInfo info = {};
+	info.VertexShader = spall::PipelineShaderStageInfo {&VertexShader, "vsMain"};
+	info.FragmentShader = spall::PipelineShaderStageInfo {&FragmentShader, "psMain"};
+	info.PrimitiveTopology = spall::PrimitiveTopology::TriangleStrip;
+	info.CullMode = spall::CullMode::None;
+	info.FrontFace = spall::FrontFace::Clockwise;
+	info.ColorTargetFormats[0] = spall::Format::BGRA8;
+	info.ColorTargetFormatCount = 1;
 
-	FakeShader VertexShader;
-	FakeShader FragmentShader;
-
-	spall::PipelineCreateInfo validPipeline()
-	{
-		spall::PipelineCreateInfo info = {};
-		info.VertexShader = spall::PipelineShaderStageInfo {&VertexShader, "vsMain"};
-		info.FragmentShader = spall::PipelineShaderStageInfo {&FragmentShader, "psMain"};
-		info.PrimitiveTopology = spall::PrimitiveTopology::TriangleStrip;
-		info.CullMode = spall::CullMode::None;
-		info.FrontFace = spall::FrontFace::Clockwise;
-		info.ColorTargetFormats[0] = spall::Format::BGRA8;
-		info.ColorTargetFormatCount = 1;
-
-		return info;
-	}
-} // namespace
+	return info;
+}
 
 TEST_CASE(
 	"A minimal graphics pipeline is valid",
@@ -41,7 +35,7 @@ TEST_CASE(
 	"A pipeline accepts an optional geometry shader",
 	"[pipeline][stages]")
 {
-	spall::tests::FakeShader geometry;
+	FakeShader geometry;
 	spall::PipelineCreateInfo info = validPipeline();
 	info.GeometryShader = spall::PipelineShaderStageInfo {&geometry, "gsMain"};
 
@@ -52,8 +46,8 @@ TEST_CASE(
 	"Tessellation requires both a control and an evaluation shader",
 	"[pipeline][stages][tessellation]")
 {
-	spall::tests::FakeShader control;
-	spall::tests::FakeShader evaluation;
+	FakeShader control;
+	FakeShader evaluation;
 
 	spall::PipelineCreateInfo onlyControl = validPipeline();
 	onlyControl.PrimitiveTopology = spall::PrimitiveTopology::PatchList;
@@ -73,8 +67,8 @@ TEST_CASE(
 	"Tessellation and patch-list topology require each other",
 	"[pipeline][stages][tessellation]")
 {
-	spall::tests::FakeShader control;
-	spall::tests::FakeShader evaluation;
+	FakeShader control;
+	FakeShader evaluation;
 
 	spall::PipelineCreateInfo tessWithoutPatch = validPipeline();
 	tessWithoutPatch.PatchControlPoints = 3;
@@ -92,8 +86,8 @@ TEST_CASE(
 	"Tessellation rejects an out-of-range patch control-point count",
 	"[pipeline][stages][tessellation]")
 {
-	spall::tests::FakeShader control;
-	spall::tests::FakeShader evaluation;
+	FakeShader control;
+	FakeShader evaluation;
 
 	spall::PipelineCreateInfo info = validPipeline();
 	info.PrimitiveTopology = spall::PrimitiveTopology::PatchList;
@@ -649,25 +643,22 @@ TEST_CASE(
 	CHECK(spall::validateComputePipelineCreateInfo(info) != spall::SUCCESS);
 }
 
-namespace
+static FakeShader RayGenShader;
+static FakeShader MissShader;
+static FakeShader ClosestHitShader;
+
+static spall::RayTracingPipelineCreateInfo validRayTracingPipeline(
+	std::span<const spall::PipelineShaderStageInfo> missShaders,
+	std::span<const spall::RayTracingHitGroup> hitGroups)
 {
-	FakeShader RayGenShader;
-	FakeShader MissShader;
-	FakeShader ClosestHitShader;
+	spall::RayTracingPipelineCreateInfo info = {};
+	info.RayGenerationShader = spall::PipelineShaderStageInfo {&RayGenShader, "rayGenMain"};
+	info.MissShaders = missShaders;
+	info.HitGroups = hitGroups;
+	info.MaxPayloadSize = 16;
 
-	spall::RayTracingPipelineCreateInfo validRayTracingPipeline(
-		std::span<const spall::PipelineShaderStageInfo> missShaders,
-		std::span<const spall::RayTracingHitGroup> hitGroups)
-	{
-		spall::RayTracingPipelineCreateInfo info = {};
-		info.RayGenerationShader = spall::PipelineShaderStageInfo {&RayGenShader, "rayGenMain"};
-		info.MissShaders = missShaders;
-		info.HitGroups = hitGroups;
-		info.MaxPayloadSize = 16;
-
-		return info;
-	}
-} // namespace
+	return info;
+}
 
 TEST_CASE(
 	"A minimal ray-tracing pipeline is valid",

@@ -24,7 +24,7 @@ TEST_CASE(
 	"A timestamp write stays inside its query pool",
 	"[query][write]")
 {
-	const spall::QueryPoolInfo info = spall::tests::queryPoolInfo(8);
+	const spall::QueryPoolInfo info = {.TimestampCount = 8};
 
 	CHECK(spall::validateTimestampWrite(info, 0) == spall::SUCCESS);
 	CHECK(spall::validateTimestampWrite(info, 7) == spall::SUCCESS);
@@ -36,7 +36,7 @@ TEST_CASE(
 	"A timestamp read stays inside its query pool",
 	"[query][read]")
 {
-	const spall::QueryPoolInfo info = spall::tests::queryPoolInfo(8);
+	const spall::QueryPoolInfo info = {.TimestampCount = 8};
 
 	CHECK(spall::validateTimestampRead(info, 0, 8) == spall::SUCCESS);
 	CHECK(spall::validateTimestampRead(info, 6, 2) == spall::SUCCESS);
@@ -48,7 +48,7 @@ TEST_CASE(
 	"A timestamp read rejects an empty range",
 	"[query][read]")
 {
-	const spall::QueryPoolInfo info = spall::tests::queryPoolInfo(8);
+	const spall::QueryPoolInfo info = {.TimestampCount = 8};
 
 	CHECK(spall::validateTimestampRead(info, 0, 0) == spall::ERR_INVALID_SIZE);
 	CHECK(spall::validateTimestampRead(info, 8, 0) == spall::ERR_INVALID_SIZE);
@@ -58,7 +58,7 @@ TEST_CASE(
 	"A timestamp read range cannot overflow its bounds check",
 	"[query][read]")
 {
-	const spall::QueryPoolInfo info = spall::tests::queryPoolInfo(8);
+	const spall::QueryPoolInfo info = {.TimestampCount = 8};
 	const std::uint32_t maximum = (std::numeric_limits<std::uint32_t>::max)();
 
 	CHECK(spall::validateTimestampRead(info, maximum, 8) == spall::ERR_INVALID_RANGE);

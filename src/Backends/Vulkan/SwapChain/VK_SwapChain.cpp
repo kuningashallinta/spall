@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 #include <spall/Common/Assert.h>
 #include <src/Backends/Vulkan/SwapChain/VK_SwapChain.h>
 
@@ -15,77 +18,67 @@
 
 namespace spall::vk
 {
-	namespace
+	std::optional<SwapChain::SurfaceFormatSelection> SwapChain::chooseSurfaceFormat(
+		const std::vector<VkSurfaceFormatKHR>& availableFormats,
+		Format requestedFormat)
 	{
-		struct SurfaceFormatSelection
-		{
-			VkFormat VkSurfaceFormat = VK_FORMAT_UNDEFINED;
-			VkColorSpaceKHR ColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
-			spall::Format Format = spall::Format::Unknown;
-		};
+		const std::optional<VkFormat> requestedVkFormat = toVkFormat(requestedFormat);
 
-		std::optional<SurfaceFormatSelection> chooseSurfaceFormat(
-			const std::vector<VkSurfaceFormatKHR>& availableFormats,
-			Format requestedFormat)
+		if (requestedVkFormat.has_value())
 		{
-			const std::optional<VkFormat> requestedVkFormat = toVkFormat(requestedFormat);
-
-			if (requestedVkFormat.has_value())
+			if ((availableFormats.size() == 1) and (availableFormats[0].format == VK_FORMAT_UNDEFINED))
 			{
-				if ((availableFormats.size() == 1) and (availableFormats[0].format == VK_FORMAT_UNDEFINED))
-				{
-					return SurfaceFormatSelection {requestedVkFormat.value(), availableFormats[0].colorSpace, requestedFormat};
-				}
-
-				for (const VkSurfaceFormatKHR& availableFormat : availableFormats)
-				{
-					if (availableFormat.format == requestedVkFormat.value())
-					{
-						return SurfaceFormatSelection {availableFormat.format, availableFormat.colorSpace, requestedFormat};
-					}
-				}
+				return SurfaceFormatSelection {requestedVkFormat.value(), availableFormats[0].colorSpace, requestedFormat};
 			}
 
-			return std::nullopt;
-		}
-
-		VkExtent2D chooseSwapExtent(
-			const VkSurfaceCapabilitiesKHR& capabilities,
-			std::uint32_t width,
-			std::uint32_t height)
-		{
-			if (capabilities.currentExtent.width != UINT32_MAX)
+			for (const VkSurfaceFormatKHR& availableFormat : availableFormats)
 			{
-				return capabilities.currentExtent;
-			}
-
-			VkExtent2D extent = {};
-			extent.width = std::clamp(width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
-			extent.height = std::clamp(height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
-
-			return extent;
-		}
-
-		VkCompositeAlphaFlagBitsKHR chooseCompositeAlpha(
-			const VkSurfaceCapabilitiesKHR& capabilities)
-		{
-			const VkCompositeAlphaFlagBitsKHR candidates[] = {
-				VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
-				VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR,
-				VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR,
-				VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR};
-
-			for (VkCompositeAlphaFlagBitsKHR candidate : candidates)
-			{
-				if ((capabilities.supportedCompositeAlpha & candidate) != 0)
+				if (availableFormat.format == requestedVkFormat.value())
 				{
-					return candidate;
+					return SurfaceFormatSelection {availableFormat.format, availableFormat.colorSpace, requestedFormat};
 				}
 			}
-
-			return VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 		}
-	} // namespace
+
+		return std::nullopt;
+	}
+
+	VkExtent2D SwapChain::chooseSwapExtent(
+		const VkSurfaceCapabilitiesKHR& capabilities,
+		std::uint32_t width,
+		std::uint32_t height)
+	{
+		if (capabilities.currentExtent.width != UINT32_MAX)
+		{
+			return capabilities.currentExtent;
+		}
+
+		VkExtent2D extent = {};
+		extent.width = std::clamp(width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
+		extent.height = std::clamp(height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
+
+		return extent;
+	}
+
+	VkCompositeAlphaFlagBitsKHR SwapChain::chooseCompositeAlpha(
+		const VkSurfaceCapabilitiesKHR& capabilities)
+	{
+		const VkCompositeAlphaFlagBitsKHR candidates[] = {
+			VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+			VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR,
+			VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR,
+			VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR};
+
+		for (VkCompositeAlphaFlagBitsKHR candidate : candidates)
+		{
+			if ((capabilities.supportedCompositeAlpha & candidate) != 0)
+			{
+				return candidate;
+			}
+		}
+
+		return VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+	}
 
 	SwapChain::SwapChain(
 		Device& device,
@@ -373,7 +366,7 @@ namespace spall::vk
 		m_Generation = std::move(newGeneration);
 		m_Width = extent.width;
 		m_Height = extent.height;
-		m_Format = surfaceFormat->Format;
+		m_Format = surfaceFormat->SelectedFormat;
 		m_VkFormat = surfaceFormat->VkSurfaceFormat;
 		m_ColorSpace = surfaceFormat->ColorSpace;
 		m_CurrentFrameSlot = 0;

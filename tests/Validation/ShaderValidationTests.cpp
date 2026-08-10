@@ -5,20 +5,17 @@
 #include <cstddef>
 #include <span>
 
-namespace
+static const std::byte Bytecode[8] = {};
+
+static spall::ShaderCreateInfo shaderCreateInfo(
+	spall::ShaderStage stage)
 {
-	const std::byte Bytecode[8] = {};
+	spall::ShaderCreateInfo info = {};
+	info.Stage = stage;
+	info.Bytecode = std::span(Bytecode);
 
-	spall::ShaderCreateInfo shaderCreateInfo(
-		spall::ShaderStage stage)
-	{
-		spall::ShaderCreateInfo info = {};
-		info.Stage = stage;
-		info.Bytecode = std::span(Bytecode);
-
-		return info;
-	}
-} // namespace
+	return info;
+}
 
 TEST_CASE(
 	"Every supported shader stage is accepted",

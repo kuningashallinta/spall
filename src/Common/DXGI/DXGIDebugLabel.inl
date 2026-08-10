@@ -1,4 +1,4 @@
-namespace spall::dxgi
+namespace spall::d3d12
 {
 	inline Status wideDebugLabel(
 		const char* label,
@@ -30,4 +30,4 @@ namespace spall::dxgi
 
 		return {};
 	}
-} // namespace spall::dxgi
+} // namespace spall::d3d12

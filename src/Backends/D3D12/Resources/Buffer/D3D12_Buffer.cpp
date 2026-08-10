@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 #include <src/Backends/D3D12/Resources/Buffer/D3D12_Buffer.h>
 
 #include <spall/Common/Enums/RenderBackendType.h>

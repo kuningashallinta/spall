@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 #include <src/Backends/Vulkan/CommandList/VK_ResourceStateTracker.h>
 
 #include <src/Backends/Vulkan/Common/VK_EnumMappings.h>
@@ -11,65 +14,62 @@
 
 namespace spall::vk
 {
-	namespace
+	void ResourceStateTracker::appendImageBarrier(
+		std::vector<VkImageMemoryBarrier>& barriers,
+		VkImage image,
+		VkImageAspectFlags aspectMask,
+		const TextureStateInfo& before,
+		const TextureStateInfo& after,
+		std::uint32_t mipLevel,
+		std::uint32_t baseArrayLayer,
+		std::uint32_t arrayLayers)
 	{
-		void appendImageBarrier(
-			std::vector<VkImageMemoryBarrier>& barriers,
-			VkImage image,
-			VkImageAspectFlags aspectMask,
-			const TextureStateInfo& before,
-			const TextureStateInfo& after,
-			std::uint32_t mipLevel,
-			std::uint32_t baseArrayLayer,
-			std::uint32_t arrayLayers)
+		if (not barriers.empty())
 		{
-			if (not barriers.empty())
+			VkImageMemoryBarrier& last = barriers.back();
+			const bool sameTransition = (last.image == image) and (last.subresourceRange.aspectMask == aspectMask) and
+				(last.oldLayout == before.layout) and (last.newLayout == after.layout) and
+				(last.srcAccessMask == before.access) and (last.dstAccessMask == after.access);
+
+			if (sameTransition)
 			{
-				VkImageMemoryBarrier& last = barriers.back();
-				const bool sameTransition = (last.image == image) and (last.subresourceRange.aspectMask == aspectMask) and
-					(last.oldLayout == before.layout) and (last.newLayout == after.layout) and
-					(last.srcAccessMask == before.access) and (last.dstAccessMask == after.access);
+				VkImageSubresourceRange& range = last.subresourceRange;
 
-				if (sameTransition)
+				if ((range.levelCount == 1) and (range.baseMipLevel == mipLevel) and
+					((range.baseArrayLayer + range.layerCount) == baseArrayLayer))
 				{
-					VkImageSubresourceRange& range = last.subresourceRange;
+					range.layerCount += arrayLayers;
 
-					if ((range.levelCount == 1) and (range.baseMipLevel == mipLevel) and
-						((range.baseArrayLayer + range.layerCount) == baseArrayLayer))
-					{
-						range.layerCount += arrayLayers;
+					return;
+				}
 
-						return;
-					}
+				if ((range.baseArrayLayer == baseArrayLayer) and (range.layerCount == arrayLayers) and
+					((range.baseMipLevel + range.levelCount) == mipLevel))
+				{
+					++range.levelCount;
 
-					if ((range.baseArrayLayer == baseArrayLayer) and (range.layerCount == arrayLayers) and
-						((range.baseMipLevel + range.levelCount) == mipLevel))
-					{
-						++range.levelCount;
-
-						return;
-					}
+					return;
 				}
 			}
-
-			VkImageMemoryBarrier barrier = {};
-			barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-			barrier.srcAccessMask = before.access;
-			barrier.dstAccessMask = after.access;
-			barrier.oldLayout = before.layout;
-			barrier.newLayout = after.layout;
-			barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-			barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-			barrier.image = image;
-			barrier.subresourceRange.aspectMask = aspectMask;
-			barrier.subresourceRange.baseMipLevel = mipLevel;
-			barrier.subresourceRange.levelCount = 1;
-			barrier.subresourceRange.baseArrayLayer = baseArrayLayer;
-			barrier.subresourceRange.layerCount = arrayLayers;
-
-			barriers.push_back(barrier);
 		}
-	} // namespace
+
+		VkImageMemoryBarrier barrier = {};
+		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+		barrier.srcAccessMask = before.access;
+		barrier.dstAccessMask = after.access;
+		barrier.oldLayout = before.layout;
+		barrier.newLayout = after.layout;
+		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		barrier.image = image;
+		barrier.subresourceRange.aspectMask = aspectMask;
+		barrier.subresourceRange.baseMipLevel = mipLevel;
+		barrier.subresourceRange.levelCount = 1;
+		barrier.subresourceRange.baseArrayLayer = baseArrayLayer;
+		barrier.subresourceRange.layerCount = arrayLayers;
+
+		barriers.push_back(barrier);
+	}
 
 	ResourceStateTracker::ResourceStateTracker(
 		VkCommandBuffer commandBuffer)

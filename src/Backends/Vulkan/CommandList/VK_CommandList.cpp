@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 #include <spall/Common/Assert.h>
 #include <src/Backends/Vulkan/CommandList/VK_CommandList.h>
 
@@ -547,6 +550,7 @@ namespace spall::vk
 		{
 			SPALL_ASSERT(resourceSet);
 			SPALL_VERIFY(resourceSet->m_CommandListReferenceCount != 0);
+
 			--resourceSet->m_CommandListReferenceCount;
 		}
 
@@ -2931,6 +2935,7 @@ namespace spall::vk
 		copyRegion.bufferOffset = sourceOffset;
 		copyRegion.bufferRowLength = (sourceRowPitch / formatInfo->bytesPerBlock) * formatInfo->blockWidth;
 		copyRegion.imageSubresource.aspectMask = destinationTexture->m_AspectMask;
+
 		const TextureRegion resolved = resolveTextureRegion(destinationTexture->m_Info, region);
 
 		copyRegion.imageSubresource.mipLevel = resolved.MipLevel;
@@ -3043,6 +3048,7 @@ namespace spall::vk
 		copyRegion.bufferOffset = destinationOffset;
 		copyRegion.bufferRowLength = (destinationRowPitch / formatInfo->bytesPerBlock) * formatInfo->blockWidth;
 		copyRegion.imageSubresource.aspectMask = sourceTexture->m_AspectMask;
+
 		const TextureRegion resolved = resolveTextureRegion(sourceTexture->m_Info, region);
 
 		copyRegion.imageSubresource.mipLevel = resolved.MipLevel;

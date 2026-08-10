@@ -1,13 +1,13 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 #pragma once
 
 #include <cstdint>
 
 namespace spall
 {
-	/// Describes the effective limits of a graphics device.
-	///
-	/// Native limits are restricted where Spall RHI exposes a smaller portable
-	/// limit. The values remain constant for the lifetime of the device.
+	/// Graphics device limits.
 	struct DeviceLimits
 	{
 		std::uint32_t MaxTexture2DDimension = 0;

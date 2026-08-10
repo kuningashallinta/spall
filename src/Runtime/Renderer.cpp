@@ -16,19 +16,16 @@
 
 namespace spall
 {
-	namespace
+	void Renderer::destroy(
+		std::unique_ptr<RendererImpl>& impl)
 	{
-		void destroy(
-			std::unique_ptr<RendererImpl>& impl)
+		if (impl)
 		{
-			if (impl)
-			{
-				SPALL_ASSERT(not impl->FrameActive);
-				impl->Device->graphicsQueue().waitIdle();
-				impl.reset();
-			}
+			SPALL_ASSERT(not impl->FrameActive);
+			impl->Device->graphicsQueue().waitIdle();
+			impl.reset();
 		}
-	} // namespace
+	}
 
 	Renderer::Renderer(void) = default;
 
@@ -259,6 +256,7 @@ namespace spall
 		viewport.Width = static_cast<float>(m_Impl->Width);
 		viewport.Height = static_cast<float>(m_Impl->Height);
 		viewport.MaxDepth = 1.0f;
+
 		status = commandList->setViewport(viewport);
 
 		if (status != SUCCESS)
@@ -269,6 +267,7 @@ namespace spall
 		Scissor scissor = {};
 		scissor.Width = m_Impl->Width;
 		scissor.Height = m_Impl->Height;
+
 		status = commandList->setScissor(scissor);
 
 		if (status != SUCCESS)
@@ -318,6 +317,7 @@ namespace spall
 		{
 			m_Impl->Width = 0;
 			m_Impl->Height = 0;
+
 			return status;
 		}
 

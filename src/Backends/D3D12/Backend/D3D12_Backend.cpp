@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 #include <spall/Backends/D3D12/D3D12_Backend.h>
 
 #include <spall/Common/Enums/RenderBackendType.h>
@@ -48,7 +51,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return dxgi::mapHResult(hr);
+			return mapHResult(hr);
 		}
 
 		ComPtr<IDXGIFactory6> factory6;
@@ -71,7 +74,7 @@ namespace spall::d3d12
 
 			if (FAILED(hr))
 			{
-				return dxgi::mapHResult(hr);
+				return mapHResult(hr);
 			}
 
 			DXGI_ADAPTER_DESC1 adapterDesc = {};

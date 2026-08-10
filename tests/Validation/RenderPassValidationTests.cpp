@@ -5,53 +5,48 @@
 
 #include <limits>
 
-namespace
+static spall::FramebufferInfo colorFramebufferInfo()
 {
-	using spall::tests::FakeFramebuffer;
+	spall::FramebufferInfo info = {};
+	info.ColorFormats[0] = spall::Format::RGBA8;
+	info.ColorFormatCount = 1;
 
-	spall::FramebufferInfo colorFramebufferInfo()
-	{
-		spall::FramebufferInfo info = {};
-		info.ColorFormats[0] = spall::Format::RGBA8;
-		info.ColorFormatCount = 1;
+	return info;
+}
 
-		return info;
-	}
+static spall::FramebufferInfo depthFramebufferInfo(
+	spall::Format depthFormat = spall::Format::Depth32Float)
+{
+	spall::FramebufferInfo info = {};
+	info.DepthFormat = depthFormat;
 
-	spall::FramebufferInfo depthFramebufferInfo(
-		spall::Format depthFormat = spall::Format::Depth32Float)
-	{
-		spall::FramebufferInfo info = {};
-		info.DepthFormat = depthFormat;
+	return info;
+}
 
-		return info;
-	}
+static spall::RenderPassBeginInfo colorPass(
+	spall::IFramebuffer& framebuffer)
+{
+	spall::RenderPassBeginInfo info = {};
+	info.Framebuffer = &framebuffer;
+	info.ColorAttachments[0].LoadAction = spall::LoadAction::Clear;
+	info.ColorAttachments[0].StoreAction = spall::StoreAction::Store;
 
-	spall::RenderPassBeginInfo colorPass(
-		spall::IFramebuffer& framebuffer)
-	{
-		spall::RenderPassBeginInfo info = {};
-		info.Framebuffer = &framebuffer;
-		info.ColorAttachments[0].LoadAction = spall::LoadAction::Clear;
-		info.ColorAttachments[0].StoreAction = spall::StoreAction::Store;
+	return info;
+}
 
-		return info;
-	}
+static spall::RenderPassBeginInfo depthPass(
+	spall::IFramebuffer& framebuffer)
+{
+	spall::RenderPassBeginInfo info = {};
+	info.Framebuffer = &framebuffer;
+	info.DepthAttachment.DepthLoadAction = spall::LoadAction::Clear;
+	info.DepthAttachment.DepthStoreAction = spall::StoreAction::Store;
+	info.DepthAttachment.StencilLoadAction = spall::LoadAction::DontCare;
+	info.DepthAttachment.StencilStoreAction = spall::StoreAction::DontCare;
+	info.DepthAttachment.ClearDepth = 1.0f;
 
-	spall::RenderPassBeginInfo depthPass(
-		spall::IFramebuffer& framebuffer)
-	{
-		spall::RenderPassBeginInfo info = {};
-		info.Framebuffer = &framebuffer;
-		info.DepthAttachment.DepthLoadAction = spall::LoadAction::Clear;
-		info.DepthAttachment.DepthStoreAction = spall::StoreAction::Store;
-		info.DepthAttachment.StencilLoadAction = spall::LoadAction::DontCare;
-		info.DepthAttachment.StencilStoreAction = spall::StoreAction::DontCare;
-		info.DepthAttachment.ClearDepth = 1.0f;
-
-		return info;
-	}
-} // namespace
+	return info;
+}
 
 TEST_CASE(
 	"A render pass requires a framebuffer",

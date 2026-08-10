@@ -9,51 +9,48 @@
 #include <cstddef>
 #include <optional>
 
-namespace
+static constexpr std::size_t LastFormatIndex = static_cast<std::size_t>(spall::Format::BC7RGBASrgb);
+
+struct Mapping
 {
-	constexpr std::size_t LastFormatIndex = static_cast<std::size_t>(spall::Format::BC7RGBASrgb);
+	spall::Format Spall;
+	VkFormat Vulkan;
+};
 
-	struct Mapping
-	{
-		spall::Format Spall;
-		VkFormat Vulkan;
-	};
-
-	const Mapping PortableMappings[] = {
-		{spall::Format::R8Snorm, VK_FORMAT_R8_SNORM},
-		{spall::Format::R8UInt, VK_FORMAT_R8_UINT},
-		{spall::Format::R8SInt, VK_FORMAT_R8_SINT},
-		{spall::Format::R16Unorm, VK_FORMAT_R16_UNORM},
-		{spall::Format::R16Snorm, VK_FORMAT_R16_SNORM},
-		{spall::Format::R16UInt, VK_FORMAT_R16_UINT},
-		{spall::Format::R16SInt, VK_FORMAT_R16_SINT},
-		{spall::Format::R16Float, VK_FORMAT_R16_SFLOAT},
-		{spall::Format::R32UInt, VK_FORMAT_R32_UINT},
-		{spall::Format::R32SInt, VK_FORMAT_R32_SINT},
-		{spall::Format::RG8Unorm, VK_FORMAT_R8G8_UNORM},
-		{spall::Format::RG8Snorm, VK_FORMAT_R8G8_SNORM},
-		{spall::Format::RG8UInt, VK_FORMAT_R8G8_UINT},
-		{spall::Format::RG8SInt, VK_FORMAT_R8G8_SINT},
-		{spall::Format::RG16Unorm, VK_FORMAT_R16G16_UNORM},
-		{spall::Format::RG16Snorm, VK_FORMAT_R16G16_SNORM},
-		{spall::Format::RG16UInt, VK_FORMAT_R16G16_UINT},
-		{spall::Format::RG16SInt, VK_FORMAT_R16G16_SINT},
-		{spall::Format::RG32UInt, VK_FORMAT_R32G32_UINT},
-		{spall::Format::RG32SInt, VK_FORMAT_R32G32_SINT},
-		{spall::Format::RGBA8Snorm, VK_FORMAT_R8G8B8A8_SNORM},
-		{spall::Format::RGBA8UInt, VK_FORMAT_R8G8B8A8_UINT},
-		{spall::Format::RGBA8SInt, VK_FORMAT_R8G8B8A8_SINT},
-		{spall::Format::RGBA16Unorm, VK_FORMAT_R16G16B16A16_UNORM},
-		{spall::Format::RGBA16Snorm, VK_FORMAT_R16G16B16A16_SNORM},
-		{spall::Format::RGBA16UInt, VK_FORMAT_R16G16B16A16_UINT},
-		{spall::Format::RGBA16SInt, VK_FORMAT_R16G16B16A16_SINT},
-		{spall::Format::RGBA32UInt, VK_FORMAT_R32G32B32A32_UINT},
-		{spall::Format::RGBA32SInt, VK_FORMAT_R32G32B32A32_SINT},
-		{spall::Format::RGB10A2Unorm, VK_FORMAT_A2B10G10R10_UNORM_PACK32},
-		{spall::Format::RGB10A2UInt, VK_FORMAT_A2B10G10R10_UINT_PACK32},
-		{spall::Format::RG11B10Float, VK_FORMAT_B10G11R11_UFLOAT_PACK32},
-		{spall::Format::RGB9E5Float, VK_FORMAT_E5B9G9R9_UFLOAT_PACK32}};
-} // namespace
+static const Mapping PortableMappings[] = {
+	{spall::Format::R8Snorm, VK_FORMAT_R8_SNORM},
+	{spall::Format::R8UInt, VK_FORMAT_R8_UINT},
+	{spall::Format::R8SInt, VK_FORMAT_R8_SINT},
+	{spall::Format::R16Unorm, VK_FORMAT_R16_UNORM},
+	{spall::Format::R16Snorm, VK_FORMAT_R16_SNORM},
+	{spall::Format::R16UInt, VK_FORMAT_R16_UINT},
+	{spall::Format::R16SInt, VK_FORMAT_R16_SINT},
+	{spall::Format::R16Float, VK_FORMAT_R16_SFLOAT},
+	{spall::Format::R32UInt, VK_FORMAT_R32_UINT},
+	{spall::Format::R32SInt, VK_FORMAT_R32_SINT},
+	{spall::Format::RG8Unorm, VK_FORMAT_R8G8_UNORM},
+	{spall::Format::RG8Snorm, VK_FORMAT_R8G8_SNORM},
+	{spall::Format::RG8UInt, VK_FORMAT_R8G8_UINT},
+	{spall::Format::RG8SInt, VK_FORMAT_R8G8_SINT},
+	{spall::Format::RG16Unorm, VK_FORMAT_R16G16_UNORM},
+	{spall::Format::RG16Snorm, VK_FORMAT_R16G16_SNORM},
+	{spall::Format::RG16UInt, VK_FORMAT_R16G16_UINT},
+	{spall::Format::RG16SInt, VK_FORMAT_R16G16_SINT},
+	{spall::Format::RG32UInt, VK_FORMAT_R32G32_UINT},
+	{spall::Format::RG32SInt, VK_FORMAT_R32G32_SINT},
+	{spall::Format::RGBA8Snorm, VK_FORMAT_R8G8B8A8_SNORM},
+	{spall::Format::RGBA8UInt, VK_FORMAT_R8G8B8A8_UINT},
+	{spall::Format::RGBA8SInt, VK_FORMAT_R8G8B8A8_SINT},
+	{spall::Format::RGBA16Unorm, VK_FORMAT_R16G16B16A16_UNORM},
+	{spall::Format::RGBA16Snorm, VK_FORMAT_R16G16B16A16_SNORM},
+	{spall::Format::RGBA16UInt, VK_FORMAT_R16G16B16A16_UINT},
+	{spall::Format::RGBA16SInt, VK_FORMAT_R16G16B16A16_SINT},
+	{spall::Format::RGBA32UInt, VK_FORMAT_R32G32B32A32_UINT},
+	{spall::Format::RGBA32SInt, VK_FORMAT_R32G32B32A32_SINT},
+	{spall::Format::RGB10A2Unorm, VK_FORMAT_A2B10G10R10_UNORM_PACK32},
+	{spall::Format::RGB10A2UInt, VK_FORMAT_A2B10G10R10_UINT_PACK32},
+	{spall::Format::RG11B10Float, VK_FORMAT_B10G11R11_UFLOAT_PACK32},
+	{spall::Format::RGB9E5Float, VK_FORMAT_E5B9G9R9_UFLOAT_PACK32}};
 
 TEST_CASE(
 	"Vulkan maps sRGB formats in both directions",

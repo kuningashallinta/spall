@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 #pragma once
 
 #include <spall/Common/Limits.h>
@@ -155,6 +158,8 @@ namespace spall::vk
 			std::uint32_t sampleCount);
 
 	private:
+		static VkImageAspectFlags imageAspectMask(Format format);
+
 		Status createPipelineLayout(
 			std::span<const IResourceSetLayout* const> layouts,
 			const PushConstantInfo& pushConstants,

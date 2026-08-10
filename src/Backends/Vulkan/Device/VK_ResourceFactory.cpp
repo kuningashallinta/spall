@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 #include <src/Backends/Vulkan/Device/VK_Device.h>
 
 #include <spall/Common/Assert.h>
@@ -27,18 +30,14 @@
 
 namespace spall::vk
 {
-	namespace
+	VkImageAspectFlags Device::imageAspectMask(
+		Format format)
 	{
-		VkImageAspectFlags imageAspectMask(
-			Format format)
-		{
-			const TextureAspectFlags defaultAspects = vk::defaultAspects(format);
-			const VkImageAspectFlags aspectMask = vk::aspectMask(defaultAspects);
+		const TextureAspectFlags defaultAspects = vk::defaultAspects(format);
+		const VkImageAspectFlags aspectMask = vk::aspectMask(defaultAspects);
 
-			return (aspectMask != 0) ? aspectMask : VK_IMAGE_ASPECT_COLOR_BIT;
-		}
-
-	} // namespace
+		return (aspectMask != 0) ? aspectMask : VK_IMAGE_ASPECT_COLOR_BIT;
+	}
 
 	Status Device::createTexture(
 		const TextureCreateInfo& info,

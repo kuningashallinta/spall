@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 #include <src/Backends/D3D12/Queue/D3D12_ComputeQueue.h>
 
 #include <src/Backends/D3D12/CommandList/D3D12_CommandList.h>

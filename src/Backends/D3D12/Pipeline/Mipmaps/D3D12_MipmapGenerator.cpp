@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 #include <src/Backends/D3D12/Pipeline/Mipmaps/D3D12_MipmapGenerator.h>
 
 #include <src/Backends/D3D12/Device/D3D12_Device.h>
@@ -53,7 +56,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return dxgi::mapHResult(hr);
+			return mapHResult(hr);
 		}
 
 		hr = device.m_Device->CreateRootSignature(
@@ -64,7 +67,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return dxgi::mapHResult(hr);
+			return mapHResult(hr);
 		}
 
 		return {};
@@ -83,7 +86,7 @@ namespace spall::d3d12
 			SPALL_TRY(createRootSignature(device));
 		}
 
-		const DXGI_FORMAT nativeTargetFormat = dxgi::nativeFormat(format);
+		const DXGI_FORMAT nativeTargetFormat = nativeFormat(format);
 		const auto cached = m_PipelineStates.find(nativeTargetFormat);
 
 		if (cached != m_PipelineStates.end())
@@ -115,7 +118,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return dxgi::mapHResult(hr);
+			return mapHResult(hr);
 		}
 
 		*rootSignature = m_RootSignature.Get();

@@ -2,31 +2,28 @@
 
 #include <spall/Common/Resource/SharedObject.h>
 
-namespace
+class TrackedObject final : public spall::SharedObject<spall::IResource>
 {
-	class TrackedObject final : public spall::SharedObject<spall::IResource>
+public:
+	explicit TrackedObject(
+		bool& destroyed)
+		: m_Destroyed(&destroyed)
 	{
-	public:
-		explicit TrackedObject(
-			bool& destroyed)
-			: m_Destroyed(&destroyed)
-		{
-		}
+	}
 
-		~TrackedObject() override
-		{
-			*m_Destroyed = true;
-		}
+	~TrackedObject() override
+	{
+		*m_Destroyed = true;
+	}
 
-		spall::RenderBackendType backendType() const override
-		{
-			return spall::RenderBackendType::Vulkan;
-		}
+	spall::RenderBackendType backendType() const override
+	{
+		return spall::RenderBackendType::Vulkan;
+	}
 
-	private:
-		bool* m_Destroyed = nullptr;
-	};
-} // namespace
+private:
+	bool* m_Destroyed = nullptr;
+};
 
 TEST_CASE(
 	"A shared object deletes itself after its last release",

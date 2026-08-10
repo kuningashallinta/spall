@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 #include "Shaders.h"
 
 #include <spall/CommandList/ICommandList.h>
@@ -19,38 +22,35 @@
 #include <cstdlib>
 #include <span>
 
-namespace
+static constexpr std::uint32_t WindowWidth = 800;
+static constexpr std::uint32_t WindowHeight = 600;
+
+static constexpr std::uint32_t ImageWidth = 512;
+static constexpr std::uint32_t ImageHeight = 512;
+static constexpr std::uint32_t ComputeGroupSize = 8;
+
+static constexpr spall::RenderBackendType BackendType = spall::RenderBackendType::Vulkan;
+
+static std::uint32_t groupCount(
+	std::uint32_t extent)
 {
-	constexpr std::uint32_t WindowWidth = 800;
-	constexpr std::uint32_t WindowHeight = 600;
+	return (extent + ComputeGroupSize - 1) / ComputeGroupSize;
+}
 
-	constexpr std::uint32_t ImageWidth = 512;
-	constexpr std::uint32_t ImageHeight = 512;
-	constexpr std::uint32_t ComputeGroupSize = 8;
-
-	constexpr spall::RenderBackendType BackendType = spall::RenderBackendType::Vulkan;
-
-	std::uint32_t groupCount(
-		std::uint32_t extent)
+static LRESULT CALLBACK windowProcedure(
+	HWND window,
+	UINT message,
+	WPARAM wordParameter,
+	LPARAM longParameter)
+{
+	if (message == WM_DESTROY)
 	{
-		return (extent + ComputeGroupSize - 1) / ComputeGroupSize;
+		PostQuitMessage(0);
+		return 0;
 	}
 
-	LRESULT CALLBACK windowProcedure(
-		HWND window,
-		UINT message,
-		WPARAM wordParameter,
-		LPARAM longParameter)
-	{
-		if (message == WM_DESTROY)
-		{
-			PostQuitMessage(0);
-			return 0;
-		}
-
-		return DefWindowProcW(window, message, wordParameter, longParameter);
-	}
-} // namespace
+	return DefWindowProcW(window, message, wordParameter, longParameter);
+}
 
 int WINAPI wWinMain(
 	HINSTANCE instance,
@@ -85,8 +85,7 @@ int WINAPI wWinMain(
 
 	ShowWindow(window, showCommand);
 
-	spall::Renderer renderer = spall::Renderer::create({
-		.Backend = BackendType,
+	spall::Renderer renderer = spall::Renderer::create({.Backend = BackendType,
 		.SwapChain = {
 			.Window = {.Value = window},
 			.Width = WindowWidth,
@@ -112,9 +111,9 @@ int WINAPI wWinMain(
 	{
 		case spall::RenderBackendType::D3D12:
 		{
-			computeShader = device.pipelines().createShader(spall::ShaderStage::Compute, shaders::HlslCompute);
-			vertexShader = device.pipelines().createShader(spall::ShaderStage::Vertex, shaders::HlslVertex);
-			fragmentShader = device.pipelines().createShader(spall::ShaderStage::Fragment, shaders::HlslFragment);
+			computeShader = device.pipelines().createShader(spall::ShaderStage::Compute, spall::HlslCompute);
+			vertexShader = device.pipelines().createShader(spall::ShaderStage::Vertex, spall::HlslVertex);
+			fragmentShader = device.pipelines().createShader(spall::ShaderStage::Fragment, spall::HlslFragment);
 
 			computeEntryPoint = "csMain";
 			vertexEntryPoint = "vsMain";
@@ -124,9 +123,9 @@ int WINAPI wWinMain(
 
 		case spall::RenderBackendType::Vulkan:
 		{
-			computeShader = device.pipelines().createShader(spall::ShaderStage::Compute, shaders::VulkanCompute);
-			vertexShader = device.pipelines().createShader(spall::ShaderStage::Vertex, shaders::VulkanVertex);
-			fragmentShader = device.pipelines().createShader(spall::ShaderStage::Fragment, shaders::VulkanFragment);
+			computeShader = device.pipelines().createShader(spall::ShaderStage::Compute, spall::VulkanCompute);
+			vertexShader = device.pipelines().createShader(spall::ShaderStage::Vertex, spall::VulkanVertex);
+			fragmentShader = device.pipelines().createShader(spall::ShaderStage::Fragment, spall::VulkanFragment);
 
 			computeEntryPoint = "main";
 			vertexEntryPoint = "main";
@@ -135,14 +134,12 @@ int WINAPI wWinMain(
 		}
 	}
 
-	const spall::Resource<spall::ITexture> texture = device.resources().createTexture({
-		.Width = ImageWidth,
+	const spall::Resource<spall::ITexture> texture = device.resources().createTexture({.Width = ImageWidth,
 		.Height = ImageHeight,
 		.Format = spall::Format::RGBA8,
 		.Usage = spall::TextureUsageFlags::Storage | spall::TextureUsageFlags::Sampled});
 
-	const spall::Resource<spall::ITextureView> textureView = device.resources().createTextureView({
-		.Texture = texture.get(),
+	const spall::Resource<spall::ITextureView> textureView = device.resources().createTextureView({.Texture = texture.get(),
 		.Aspects = spall::TextureAspectFlags::Color});
 
 	const spall::Resource<spall::ISampler> sampler = device.resources().createSampler({});
@@ -172,15 +169,13 @@ int WINAPI wWinMain(
 
 	const spall::IResourceSetLayout* const computeLayouts[] = {computeLayout.get()};
 
-	const spall::Resource<spall::IPipeline> computePipeline = device.pipelines().createComputePipeline({
-		.ComputeShader = {computeShader.get(), computeEntryPoint},
+	const spall::Resource<spall::IPipeline> computePipeline = device.pipelines().createComputePipeline({.ComputeShader = {computeShader.get(), computeEntryPoint},
 		.ResourceSetLayouts = computeLayouts,
 		.PushConstants = {spall::ShaderStageFlags::Compute, sizeof(float)}});
 
 	const spall::IResourceSetLayout* const sampleLayouts[] = {sampleLayout.get()};
 
-	const spall::Resource<spall::IPipeline> pipeline = device.pipelines().createPipeline({
-		.VertexShader = {vertexShader.get(), vertexEntryPoint},
+	const spall::Resource<spall::IPipeline> pipeline = device.pipelines().createPipeline({.VertexShader = {vertexShader.get(), vertexEntryPoint},
 		.FragmentShader = {fragmentShader.get(), fragmentEntryPoint},
 		.ResourceSetLayouts = sampleLayouts,
 		.PrimitiveTopology = spall::PrimitiveTopology::TriangleList,

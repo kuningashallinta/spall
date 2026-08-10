@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 #include <src/Backends/D3D12/Device/D3D12_Device.h>
 
 #include <spall/Common/Assert.h>
@@ -45,7 +48,7 @@ namespace spall::d3d12
 
 			if (FAILED(hr))
 			{
-				return dxgi::mapHResult(hr);
+				return mapHResult(hr);
 			}
 
 			hr = m_Device->CreateCommandList(
@@ -57,7 +60,7 @@ namespace spall::d3d12
 
 			if (FAILED(hr))
 			{
-				return dxgi::mapHResult(hr);
+				return mapHResult(hr);
 			}
 		}
 		else
@@ -66,14 +69,14 @@ namespace spall::d3d12
 
 			if (FAILED(hr))
 			{
-				return dxgi::mapHResult(hr);
+				return mapHResult(hr);
 			}
 
 			hr = m_UploadCommandList->Reset(m_UploadCommandAllocator.Get(), nullptr);
 
 			if (FAILED(hr))
 			{
-				return dxgi::mapHResult(hr);
+				return mapHResult(hr);
 			}
 		}
 
@@ -107,7 +110,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return dxgi::mapHResult(hr);
+			return mapHResult(hr);
 		}
 
 		ID3D12CommandList* const submittedCommandLists[] = {commandList};
@@ -130,7 +133,7 @@ namespace spall::d3d12
 
 		SPALL_TRY(validateTextureCreateInfo(info));
 
-		const DXGI_FORMAT textureFormat = dxgi::nativeFormat(info.Format);
+		const DXGI_FORMAT textureFormat = nativeFormat(info.Format);
 
 		if (textureFormat == DXGI_FORMAT_UNKNOWN)
 		{
@@ -155,7 +158,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return dxgi::mapHResult(hr);
+			return mapHResult(hr);
 		}
 
 		const D3D12_FORMAT_SUPPORT1 required = requiredFormatSupport(info.Usage);
@@ -218,7 +221,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return dxgi::mapHResult(hr);
+			return mapHResult(hr);
 		}
 
 		TextureInfo textureInfo = {};
@@ -264,7 +267,7 @@ namespace spall::d3d12
 		}
 
 		const Format format = (info.Format == Format::Unknown) ? texture->m_Info.Format : info.Format;
-		const DXGI_FORMAT viewFormat = dxgi::nativeFormat(format);
+		const DXGI_FORMAT viewFormat = nativeFormat(format);
 
 		if (viewFormat == DXGI_FORMAT_UNKNOWN)
 		{
@@ -579,7 +582,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return dxgi::mapHResult(hr);
+			return mapHResult(hr);
 		}
 
 		const BufferInfo bufferInfo {info.Size, info.Usage, info.CpuAccess, info.InitialState, info.KeepInitialState, info.DebugName};
@@ -632,7 +635,7 @@ namespace spall::d3d12
 		{
 			m_ResourcePool.release(staging);
 
-			return dxgi::mapHResult(hr);
+			return mapHResult(hr);
 		}
 
 		std::memcpy(mappedData, data.data(), data.size());
@@ -696,7 +699,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return dxgi::mapHResult(hr);
+			return mapHResult(hr);
 		}
 
 		std::memcpy(static_cast<std::uint8_t*>(mappedData) + offset, data.data(), data.size());
@@ -745,7 +748,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return dxgi::mapHResult(hr);
+			return mapHResult(hr);
 		}
 
 		std::memcpy(data.data(), static_cast<const std::uint8_t*>(mappedData) + offset, data.size());
@@ -820,7 +823,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return dxgi::mapHResult(hr);
+			return mapHResult(hr);
 		}
 
 		D3D12_RESOURCE_DESC resourceDesc = {};
@@ -847,7 +850,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return dxgi::mapHResult(hr);
+			return mapHResult(hr);
 		}
 
 		const QueryPoolInfo poolInfo {info.TimestampCount, info.DebugName};
@@ -892,7 +895,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return dxgi::mapHResult(hr);
+			return mapHResult(hr);
 		}
 
 		const std::uint64_t* ticks = static_cast<const std::uint64_t*>(mappedData) + firstQuery;
@@ -995,7 +998,7 @@ namespace spall::d3d12
 			D3D12_RAYTRACING_GEOMETRY_DESC description = {};
 			description.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
 			description.Flags = nativeAccelerationStructureGeometryFlags(geometry.Flags);
-			description.Triangles.VertexFormat = dxgi::nativeFormat(geometry.VertexFormat);
+			description.Triangles.VertexFormat = nativeFormat(geometry.VertexFormat);
 			description.Triangles.VertexCount = geometry.VertexCount;
 			description.Triangles.VertexBuffer.StartAddress = vertexBuffer->m_Resource->GetGPUVirtualAddress() + geometry.VertexOffset;
 			description.Triangles.VertexBuffer.StrideInBytes = geometry.VertexStride;
@@ -1005,7 +1008,7 @@ namespace spall::d3d12
 				Buffer* indexBuffer = nullptr;
 				SPALL_TRY(resolveInput(geometry.IndexBuffer, &indexBuffer));
 
-				description.Triangles.IndexFormat = dxgi::nativeIndexFormat(geometry.IndexFormat);
+				description.Triangles.IndexFormat = nativeIndexFormat(geometry.IndexFormat);
 				description.Triangles.IndexCount = geometry.IndexCount;
 				description.Triangles.IndexBuffer = indexBuffer->m_Resource->GetGPUVirtualAddress() + geometry.IndexOffset;
 			}
@@ -1070,7 +1073,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return dxgi::mapHResult(hr);
+			return mapHResult(hr);
 		}
 
 		AccelerationStructureInfo structureInfo = {};
@@ -1102,7 +1105,7 @@ namespace spall::d3d12
 
 			if (FAILED(sizeResult))
 			{
-				return dxgi::mapHResult(sizeResult);
+				return mapHResult(sizeResult);
 			}
 
 			D3D12_RESOURCE_DESC readbackDesc = sizeDesc;
@@ -1120,7 +1123,7 @@ namespace spall::d3d12
 
 			if (FAILED(readbackResult))
 			{
-				return dxgi::mapHResult(readbackResult);
+				return mapHResult(readbackResult);
 			}
 		}
 

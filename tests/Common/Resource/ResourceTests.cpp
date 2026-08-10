@@ -5,35 +5,32 @@
 #include <cstdint>
 #include <utility>
 
-namespace
+class CountingResource final : public spall::IResource
 {
-	class CountingResource final : public spall::IResource
+public:
+	std::uint32_t addRef() override
 	{
-	public:
-		std::uint32_t addRef() override
-		{
-			return ++m_ReferenceCount;
-		}
+		return ++m_ReferenceCount;
+	}
 
-		std::uint32_t release() override
-		{
-			return --m_ReferenceCount;
-		}
+	std::uint32_t release() override
+	{
+		return --m_ReferenceCount;
+	}
 
-		spall::RenderBackendType backendType() const override
-		{
-			return spall::RenderBackendType::Vulkan;
-		}
+	spall::RenderBackendType backendType() const override
+	{
+		return spall::RenderBackendType::Vulkan;
+	}
 
-		std::uint32_t referenceCount() const
-		{
-			return m_ReferenceCount;
-		}
+	std::uint32_t referenceCount() const
+	{
+		return m_ReferenceCount;
+	}
 
-	private:
-		std::uint32_t m_ReferenceCount = 0;
-	};
-} // namespace
+private:
+	std::uint32_t m_ReferenceCount = 0;
+};
 
 TEST_CASE(
 	"A default resource is empty",

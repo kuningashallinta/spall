@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 #include <src/Backends/D3D12/Common/Descriptors/D3D12_DescriptorRingPool.h>
 
 #include <spall/Common/Assert.h>

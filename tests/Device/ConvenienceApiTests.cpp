@@ -14,120 +14,117 @@
 #include <cstdint>
 #include <span>
 
-namespace
+class FakeResourceFactory final : public spall::IResourceFactory
 {
-	class FakeResourceFactory final : public spall::IResourceFactory
+public:
+	FakeResourceFactory(
+		void)
+		: m_Buffer(spall::BufferInfo {.Size = 256, .Usage = spall::BufferUsageFlags::Vertex})
 	{
-	public:
-		FakeResourceFactory(
-			void)
-			: m_Buffer(spall::tests::bufferInfo(spall::BufferUsageFlags::Vertex))
+	}
+
+	spall::Status createTexture(
+		const spall::TextureCreateInfo&,
+		spall::Resource<spall::ITexture>*) override
+	{
+		return spall::ERR_UNSUPPORTED;
+	}
+
+	spall::Status createTextureView(
+		const spall::TextureViewCreateInfo&,
+		spall::Resource<spall::ITextureView>*) override
+	{
+		return spall::ERR_UNSUPPORTED;
+	}
+
+	spall::Status createFramebuffer(
+		const spall::FramebufferCreateInfo&,
+		spall::Resource<spall::IFramebuffer>*) override
+	{
+		return spall::ERR_UNSUPPORTED;
+	}
+
+	spall::Status createBuffer(
+		const spall::BufferCreateInfo&,
+		spall::Resource<spall::IBuffer>*) override
+	{
+		return spall::ERR_UNSUPPORTED;
+	}
+
+	spall::Status createBufferWithData(
+		const spall::BufferCreateInfo& createInfo,
+		std::span<const std::byte> data,
+		spall::Resource<spall::IBuffer>* buffer) override
+	{
+		LastCreateInfo = createInfo;
+		LastDataSize = data.size_bytes();
+
+		if (FailCreation)
 		{
+			return spall::ERR_INVALID_ARGUMENT;
 		}
 
-		spall::Status createTexture(
-			const spall::TextureCreateInfo&,
-			spall::Resource<spall::ITexture>*) override
-		{
-			return spall::ERR_UNSUPPORTED;
-		}
+		buffer->reset(&m_Buffer);
+		return {};
+	}
 
-		spall::Status createTextureView(
-			const spall::TextureViewCreateInfo&,
-			spall::Resource<spall::ITextureView>*) override
-		{
-			return spall::ERR_UNSUPPORTED;
-		}
+	spall::Status writeBuffer(
+		spall::IBuffer&,
+		std::span<const std::byte> data,
+		std::uint32_t offset) override
+	{
+		LastDataSize = data.size_bytes();
+		LastOffset = offset;
+		return {};
+	}
 
-		spall::Status createFramebuffer(
-			const spall::FramebufferCreateInfo&,
-			spall::Resource<spall::IFramebuffer>*) override
-		{
-			return spall::ERR_UNSUPPORTED;
-		}
+	spall::Status readBuffer(
+		spall::IBuffer&,
+		std::span<std::byte> data,
+		std::uint32_t offset) override
+	{
+		LastDataSize = data.size_bytes();
+		LastOffset = offset;
+		return {};
+	}
 
-		spall::Status createBuffer(
-			const spall::BufferCreateInfo&,
-			spall::Resource<spall::IBuffer>*) override
-		{
-			return spall::ERR_UNSUPPORTED;
-		}
+	spall::Status createSampler(
+		const spall::SamplerCreateInfo&,
+		spall::Resource<spall::ISampler>*) override
+	{
+		return spall::ERR_UNSUPPORTED;
+	}
 
-		spall::Status createBufferWithData(
-			const spall::BufferCreateInfo& createInfo,
-			std::span<const std::byte> data,
-			spall::Resource<spall::IBuffer>* buffer) override
-		{
-			LastCreateInfo = createInfo;
-			LastDataSize = data.size_bytes();
+	spall::Status createQueryPool(
+		const spall::QueryPoolCreateInfo&,
+		spall::Resource<spall::IQueryPool>*) override
+	{
+		return spall::ERR_UNSUPPORTED;
+	}
 
-			if (FailCreation)
-			{
-				return spall::ERR_INVALID_ARGUMENT;
-			}
+	spall::Status readTimestamps(
+		spall::IQueryPool&,
+		std::uint32_t,
+		std::span<std::uint64_t>) override
+	{
+		return spall::ERR_UNSUPPORTED;
+	}
 
-			buffer->reset(&m_Buffer);
-			return {};
-		}
+	spall::Status createAccelerationStructure(
+		const spall::AccelerationStructureCreateInfo&,
+		spall::Resource<spall::IAccelerationStructure>*) override
+	{
+		return spall::ERR_UNSUPPORTED;
+	}
 
-		spall::Status writeBuffer(
-			spall::IBuffer&,
-			std::span<const std::byte> data,
-			std::uint32_t offset) override
-		{
-			LastDataSize = data.size_bytes();
-			LastOffset = offset;
-			return {};
-		}
+	bool FailCreation = false;
+	spall::BufferCreateInfo LastCreateInfo = {};
+	std::size_t LastDataSize = 0;
+	std::uint32_t LastOffset = 0;
 
-		spall::Status readBuffer(
-			spall::IBuffer&,
-			std::span<std::byte> data,
-			std::uint32_t offset) override
-		{
-			LastDataSize = data.size_bytes();
-			LastOffset = offset;
-			return {};
-		}
-
-		spall::Status createSampler(
-			const spall::SamplerCreateInfo&,
-			spall::Resource<spall::ISampler>*) override
-		{
-			return spall::ERR_UNSUPPORTED;
-		}
-
-		spall::Status createQueryPool(
-			const spall::QueryPoolCreateInfo&,
-			spall::Resource<spall::IQueryPool>*) override
-		{
-			return spall::ERR_UNSUPPORTED;
-		}
-
-		spall::Status readTimestamps(
-			spall::IQueryPool&,
-			std::uint32_t,
-			std::span<std::uint64_t>) override
-		{
-			return spall::ERR_UNSUPPORTED;
-		}
-
-		spall::Status createAccelerationStructure(
-			const spall::AccelerationStructureCreateInfo&,
-			spall::Resource<spall::IAccelerationStructure>*) override
-		{
-			return spall::ERR_UNSUPPORTED;
-		}
-
-		bool FailCreation = false;
-		spall::BufferCreateInfo LastCreateInfo = {};
-		std::size_t LastDataSize = 0;
-		std::uint32_t LastOffset = 0;
-
-	private:
-		spall::tests::FakeBuffer m_Buffer;
-	};
-} // namespace
+private:
+	FakeBuffer m_Buffer;
+};
 
 TEST_CASE(
 	"Creation interfaces expose direct-return overloads",
@@ -215,7 +212,9 @@ TEST_CASE(
 {
 	FakeResourceFactory implementation;
 	spall::IResourceFactory& resources = implementation;
-	spall::tests::FakeBuffer buffer(spall::tests::bufferInfo(spall::BufferUsageFlags::TransferSource | spall::BufferUsageFlags::TransferDestination));
+	FakeBuffer buffer(spall::BufferInfo {
+		.Size = 256,
+		.Usage = spall::BufferUsageFlags::TransferSource | spall::BufferUsageFlags::TransferDestination});
 	std::uint32_t data[] = {1, 2, 3};
 
 	REQUIRE(resources.writeBuffer(buffer, data, 12) == spall::SUCCESS);

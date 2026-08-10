@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 #include <spall/Backends/Vulkan/VK_Backend.h>
 
 #include <spall/Common/Enums/RenderBackendType.h>
@@ -15,177 +18,164 @@
 
 namespace spall::vk
 {
-	namespace
+	VKAPI_ATTR VkBool32 VKAPI_CALL Backend::handleValidationMessage(
+		VkDebugUtilsMessageSeverityFlagBitsEXT,
+		VkDebugUtilsMessageTypeFlagsEXT,
+		const VkDebugUtilsMessengerCallbackDataEXT* callbackData,
+		void*)
 	{
-		VKAPI_ATTR VkBool32 VKAPI_CALL handleValidationMessage(
-			VkDebugUtilsMessageSeverityFlagBitsEXT,
-			VkDebugUtilsMessageTypeFlagsEXT,
-			const VkDebugUtilsMessengerCallbackDataEXT* callbackData,
-			void*)
+		if ((callbackData != nullptr) and (callbackData->pMessage != nullptr))
 		{
-			if ((callbackData != nullptr) and (callbackData->pMessage != nullptr))
-			{
-				OutputDebugStringA("[Spall RHI Vulkan] ");
-				OutputDebugStringA(callbackData->pMessage);
-				OutputDebugStringA("\n");
-			}
-
-			return VK_FALSE;
+			OutputDebugStringA("[Spall RHI Vulkan] ");
+			OutputDebugStringA(callbackData->pMessage);
+			OutputDebugStringA("\n");
 		}
 
-		Status hasInstanceLayer(
-			const char* layerName,
-			bool* found)
+		return VK_FALSE;
+	}
+
+	Status Backend::hasInstanceLayer(
+		const char* layerName,
+		bool* found)
+	{
+		*found = false;
+
+		std::vector<VkLayerProperties> properties;
+		VkResult vkResult = VK_SUCCESS;
+
+		do
 		{
-			*found = false;
-
-			std::vector<VkLayerProperties> properties;
-			VkResult vkResult = VK_SUCCESS;
-
-			do
-			{
-				std::uint32_t propertyCount = 0;
-				vkResult = vkEnumerateInstanceLayerProperties(&propertyCount, nullptr);
-
-				if (vkResult != VK_SUCCESS)
-				{
-					return mapVulkanStatus(vkResult);
-				}
-
-				properties.resize(propertyCount);
-
-				if (propertyCount != 0)
-				{
-					vkResult = vkEnumerateInstanceLayerProperties(&propertyCount, properties.data());
-					properties.resize(propertyCount);
-				}
-			} while (vkResult == VK_INCOMPLETE);
+			std::uint32_t propertyCount = 0;
+			vkResult = vkEnumerateInstanceLayerProperties(&propertyCount, nullptr);
 
 			if (vkResult != VK_SUCCESS)
 			{
 				return mapVulkanStatus(vkResult);
 			}
 
-			for (const VkLayerProperties& property : properties)
-			{
-				if (std::strcmp(property.layerName, layerName) == 0)
-				{
-					*found = true;
-					break;
-				}
-			}
+			properties.resize(propertyCount);
 
-			return {};
+			if (propertyCount != 0)
+			{
+				vkResult = vkEnumerateInstanceLayerProperties(&propertyCount, properties.data());
+				properties.resize(propertyCount);
+			}
+		} while (vkResult == VK_INCOMPLETE);
+
+		if (vkResult != VK_SUCCESS)
+		{
+			return mapVulkanStatus(vkResult);
 		}
 
-		Status hasInstanceExtension(
-			const char* extensionName,
-			bool* found)
+		for (const VkLayerProperties& property : properties)
 		{
-			*found = false;
-
-			std::vector<VkExtensionProperties> properties;
-			VkResult vkResult = VK_SUCCESS;
-
-			do
+			if (std::strcmp(property.layerName, layerName) == 0)
 			{
-				std::uint32_t propertyCount = 0;
-				vkResult = vkEnumerateInstanceExtensionProperties(nullptr, &propertyCount, nullptr);
+				*found = true;
+				break;
+			}
+		}
 
-				if (vkResult != VK_SUCCESS)
-				{
-					return mapVulkanStatus(vkResult);
-				}
+		return {};
+	}
 
-				properties.resize(propertyCount);
+	Status Backend::hasInstanceExtension(
+		const char* extensionName,
+		bool* found)
+	{
+		*found = false;
 
-				if (propertyCount != 0)
-				{
-					vkResult = vkEnumerateInstanceExtensionProperties(nullptr, &propertyCount, properties.data());
-					properties.resize(propertyCount);
-				}
-			} while (vkResult == VK_INCOMPLETE);
+		std::vector<VkExtensionProperties> properties;
+		VkResult vkResult = VK_SUCCESS;
+
+		do
+		{
+			std::uint32_t propertyCount = 0;
+			vkResult = vkEnumerateInstanceExtensionProperties(nullptr, &propertyCount, nullptr);
 
 			if (vkResult != VK_SUCCESS)
 			{
 				return mapVulkanStatus(vkResult);
 			}
 
-			for (const VkExtensionProperties& property : properties)
-			{
-				if (std::strcmp(property.extensionName, extensionName) == 0)
-				{
-					*found = true;
-					break;
-				}
-			}
+			properties.resize(propertyCount);
 
-			return {};
+			if (propertyCount != 0)
+			{
+				vkResult = vkEnumerateInstanceExtensionProperties(nullptr, &propertyCount, properties.data());
+				properties.resize(propertyCount);
+			}
+		} while (vkResult == VK_INCOMPLETE);
+
+		if (vkResult != VK_SUCCESS)
+		{
+			return mapVulkanStatus(vkResult);
 		}
 
-		Status hasDeviceExtension(
-			VkPhysicalDevice physicalDevice,
-			const char* extensionName,
-			bool* found)
+		for (const VkExtensionProperties& property : properties)
 		{
-			*found = false;
-
-			std::vector<VkExtensionProperties> properties;
-			VkResult vkResult = VK_SUCCESS;
-
-			do
+			if (std::strcmp(property.extensionName, extensionName) == 0)
 			{
-				std::uint32_t propertyCount = 0;
-				vkResult = vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &propertyCount, nullptr);
+				*found = true;
+				break;
+			}
+		}
 
-				if (vkResult != VK_SUCCESS)
-				{
-					return mapVulkanStatus(vkResult);
-				}
+		return {};
+	}
 
-				properties.resize(propertyCount);
+	Status Backend::hasDeviceExtension(
+		VkPhysicalDevice physicalDevice,
+		const char* extensionName,
+		bool* found)
+	{
+		*found = false;
 
-				if (propertyCount != 0)
-				{
-					vkResult = vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &propertyCount, properties.data());
-					properties.resize(propertyCount);
-				}
-			} while (vkResult == VK_INCOMPLETE);
+		std::vector<VkExtensionProperties> properties;
+		VkResult vkResult = VK_SUCCESS;
+
+		do
+		{
+			std::uint32_t propertyCount = 0;
+			vkResult = vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &propertyCount, nullptr);
 
 			if (vkResult != VK_SUCCESS)
 			{
 				return mapVulkanStatus(vkResult);
 			}
 
-			for (const VkExtensionProperties& property : properties)
-			{
-				if (std::strcmp(property.extensionName, extensionName) == 0)
-				{
-					*found = true;
-					break;
-				}
-			}
+			properties.resize(propertyCount);
 
-			return {};
+			if (propertyCount != 0)
+			{
+				vkResult = vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &propertyCount, properties.data());
+				properties.resize(propertyCount);
+			}
+		} while (vkResult == VK_INCOMPLETE);
+
+		if (vkResult != VK_SUCCESS)
+		{
+			return mapVulkanStatus(vkResult);
 		}
 
-		struct DeviceSelection
+		for (const VkExtensionProperties& property : properties)
 		{
-			VkPhysicalDevice PhysicalDevice = VK_NULL_HANDLE;
-			std::uint32_t QueueFamilyIndex = UINT32_MAX;
-			bool RayTracing = false;
-			bool RayTracingPipeline = false;
-		};
-
-		void destroyDebugMessenger(
-			VkInstance instance,
-			VkDebugUtilsMessengerEXT debugMessenger)
-		{
-			if ((instance == VK_NULL_HANDLE) or (debugMessenger == VK_NULL_HANDLE))
+			if (std::strcmp(property.extensionName, extensionName) == 0)
 			{
-				return;
+				*found = true;
+				break;
 			}
+		}
 
+		return {};
+	}
+
+	void Backend::destroyInstanceObjects(
+		VkInstance instance,
+		VkDebugUtilsMessengerEXT debugMessenger)
+	{
+		if ((instance != VK_NULL_HANDLE) and (debugMessenger != VK_NULL_HANDLE))
+		{
 			const PFN_vkDestroyDebugUtilsMessengerEXT destroyDebugMessenger = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
 				vkGetInstanceProcAddr(
 					instance,
@@ -197,18 +187,11 @@ namespace spall::vk
 			}
 		}
 
-		void destroyInstanceObjects(
-			VkInstance instance,
-			VkDebugUtilsMessengerEXT debugMessenger)
+		if (instance != VK_NULL_HANDLE)
 		{
-			destroyDebugMessenger(instance, debugMessenger);
-
-			if (instance != VK_NULL_HANDLE)
-			{
-				vkDestroyInstance(instance, nullptr);
-			}
+			vkDestroyInstance(instance, nullptr);
 		}
-	} // namespace
+	}
 
 	RenderBackendType Backend::backendType() const
 	{
@@ -346,6 +329,14 @@ namespace spall::vk
 			destroyInstanceObjects(instance, debugMessenger);
 			return ERR_UNSUPPORTED_BACKEND;
 		}
+
+		struct DeviceSelection
+		{
+			VkPhysicalDevice PhysicalDevice = VK_NULL_HANDLE;
+			std::uint32_t QueueFamilyIndex = UINT32_MAX;
+			bool RayTracing = false;
+			bool RayTracingPipeline = false;
+		};
 
 		DeviceSelection selection = {};
 

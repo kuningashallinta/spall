@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 #include <src/Backends/D3D12/Common/Descriptors/D3D12_DescriptorRing.h>
 
 #include <spall/Common/Assert.h>
@@ -21,7 +24,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return dxgi::mapHResult(hr);
+			return mapHResult(hr);
 		}
 
 		m_CpuStart = m_Heap->GetCPUDescriptorHandleForHeapStart();

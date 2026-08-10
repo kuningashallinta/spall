@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 #include <src/Backends/D3D12/Queue/D3D12_GraphicsQueue.h>
 
 #include <spall/Common/Assert.h>
@@ -236,7 +239,7 @@ namespace spall::d3d12
 			else if (FAILED(testHr))
 			{
 				shouldPresent = false;
-				result = dxgi::mapHResult(testHr);
+				result = mapHResult(testHr);
 			}
 			else
 			{
@@ -254,7 +257,7 @@ namespace spall::d3d12
 			}
 			else if (FAILED(hr))
 			{
-				result = dxgi::mapHResult(hr);
+				result = mapHResult(hr);
 			}
 		}
 

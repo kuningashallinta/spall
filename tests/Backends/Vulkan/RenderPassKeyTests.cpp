@@ -2,29 +2,26 @@
 
 #include <src/Backends/Vulkan/CommandList/VK_RenderPassKey.h>
 
-namespace
+static spall::vk::RenderPassKey colorKey()
 {
-	spall::vk::RenderPassKey colorKey()
-	{
-		spall::vk::RenderPassKey key = {};
-		key.ColorCount = 1;
-		key.ColorFormats[0] = spall::Format::RGBA8;
-		key.ColorLoadActions[0] = spall::LoadAction::Clear;
-		key.ColorStoreActions[0] = spall::StoreAction::Store;
+	spall::vk::RenderPassKey key = {};
+	key.ColorCount = 1;
+	key.ColorFormats[0] = spall::Format::RGBA8;
+	key.ColorLoadActions[0] = spall::LoadAction::Clear;
+	key.ColorStoreActions[0] = spall::StoreAction::Store;
 
-		return key;
-	}
+	return key;
+}
 
-	spall::vk::RenderPassKey depthKey()
-	{
-		spall::vk::RenderPassKey key = colorKey();
-		key.DepthFormat = spall::Format::Depth32Float;
-		key.DepthLoadAction = spall::LoadAction::Clear;
-		key.StencilLoadAction = spall::LoadAction::DontCare;
+static spall::vk::RenderPassKey depthKey()
+{
+	spall::vk::RenderPassKey key = colorKey();
+	key.DepthFormat = spall::Format::Depth32Float;
+	key.DepthLoadAction = spall::LoadAction::Clear;
+	key.StencilLoadAction = spall::LoadAction::DontCare;
 
-		return key;
-	}
-} // namespace
+	return key;
+}
 
 TEST_CASE(
 	"Identical render-pass keys are equal",

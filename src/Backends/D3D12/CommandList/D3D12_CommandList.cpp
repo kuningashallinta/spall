@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 #include <src/Backends/D3D12/CommandList/D3D12_CommandList.h>
 
 #include <spall/Common/Alignment.h>
@@ -57,7 +60,7 @@ namespace spall::d3d12
 		{
 			m_ExecutionState = ExecutionState::Invalid;
 
-			return dxgi::mapHResult(hr);
+			return mapHResult(hr);
 		}
 
 		hr = m_Device->m_Device->CreateCommandList(
@@ -71,7 +74,7 @@ namespace spall::d3d12
 		{
 			m_ExecutionState = ExecutionState::Invalid;
 
-			return dxgi::mapHResult(hr);
+			return mapHResult(hr);
 		}
 
 		hr = m_CommandList->Close();
@@ -80,7 +83,7 @@ namespace spall::d3d12
 		{
 			m_ExecutionState = ExecutionState::Invalid;
 
-			return dxgi::mapHResult(hr);
+			return mapHResult(hr);
 		}
 
 		m_StateTracker.setCommandList(m_CommandList.Get());
@@ -255,7 +258,7 @@ namespace spall::d3d12
 		resourceDesc.Height = info.Height;
 		resourceDesc.DepthOrArraySize = static_cast<UINT16>(info.ArrayLayers);
 		resourceDesc.MipLevels = static_cast<UINT16>(info.MipLevels);
-		resourceDesc.Format = dxgi::nativeFormat(info.Format);
+		resourceDesc.Format = nativeFormat(info.Format);
 		resourceDesc.SampleDesc.Count = 1;
 		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 		resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
@@ -385,14 +388,14 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return fail(dxgi::mapHResult(hr));
+			return fail(mapHResult(hr));
 		}
 
 		hr = m_CommandList->Reset(m_CommandAllocator.Get(), nullptr);
 
 		if (FAILED(hr))
 		{
-			return fail(dxgi::mapHResult(hr));
+			return fail(mapHResult(hr));
 		}
 
 		m_Rings.Views.reset();
@@ -445,7 +448,7 @@ namespace spall::d3d12
 		{
 			m_ExecutionState = ExecutionState::Invalid;
 
-			return dxgi::mapHResult(hr);
+			return mapHResult(hr);
 		}
 
 		m_ExecutionState = ExecutionState::Executable;
@@ -463,9 +466,9 @@ namespace spall::d3d12
 		SPALL_TRY(validateDebugLabel(label));
 
 		std::wstring wideLabel;
-		SPALL_TRY(dxgi::wideDebugLabel(label, &wideLabel));
+		SPALL_TRY(wideDebugLabel(label, &wideLabel));
 
-		m_CommandList->BeginEvent(dxgi::UnicodeEventVersion, wideLabel.c_str(), dxgi::eventPayloadSize(wideLabel));
+		m_CommandList->BeginEvent(UnicodeEventVersion, wideLabel.c_str(), eventPayloadSize(wideLabel));
 		++m_DebugGroupDepth;
 
 		return {};
@@ -496,9 +499,9 @@ namespace spall::d3d12
 		SPALL_TRY(validateDebugLabel(label));
 
 		std::wstring wideLabel;
-		SPALL_TRY(dxgi::wideDebugLabel(label, &wideLabel));
+		SPALL_TRY(wideDebugLabel(label, &wideLabel));
 
-		m_CommandList->SetMarker(dxgi::UnicodeEventVersion, wideLabel.c_str(), dxgi::eventPayloadSize(wideLabel));
+		m_CommandList->SetMarker(UnicodeEventVersion, wideLabel.c_str(), eventPayloadSize(wideLabel));
 
 		return {};
 	}
@@ -1031,7 +1034,7 @@ namespace spall::d3d12
 		D3D12_INDEX_BUFFER_VIEW view = {};
 		view.BufferLocation = backendBuffer->m_Resource->GetGPUVirtualAddress() + offset;
 		view.SizeInBytes = backendBuffer->m_Info.Size - offset;
-		view.Format = dxgi::nativeIndexFormat(format);
+		view.Format = nativeIndexFormat(format);
 
 		m_CommandList->IASetIndexBuffer(&view);
 		m_IndexBufferSet = true;
@@ -1856,7 +1859,7 @@ namespace spall::d3d12
 
 		if (FAILED(mapResult))
 		{
-			return dxgi::mapHResult(mapResult);
+			return mapHResult(mapResult);
 		}
 
 		std::memcpy(&compactedSize, mapped, sizeof(compactedSize));
@@ -1885,7 +1888,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return fail(dxgi::mapHResult(hr));
+			return fail(mapHResult(hr));
 		}
 
 		m_RayTracingCommandList->CopyRaytracingAccelerationStructure(
@@ -2009,7 +2012,7 @@ namespace spall::d3d12
 		SPALL_TRY(validateTextureBufferCopyArguments(destination, region, source, sourceOffset, sourceRowPitch));
 
 		const TextureRegion resolved = resolveTextureRegion(destinationTexture->m_Info, region);
-		const dxgi::RegionLayout layout = dxgi::regionLayout(destinationTexture->m_Info.Format, resolved);
+		const RegionLayout layout = regionLayout(destinationTexture->m_Info.Format, resolved);
 
 		Status error = requireTextureState(
 			*destinationTexture,
@@ -2088,7 +2091,7 @@ namespace spall::d3d12
 		sourceLocation.pResource = footprintResource;
 		sourceLocation.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
 		sourceLocation.PlacedFootprint.Offset = footprintOffset;
-		sourceLocation.PlacedFootprint.Footprint.Format = dxgi::nativeFormat(destinationTexture->m_Info.Format);
+		sourceLocation.PlacedFootprint.Footprint.Format = nativeFormat(destinationTexture->m_Info.Format);
 		sourceLocation.PlacedFootprint.Footprint.Width = layout.FootprintWidth;
 		sourceLocation.PlacedFootprint.Footprint.Height = layout.FootprintHeight;
 		sourceLocation.PlacedFootprint.Footprint.Depth = resolved.Depth;
@@ -2147,7 +2150,7 @@ namespace spall::d3d12
 		SPALL_TRY(validateTextureBufferCopyArguments(source, region, destination, destinationOffset, destinationRowPitch));
 
 		const TextureRegion resolved = resolveTextureRegion(sourceTexture->m_Info, region);
-		const dxgi::RegionLayout layout = dxgi::regionLayout(sourceTexture->m_Info.Format, resolved);
+		const RegionLayout layout = regionLayout(sourceTexture->m_Info.Format, resolved);
 
 		Status error = requireTextureState(
 			*sourceTexture,
@@ -2208,7 +2211,7 @@ namespace spall::d3d12
 		destinationLocation.pResource = footprintResource;
 		destinationLocation.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
 		destinationLocation.PlacedFootprint.Offset = footprintOffset;
-		destinationLocation.PlacedFootprint.Footprint.Format = dxgi::nativeFormat(sourceTexture->m_Info.Format);
+		destinationLocation.PlacedFootprint.Footprint.Format = nativeFormat(sourceTexture->m_Info.Format);
 		destinationLocation.PlacedFootprint.Footprint.Width = layout.FootprintWidth;
 		destinationLocation.PlacedFootprint.Footprint.Height = layout.FootprintHeight;
 		destinationLocation.PlacedFootprint.Footprint.Depth = resolved.Depth;
@@ -2339,7 +2342,7 @@ namespace spall::d3d12
 				}
 
 				D3D12_SHADER_RESOURCE_VIEW_DESC sourceViewDesc = {};
-				sourceViewDesc.Format = dxgi::nativeFormat(info.Format);
+				sourceViewDesc.Format = nativeFormat(info.Format);
 				sourceViewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 				sourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
 				sourceViewDesc.Texture2DArray.MostDetailedMip = mipLevel - 1;
@@ -2358,7 +2361,7 @@ namespace spall::d3d12
 				}
 
 				D3D12_RENDER_TARGET_VIEW_DESC targetViewDesc = {};
-				targetViewDesc.Format = dxgi::nativeFormat(info.Format);
+				targetViewDesc.Format = nativeFormat(info.Format);
 				targetViewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY;
 				targetViewDesc.Texture2DArray.MipSlice = mipLevel;
 				targetViewDesc.Texture2DArray.FirstArraySlice = arrayLayer;

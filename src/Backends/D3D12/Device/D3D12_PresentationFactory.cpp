@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 #include <src/Backends/D3D12/Device/D3D12_Device.h>
 
 #include <src/Backends/D3D12/SwapChain/D3D12_SwapChain.h>
@@ -56,7 +59,7 @@ namespace spall::d3d12
 
 			if (FAILED(hr))
 			{
-				return dxgi::mapHResult(hr);
+				return mapHResult(hr);
 			}
 
 			if (tearingSupported == FALSE)
@@ -70,7 +73,7 @@ namespace spall::d3d12
 		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
 		swapChainDesc.Width = info.Width;
 		swapChainDesc.Height = info.Height;
-		swapChainDesc.Format = dxgi::nativeSwapChainFormat(info.Format);
+		swapChainDesc.Format = nativeSwapChainFormat(info.Format);
 		swapChainDesc.SampleDesc.Count = 1;
 		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		swapChainDesc.BufferCount = 2;
@@ -94,49 +97,49 @@ namespace spall::d3d12
 
 			if (FAILED(hr))
 			{
-				return dxgi::mapHResult(hr);
+				return mapHResult(hr);
 			}
 
 			hr = DCompositionCreateDevice(nullptr, IID_PPV_ARGS(&compositionDevice));
 
 			if (FAILED(hr))
 			{
-				return dxgi::mapHResult(hr);
+				return mapHResult(hr);
 			}
 
 			hr = compositionDevice->CreateTargetForHwnd(window, TRUE, &compositionTarget);
 
 			if (FAILED(hr))
 			{
-				return dxgi::mapHResult(hr);
+				return mapHResult(hr);
 			}
 
 			hr = compositionDevice->CreateVisual(&compositionVisual);
 
 			if (FAILED(hr))
 			{
-				return dxgi::mapHResult(hr);
+				return mapHResult(hr);
 			}
 
 			hr = compositionVisual->SetContent(dxgiSwapChain.Get());
 
 			if (FAILED(hr))
 			{
-				return dxgi::mapHResult(hr);
+				return mapHResult(hr);
 			}
 
 			hr = compositionTarget->SetRoot(compositionVisual.Get());
 
 			if (FAILED(hr))
 			{
-				return dxgi::mapHResult(hr);
+				return mapHResult(hr);
 			}
 
 			hr = compositionDevice->Commit();
 
 			if (FAILED(hr))
 			{
-				return dxgi::mapHResult(hr);
+				return mapHResult(hr);
 			}
 		}
 		else
@@ -145,14 +148,14 @@ namespace spall::d3d12
 
 			if (FAILED(hr))
 			{
-				return dxgi::mapHResult(hr);
+				return mapHResult(hr);
 			}
 
 			hr = m_Factory->MakeWindowAssociation(window, DXGI_MWA_NO_ALT_ENTER);
 
 			if (FAILED(hr))
 			{
-				return dxgi::mapHResult(hr);
+				return mapHResult(hr);
 			}
 		}
 
@@ -161,7 +164,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return dxgi::mapHResult(hr);
+			return mapHResult(hr);
 		}
 
 		std::unique_ptr<SwapChain> resultSwapChain = std::make_unique<SwapChain>(

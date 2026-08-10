@@ -3,39 +3,44 @@
 #include <src/Validation/Common/FramebufferValidation.h>
 #include <tests/Support/Fakes.h>
 
-namespace
+static FakeTexture colorTexture()
 {
-	using spall::tests::FakeTexture;
-	using spall::tests::FakeTextureView;
+	return FakeTexture(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::ColorAttachment});
+}
 
-	FakeTexture colorTexture()
-	{
-		return FakeTexture(spall::tests::textureInfo(spall::TextureUsageFlags::ColorAttachment));
-	}
+static FakeTexture depthTexture()
+{
+	spall::TextureInfo info = {
+		.Width = 64,
+		.Height = 64,
+		.Format = spall::Format::Depth32Float,
+		.Usage = spall::TextureUsageFlags::DepthStencilAttachment};
 
-	FakeTexture depthTexture()
-	{
-		spall::TextureInfo info = spall::tests::textureInfo(spall::TextureUsageFlags::DepthStencilAttachment);
-		info.Format = spall::Format::Depth32Float;
+	return FakeTexture(info);
+}
 
-		return FakeTexture(info);
-	}
+static FakeTexture sampledOnlyTexture()
+{
+	return FakeTexture(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::Sampled});
+}
 
-	FakeTexture sampledOnlyTexture()
-	{
-		return FakeTexture(spall::tests::textureInfo(spall::TextureUsageFlags::Sampled));
-	}
+static spall::FramebufferCreateInfo colorOnly(
+	spall::ITextureView& view)
+{
+	spall::FramebufferCreateInfo info = {};
+	info.ColorAttachments[0] = &view;
+	info.ColorAttachmentCount = 1;
 
-	spall::FramebufferCreateInfo colorOnly(
-		spall::ITextureView& view)
-	{
-		spall::FramebufferCreateInfo info = {};
-		info.ColorAttachments[0] = &view;
-		info.ColorAttachmentCount = 1;
-
-		return info;
-	}
-} // namespace
+	return info;
+}
 
 TEST_CASE(
 	"A framebuffer accepts a single color attachment",
@@ -64,8 +69,11 @@ TEST_CASE(
 	"A framebuffer accepts a combined depth-stencil aspect",
 	"[framebuffer]")
 {
-	spall::TextureInfo textureInfo = spall::tests::textureInfo(spall::TextureUsageFlags::DepthStencilAttachment);
-	textureInfo.Format = spall::Format::Depth24Stencil8;
+	spall::TextureInfo textureInfo = {
+		.Width = 64,
+		.Height = 64,
+		.Format = spall::Format::Depth24Stencil8,
+		.Usage = spall::TextureUsageFlags::DepthStencilAttachment};
 	FakeTexture texture(textureInfo);
 	FakeTextureView view(texture, spall::TextureAspectFlags::Depth | spall::TextureAspectFlags::Stencil);
 
@@ -154,8 +162,11 @@ TEST_CASE(
 	"A framebuffer color attachment requires a color format",
 	"[framebuffer]")
 {
-	spall::TextureInfo textureInfo = spall::tests::textureInfo(spall::TextureUsageFlags::ColorAttachment);
-	textureInfo.Format = spall::Format::Depth32Float;
+	spall::TextureInfo textureInfo = {
+		.Width = 64,
+		.Height = 64,
+		.Format = spall::Format::Depth32Float,
+		.Usage = spall::TextureUsageFlags::ColorAttachment};
 	FakeTexture texture(textureInfo);
 	FakeTextureView view(texture, spall::TextureAspectFlags::Color);
 
@@ -166,8 +177,11 @@ TEST_CASE(
 	"A framebuffer depth attachment requires depth-stencil usage",
 	"[framebuffer]")
 {
-	spall::TextureInfo textureInfo = spall::tests::textureInfo(spall::TextureUsageFlags::Sampled);
-	textureInfo.Format = spall::Format::Depth32Float;
+	spall::TextureInfo textureInfo = {
+		.Width = 64,
+		.Height = 64,
+		.Format = spall::Format::Depth32Float,
+		.Usage = spall::TextureUsageFlags::Sampled};
 	FakeTexture texture(textureInfo);
 	FakeTextureView view(texture, spall::TextureAspectFlags::Depth);
 
@@ -181,7 +195,11 @@ TEST_CASE(
 	"A framebuffer depth attachment requires a depth format",
 	"[framebuffer]")
 {
-	FakeTexture texture(spall::tests::textureInfo(spall::TextureUsageFlags::DepthStencilAttachment));
+	FakeTexture texture(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::DepthStencilAttachment});
 	FakeTextureView view(texture, spall::TextureAspectFlags::Depth);
 
 	spall::FramebufferCreateInfo info = {};
@@ -240,7 +258,12 @@ TEST_CASE(
 	"A framebuffer accepts matching single-mip attachment views",
 	"[framebuffer][mips]")
 {
-	spall::TextureInfo largeInfo = spall::tests::textureInfo(spall::TextureUsageFlags::ColorAttachment, 7);
+	spall::TextureInfo largeInfo = {
+		.Width = 64,
+		.Height = 64,
+		.MipLevels = 7,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::ColorAttachment};
 	spall::TextureInfo smallInfo = largeInfo;
 	smallInfo.Width = 16;
 	smallInfo.Height = 16;
@@ -262,7 +285,12 @@ TEST_CASE(
 	"A framebuffer rejects multi-mip and mismatched-mip attachment views",
 	"[framebuffer][mips]")
 {
-	spall::TextureInfo textureInfo = spall::tests::textureInfo(spall::TextureUsageFlags::ColorAttachment, 7);
+	spall::TextureInfo textureInfo = {
+		.Width = 64,
+		.Height = 64,
+		.MipLevels = 7,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::ColorAttachment};
 	FakeTexture firstTexture(textureInfo);
 	FakeTexture secondTexture(textureInfo);
 	FakeTextureView multiMip(firstTexture, spall::TextureAspectFlags::Color, 0, 2);
@@ -315,8 +343,11 @@ TEST_CASE(
 	"A framebuffer rejects a texture used as both color and depth",
 	"[framebuffer]")
 {
-	spall::TextureInfo textureInfo = spall::tests::textureInfo(
-		spall::TextureUsageFlags::ColorAttachment | spall::TextureUsageFlags::DepthStencilAttachment);
+	spall::TextureInfo textureInfo = {
+		.Width = 64,
+		.Height = 64,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::ColorAttachment | spall::TextureUsageFlags::DepthStencilAttachment};
 	FakeTexture texture(textureInfo);
 	FakeTextureView colorView(texture, spall::TextureAspectFlags::Color);
 	FakeTextureView depthView(texture, spall::TextureAspectFlags::Depth);
@@ -331,7 +362,12 @@ TEST_CASE(
 	"A framebuffer attachment selects exactly one array layer",
 	"[framebuffer][layers]")
 {
-	FakeTexture texture(spall::tests::textureInfo(spall::TextureUsageFlags::ColorAttachment, 1, 6));
+	FakeTexture texture(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.ArrayLayers = 6,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::ColorAttachment});
 	FakeTextureView singleLayer(texture, spall::TextureAspectFlags::Color, 0, 1, 3, 1);
 	FakeTextureView wholeArray(texture, spall::TextureAspectFlags::Color, 0, 1, 0, 6);
 
@@ -343,7 +379,13 @@ TEST_CASE(
 	"A framebuffer rejects a cubemap attachment",
 	"[framebuffer][cubemap]")
 {
-	FakeTexture texture(spall::tests::textureInfo(spall::TextureUsageFlags::ColorAttachment, 1, 6, true));
+	FakeTexture texture(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.ArrayLayers = 6,
+		.Cubemap = true,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::ColorAttachment});
 	FakeTextureView cubeView(texture, spall::TextureAspectFlags::Color, 0, 1, 0, 6, true);
 	FakeTextureView faceView(texture, spall::TextureAspectFlags::Color, 0, 1, 2, 1);
 
@@ -355,8 +397,12 @@ TEST_CASE(
 	"A multisampled framebuffer requires a resolve attachment",
 	"[framebuffer][msaa]")
 {
-	spall::TextureInfo multisampledInfo = spall::tests::textureInfo(spall::TextureUsageFlags::ColorAttachment);
-	multisampledInfo.SampleCount = 4;
+	spall::TextureInfo multisampledInfo = {
+		.Width = 64,
+		.Height = 64,
+		.SampleCount = 4,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::ColorAttachment};
 	FakeTexture multisampled(multisampledInfo);
 	FakeTextureView colorView(multisampled, spall::TextureAspectFlags::Color);
 
@@ -390,8 +436,12 @@ TEST_CASE(
 	"Framebuffer attachments must share one sample count",
 	"[framebuffer][msaa]")
 {
-	spall::TextureInfo multisampledInfo = spall::tests::textureInfo(spall::TextureUsageFlags::ColorAttachment);
-	multisampledInfo.SampleCount = 4;
+	spall::TextureInfo multisampledInfo = {
+		.Width = 64,
+		.Height = 64,
+		.SampleCount = 4,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::ColorAttachment};
 	FakeTexture multisampled(multisampledInfo);
 	FakeTextureView colorView(multisampled, spall::TextureAspectFlags::Color);
 
@@ -412,8 +462,12 @@ TEST_CASE(
 	"A resolve attachment must be single sampled and match its format",
 	"[framebuffer][msaa]")
 {
-	spall::TextureInfo multisampledInfo = spall::tests::textureInfo(spall::TextureUsageFlags::ColorAttachment);
-	multisampledInfo.SampleCount = 4;
+	spall::TextureInfo multisampledInfo = {
+		.Width = 64,
+		.Height = 64,
+		.SampleCount = 4,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::ColorAttachment};
 	FakeTexture multisampled(multisampledInfo);
 	FakeTextureView colorView(multisampled, spall::TextureAspectFlags::Color);
 
@@ -424,8 +478,11 @@ TEST_CASE(
 	sampledResolve.ResolveAttachments[0] = &multisampledResolveView;
 	CHECK(spall::validateFramebufferCreateInfo(sampledResolve) == spall::ERR_INVALID_RESOURCE);
 
-	spall::TextureInfo mismatchedInfo = spall::tests::textureInfo(spall::TextureUsageFlags::ColorAttachment);
-	mismatchedInfo.Format = spall::Format::BGRA8;
+	spall::TextureInfo mismatchedInfo = {
+		.Width = 64,
+		.Height = 64,
+		.Format = spall::Format::BGRA8,
+		.Usage = spall::TextureUsageFlags::ColorAttachment};
 	FakeTexture mismatched(mismatchedInfo);
 	FakeTextureView mismatchedView(mismatched, spall::TextureAspectFlags::Color);
 

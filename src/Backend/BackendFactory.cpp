@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 #include <spall/Backend/BackendFactory.h>
 
 #if SPALL_HAS_D3D12

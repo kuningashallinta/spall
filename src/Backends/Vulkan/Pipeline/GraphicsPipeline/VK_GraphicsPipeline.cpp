@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 #include <src/Backends/Vulkan/Pipeline/GraphicsPipeline/VK_GraphicsPipeline.h>
 
 #include <spall/Common/Enums/RenderBackendType.h>

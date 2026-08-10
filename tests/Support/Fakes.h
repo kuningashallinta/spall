@@ -13,270 +13,212 @@
 
 #include <cstdint>
 
-namespace spall::tests
+template <typename Interface, typename Info>
+class FakeResource : public Interface
 {
-	template <typename Interface, typename Info>
-	class FakeResource : public Interface
+public:
+	explicit FakeResource(
+		const Info& info)
+		: m_Info(info)
 	{
-	public:
-		explicit FakeResource(
-			const Info& info)
-			: m_Info(info)
-		{
-		}
+	}
 
-		std::uint32_t addRef(
-			void) override
-		{
-			return ++m_ReferenceCount;
-		}
-
-		std::uint32_t release(
-			void) override
-		{
-			return --m_ReferenceCount;
-		}
-
-		RenderBackendType backendType(
-			void) const override
-		{
-			return RenderBackendType::Vulkan;
-		}
-
-		Info info(
-			void) const override
-		{
-			return m_Info;
-		}
-
-		std::uint32_t referenceCount(
-			void) const
-		{
-			return m_ReferenceCount;
-		}
-
-	private:
-		Info m_Info;
-		std::uint32_t m_ReferenceCount = 1;
-	};
-
-	class FakeTexture final : public FakeResource<ITexture, TextureInfo>
+	std::uint32_t addRef(
+		void) override
 	{
-	public:
-		using FakeResource::FakeResource;
-	};
+		return ++m_ReferenceCount;
+	}
 
-	class FakeBuffer final : public FakeResource<IBuffer, BufferInfo>
+	std::uint32_t release(
+		void) override
 	{
-	public:
-		using FakeResource::FakeResource;
-	};
+		return --m_ReferenceCount;
+	}
 
-	class FakeFramebuffer final : public FakeResource<IFramebuffer, FramebufferInfo>
+	spall::RenderBackendType backendType(
+		void) const override
 	{
-	public:
-		using FakeResource::FakeResource;
-	};
+		return spall::RenderBackendType::Vulkan;
+	}
 
-	class FakeQueryPool final : public FakeResource<IQueryPool, QueryPoolInfo>
+	Info info(
+		void) const override
 	{
-	public:
-		using FakeResource::FakeResource;
-	};
+		return m_Info;
+	}
 
-	class FakeAccelerationStructure final : public FakeResource<IAccelerationStructure, AccelerationStructureInfo>
+	std::uint32_t referenceCount(
+		void) const
 	{
-	public:
-		using FakeResource::FakeResource;
+		return m_ReferenceCount;
+	}
 
-		std::uint64_t deviceAddress(
-			void) const override
-		{
-			return 0x1000;
-		}
-	};
+private:
+	Info m_Info;
+	std::uint32_t m_ReferenceCount = 1;
+};
+class FakeTexture final : public FakeResource<spall::ITexture, spall::TextureInfo>
+{
+public:
+	using FakeResource::FakeResource;
+};
 
-	template <typename Interface>
-	class FakeMarker : public Interface
+class FakeBuffer final : public FakeResource<spall::IBuffer, spall::BufferInfo>
+{
+public:
+	using FakeResource::FakeResource;
+};
+
+class FakeFramebuffer final : public FakeResource<spall::IFramebuffer, spall::FramebufferInfo>
+{
+public:
+	using FakeResource::FakeResource;
+};
+
+class FakeQueryPool final : public FakeResource<spall::IQueryPool, spall::QueryPoolInfo>
+{
+public:
+	using FakeResource::FakeResource;
+};
+
+class FakeAccelerationStructure final : public FakeResource<spall::IAccelerationStructure, spall::AccelerationStructureInfo>
+{
+public:
+	using FakeResource::FakeResource;
+
+	std::uint64_t deviceAddress(
+		void) const override
 	{
-	public:
-		std::uint32_t addRef(
-			void) override
-		{
-			return ++m_ReferenceCount;
-		}
+		return 0x1000;
+	}
+};
 
-		std::uint32_t release(
-			void) override
-		{
-			return --m_ReferenceCount;
-		}
-
-		RenderBackendType backendType(
-			void) const override
-		{
-			return RenderBackendType::Vulkan;
-		}
-
-	private:
-		std::uint32_t m_ReferenceCount = 1;
-	};
-
-	class FakeSampler final : public FakeMarker<ISampler>
+template <typename Interface>
+class FakeMarker : public Interface
+{
+public:
+	std::uint32_t addRef(
+		void) override
 	{
-	};
+		return ++m_ReferenceCount;
+	}
 
-	class FakeResourceSetLayout final : public FakeMarker<IResourceSetLayout>
+	std::uint32_t release(
+		void) override
 	{
-	};
+		return --m_ReferenceCount;
+	}
 
-	class FakeShader final : public FakeMarker<IShader>
+	spall::RenderBackendType backendType(
+		void) const override
 	{
-	};
+		return spall::RenderBackendType::Vulkan;
+	}
 
-	class FakeTextureView final : public ITextureView
-	{
-	public:
-		FakeTextureView(
-			ITexture& texture,
-			TextureAspectFlags aspects,
-			std::uint32_t baseMipLevel = 0,
-			std::uint32_t mipLevels = 1,
-			std::uint32_t baseArrayLayer = 0,
-			std::uint32_t arrayLayers = 1,
-			bool cubemap = false)
-			: m_Texture(&texture), m_Aspects(aspects), m_BaseMipLevel(baseMipLevel), m_MipLevels(mipLevels), m_BaseArrayLayer(baseArrayLayer), m_ArrayLayers(arrayLayers), m_Cubemap(cubemap)
-		{
-		}
+private:
+	std::uint32_t m_ReferenceCount = 1;
+};
 
-		std::uint32_t addRef(
-			void) override
-		{
-			return ++m_ReferenceCount;
-		}
+class FakeSampler final : public FakeMarker<spall::ISampler>
+{
+};
 
-		std::uint32_t release(
-			void) override
-		{
-			return --m_ReferenceCount;
-		}
+class FakeResourceSetLayout final : public FakeMarker<spall::IResourceSetLayout>
+{
+};
 
-		RenderBackendType backendType(
-			void) const override
-		{
-			return RenderBackendType::Vulkan;
-		}
+class FakeShader final : public FakeMarker<spall::IShader>
+{
+};
 
-		ITexture& texture(
-			void) const override
-		{
-			return *m_Texture;
-		}
-
-		spall::Format format(
-			void) const override
-		{
-			return m_Texture->info().Format;
-		}
-
-		TextureAspectFlags aspects(
-			void) const override
-		{
-			return m_Aspects;
-		}
-
-		std::uint32_t baseMipLevel(
-			void) const override
-		{
-			return m_BaseMipLevel;
-		}
-
-		std::uint32_t mipLevels(
-			void) const override
-		{
-			return m_MipLevels;
-		}
-
-		std::uint32_t baseArrayLayer(
-			void) const override
-		{
-			return m_BaseArrayLayer;
-		}
-
-		std::uint32_t arrayLayers(
-			void) const override
-		{
-			return m_ArrayLayers;
-		}
-
-		bool isCubemap(
-			void) const override
-		{
-			return m_Cubemap;
-		}
-
-	private:
-		ITexture* m_Texture = nullptr;
-		TextureAspectFlags m_Aspects = TextureAspectFlags::None;
-		std::uint32_t m_BaseMipLevel = 0;
-		std::uint32_t m_MipLevels = 1;
-		std::uint32_t m_BaseArrayLayer = 0;
-		std::uint32_t m_ArrayLayers = 1;
-		bool m_Cubemap = false;
-		std::uint32_t m_ReferenceCount = 1;
-	};
-
-	inline TextureInfo textureInfo(
-		TextureUsageFlags usage,
+class FakeTextureView final : public spall::ITextureView
+{
+public:
+	FakeTextureView(
+		spall::ITexture& texture,
+		spall::TextureAspectFlags aspects,
+		std::uint32_t baseMipLevel = 0,
 		std::uint32_t mipLevels = 1,
+		std::uint32_t baseArrayLayer = 0,
 		std::uint32_t arrayLayers = 1,
 		bool cubemap = false)
+		: m_Texture(&texture), m_Aspects(aspects), m_BaseMipLevel(baseMipLevel), m_MipLevels(mipLevels), m_BaseArrayLayer(baseArrayLayer), m_ArrayLayers(arrayLayers), m_Cubemap(cubemap)
 	{
-		TextureInfo info = {};
-		info.Width = 64;
-		info.Height = 64;
-		info.MipLevels = mipLevels;
-		info.ArrayLayers = arrayLayers;
-		info.Cubemap = cubemap;
-		info.Format = spall::Format::RGBA8;
-		info.Usage = usage;
-
-		return info;
 	}
 
-	inline QueryPoolInfo queryPoolInfo(
-		std::uint32_t timestampCount = 8)
+	std::uint32_t addRef(
+		void) override
 	{
-		QueryPoolInfo info = {};
-		info.TimestampCount = timestampCount;
-
-		return info;
+		return ++m_ReferenceCount;
 	}
 
-	inline BufferInfo bufferInfo(
-		BufferUsageFlags usage,
-		std::uint32_t size = 256)
+	std::uint32_t release(
+		void) override
 	{
-		BufferInfo info = {};
-		info.Size = size;
-		info.Usage = usage;
-
-		return info;
+		return --m_ReferenceCount;
 	}
 
-	inline AccelerationStructureInfo accelerationStructureInfo(
-		AccelerationStructureType type,
-		AccelerationStructureBuildFlags flags = AccelerationStructureBuildFlags::PreferFastTrace,
-		std::uint32_t instanceCount = 0)
+	spall::RenderBackendType backendType(
+		void) const override
 	{
-		AccelerationStructureInfo info = {};
-		info.Type = type;
-		info.Flags = flags;
-		info.Size = 1024;
-		info.BuildScratchSize = 512;
-		info.GeometryCount = (type == AccelerationStructureType::BottomLevel) ? 1 : 0;
-		info.InstanceCount = instanceCount;
-
-		return info;
+		return spall::RenderBackendType::Vulkan;
 	}
-} // namespace spall::tests
+
+	spall::ITexture& texture(
+		void) const override
+	{
+		return *m_Texture;
+	}
+
+	spall::Format format(
+		void) const override
+	{
+		return m_Texture->info().Format;
+	}
+
+	spall::TextureAspectFlags aspects(
+		void) const override
+	{
+		return m_Aspects;
+	}
+
+	std::uint32_t baseMipLevel(
+		void) const override
+	{
+		return m_BaseMipLevel;
+	}
+
+	std::uint32_t mipLevels(
+		void) const override
+	{
+		return m_MipLevels;
+	}
+
+	std::uint32_t baseArrayLayer(
+		void) const override
+	{
+		return m_BaseArrayLayer;
+	}
+
+	std::uint32_t arrayLayers(
+		void) const override
+	{
+		return m_ArrayLayers;
+	}
+
+	bool isCubemap(
+		void) const override
+	{
+		return m_Cubemap;
+	}
+
+private:
+	spall::ITexture* m_Texture = nullptr;
+	spall::TextureAspectFlags m_Aspects = spall::TextureAspectFlags::None;
+	std::uint32_t m_BaseMipLevel = 0;
+	std::uint32_t m_MipLevels = 1;
+	std::uint32_t m_BaseArrayLayer = 0;
+	std::uint32_t m_ArrayLayers = 1;
+	bool m_Cubemap = false;
+	std::uint32_t m_ReferenceCount = 1;
+};

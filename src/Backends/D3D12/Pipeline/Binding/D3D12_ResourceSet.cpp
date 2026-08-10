@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 #include <src/Backends/D3D12/Pipeline/Binding/D3D12_ResourceSet.h>
 
 #include <spall/Common/Alignment.h>
@@ -91,7 +94,7 @@ namespace spall::d3d12
 				Texture* texture = view->m_Texture.get();
 
 				D3D12_SHADER_RESOURCE_VIEW_DESC viewDesc = {};
-				viewDesc.Format = dxgi::nativeFormat(texture->m_Info.Format);
+				viewDesc.Format = nativeFormat(texture->m_Info.Format);
 				viewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
 				const bool layered = (view->m_ArrayLayers > 1) or (view->m_BaseArrayLayer != 0);
@@ -167,7 +170,7 @@ namespace spall::d3d12
 				Texture* texture = view->m_Texture.get();
 
 				D3D12_UNORDERED_ACCESS_VIEW_DESC viewDesc = {};
-				viewDesc.Format = dxgi::nativeFormat(texture->m_Info.Format);
+				viewDesc.Format = nativeFormat(texture->m_Info.Format);
 
 				if (texture->m_Info.Depth > 1)
 				{

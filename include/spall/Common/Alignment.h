@@ -1,7 +1,11 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 #pragma once
 
-#include <cassert>
 #include <concepts>
+
+#include <spall/Common/Assert.h>
 
 namespace spall
 {
@@ -14,10 +18,11 @@ namespace spall
 			T value,
 			U alignment)
 		{
-			assert(alignment > 0);
+			SPALL_ASSERT(alignment > 0);
 
 			const T typedAlignment = static_cast<T>(alignment);
 			const T remainder = value % typedAlignment;
+
 			return (remainder == 0) ? value : value + typedAlignment - remainder;
 		}
 	};

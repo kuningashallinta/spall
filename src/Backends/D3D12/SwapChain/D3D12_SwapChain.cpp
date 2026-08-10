@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 #include <src/Backends/D3D12/SwapChain/D3D12_SwapChain.h>
 
 #include <spall/Common/Assert.h>
@@ -80,11 +83,11 @@ namespace spall::d3d12
 		releaseBackBuffers();
 
 		const UINT flags = (m_PresentMode == PresentMode::Immediate) ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
-		const HRESULT hr = m_SwapChain->ResizeBuffers(m_BufferCount, width, height, dxgi::nativeSwapChainFormat(m_Format), flags);
+		const HRESULT hr = m_SwapChain->ResizeBuffers(m_BufferCount, width, height, nativeSwapChainFormat(m_Format), flags);
 
 		if (FAILED(hr))
 		{
-			const Status resizeError = dxgi::mapHResult(hr);
+			const Status resizeError = mapHResult(hr);
 			const Status recoveryError = recreateBackBuffers();
 
 			if (recoveryError != SUCCESS)
@@ -124,7 +127,7 @@ namespace spall::d3d12
 			{
 				releaseBackBuffers();
 
-				return dxgi::mapHResult(hr);
+				return mapHResult(hr);
 			}
 
 			TextureInfo textureInfo = {};
@@ -148,7 +151,7 @@ namespace spall::d3d12
 			}
 
 			D3D12_RENDER_TARGET_VIEW_DESC viewDesc = {};
-			viewDesc.Format = dxgi::nativeFormat(m_Format);
+			viewDesc.Format = nativeFormat(m_Format);
 			viewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 			viewDesc.Texture2D.MipSlice = 0;
 			viewDesc.Texture2D.PlaneSlice = 0;

@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 #include "Shaders.h"
 
 #include <spall/CommandList/ICommandList.h>
@@ -15,58 +18,55 @@
 #include <cstdlib>
 #include <iterator>
 
-namespace
+static constexpr std::uint32_t WindowWidth = 800;
+static constexpr std::uint32_t WindowHeight = 600;
+
+static constexpr spall::RenderBackendType BackendType = spall::RenderBackendType::D3D12;
+
+struct Vertex
 {
-	constexpr std::uint32_t WindowWidth = 800;
-	constexpr std::uint32_t WindowHeight = 600;
+	float Position[3];
+	float Color[3];
+};
 
-	constexpr spall::RenderBackendType BackendType = spall::RenderBackendType::D3D12;
+struct PushConstants
+{
+	float Angle;
+	float Aspect;
+};
 
-	struct Vertex
+static constexpr Vertex Vertices[] = {
+	{{-0.75f, -0.75f, -0.75f}, {0.0f, 0.0f, 0.0f}},
+	{{0.75f, -0.75f, -0.75f}, {1.0f, 0.0f, 0.0f}},
+	{{-0.75f, 0.75f, -0.75f}, {0.0f, 1.0f, 0.0f}},
+	{{0.75f, 0.75f, -0.75f}, {1.0f, 1.0f, 0.0f}},
+	{{-0.75f, -0.75f, 0.75f}, {0.0f, 0.0f, 1.0f}},
+	{{0.75f, -0.75f, 0.75f}, {1.0f, 0.0f, 1.0f}},
+	{{-0.75f, 0.75f, 0.75f}, {0.0f, 1.0f, 1.0f}},
+	{{0.75f, 0.75f, 0.75f}, {1.0f, 1.0f, 1.0f}}};
+
+static constexpr std::uint16_t Indices[] = {
+	0, 2, 1, 1, 2, 3,
+	4, 5, 6, 5, 7, 6,
+	0, 4, 2, 4, 6, 2,
+	1, 3, 5, 5, 3, 7,
+	2, 6, 3, 3, 6, 7,
+	0, 1, 4, 1, 5, 4};
+
+static LRESULT CALLBACK windowProcedure(
+	HWND window,
+	UINT message,
+	WPARAM wordParameter,
+	LPARAM longParameter)
+{
+	if (message == WM_DESTROY)
 	{
-		float Position[3];
-		float Color[3];
-	};
-
-	struct PushConstants
-	{
-		float Angle;
-		float Aspect;
-	};
-
-	constexpr Vertex Vertices[] = {
-		{{-0.75f, -0.75f, -0.75f}, {0.0f, 0.0f, 0.0f}},
-		{{0.75f, -0.75f, -0.75f}, {1.0f, 0.0f, 0.0f}},
-		{{-0.75f, 0.75f, -0.75f}, {0.0f, 1.0f, 0.0f}},
-		{{0.75f, 0.75f, -0.75f}, {1.0f, 1.0f, 0.0f}},
-		{{-0.75f, -0.75f, 0.75f}, {0.0f, 0.0f, 1.0f}},
-		{{0.75f, -0.75f, 0.75f}, {1.0f, 0.0f, 1.0f}},
-		{{-0.75f, 0.75f, 0.75f}, {0.0f, 1.0f, 1.0f}},
-		{{0.75f, 0.75f, 0.75f}, {1.0f, 1.0f, 1.0f}}};
-
-	constexpr std::uint16_t Indices[] = {
-		0, 2, 1, 1, 2, 3,
-		4, 5, 6, 5, 7, 6,
-		0, 4, 2, 4, 6, 2,
-		1, 3, 5, 5, 3, 7,
-		2, 6, 3, 3, 6, 7,
-		0, 1, 4, 1, 5, 4};
-
-	LRESULT CALLBACK windowProcedure(
-		HWND window,
-		UINT message,
-		WPARAM wordParameter,
-		LPARAM longParameter)
-	{
-		if (message == WM_DESTROY)
-		{
-			PostQuitMessage(0);
-			return 0;
-		}
-
-		return DefWindowProcW(window, message, wordParameter, longParameter);
+		PostQuitMessage(0);
+		return 0;
 	}
-} // namespace
+
+	return DefWindowProcW(window, message, wordParameter, longParameter);
+}
 
 int WINAPI wWinMain(
 	HINSTANCE instance,
@@ -127,8 +127,8 @@ int WINAPI wWinMain(
 	{
 		case spall::RenderBackendType::D3D12:
 		{
-			vertexShader = device.pipelines().createShader(spall::ShaderStage::Vertex, shaders::HlslVertex);
-			fragmentShader = device.pipelines().createShader(spall::ShaderStage::Fragment, shaders::HlslFragment);
+			vertexShader = device.pipelines().createShader(spall::ShaderStage::Vertex, spall::HlslVertex);
+			fragmentShader = device.pipelines().createShader(spall::ShaderStage::Fragment, spall::HlslFragment);
 
 			vertexEntryPoint = "vsMain";
 			fragmentEntryPoint = "psMain";
@@ -137,8 +137,8 @@ int WINAPI wWinMain(
 
 		case spall::RenderBackendType::Vulkan:
 		{
-			vertexShader = device.pipelines().createShader(spall::ShaderStage::Vertex, shaders::VulkanVertex);
-			fragmentShader = device.pipelines().createShader(spall::ShaderStage::Fragment, shaders::VulkanFragment);
+			vertexShader = device.pipelines().createShader(spall::ShaderStage::Vertex, spall::VulkanVertex);
+			fragmentShader = device.pipelines().createShader(spall::ShaderStage::Fragment, spall::VulkanFragment);
 
 			vertexEntryPoint = "main";
 			fragmentEntryPoint = "main";

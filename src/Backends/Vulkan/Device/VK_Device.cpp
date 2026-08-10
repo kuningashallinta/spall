@@ -1,3 +1,9 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 #include <spall/Common/Assert.h>
 #include <src/Backends/Vulkan/Device/VK_Device.h>
 

@@ -3,19 +3,16 @@
 #include <src/Validation/Common/TextureValidation.h>
 #include <tests/Support/Fakes.h>
 
-namespace
+static spall::TextureCreateInfo sampledTextureCreateInfo()
 {
-	spall::TextureCreateInfo sampledTextureCreateInfo()
-	{
-		spall::TextureCreateInfo info = {};
-		info.Width = 64;
-		info.Height = 64;
-		info.Format = spall::Format::RGBA8;
-		info.Usage = spall::TextureUsageFlags::Sampled;
+	spall::TextureCreateInfo info = {};
+	info.Width = 64;
+	info.Height = 64;
+	info.Format = spall::Format::RGBA8;
+	info.Usage = spall::TextureUsageFlags::Sampled;
 
-		return info;
-	}
-} // namespace
+	return info;
+}
 
 TEST_CASE(
 	"The mip chain runs down to a single pixel",
@@ -323,13 +320,20 @@ TEST_CASE(
 	"A texture view inherits its texture format and default aspects",
 	"[texture][view]")
 {
-	spall::tests::FakeTexture color(spall::tests::textureInfo(spall::TextureUsageFlags::Sampled));
+	FakeTexture color(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::Sampled});
 	spall::TextureViewCreateInfo colorView = {};
 	colorView.Texture = &color;
 
-	spall::TextureInfo depthInfo = spall::tests::textureInfo(spall::TextureUsageFlags::DepthStencilAttachment);
-	depthInfo.Format = spall::Format::Depth24Stencil8;
-	spall::tests::FakeTexture depth(depthInfo);
+	spall::TextureInfo depthInfo = {
+		.Width = 64,
+		.Height = 64,
+		.Format = spall::Format::Depth24Stencil8,
+		.Usage = spall::TextureUsageFlags::DepthStencilAttachment};
+	FakeTexture depth(depthInfo);
 	spall::TextureViewCreateInfo depthView = {};
 	depthView.Texture = &depth;
 
@@ -341,7 +345,12 @@ TEST_CASE(
 	"A texture view accepts a mip subresource range",
 	"[texture][view][mips]")
 {
-	spall::tests::FakeTexture texture(spall::tests::textureInfo(spall::TextureUsageFlags::Sampled, 7));
+	FakeTexture texture(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.MipLevels = 7,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::Sampled});
 	spall::TextureViewCreateInfo info = {};
 	info.Texture = &texture;
 	info.BaseMipLevel = 2;
@@ -357,7 +366,12 @@ TEST_CASE(
 	"A texture view rejects mip ranges outside its texture",
 	"[texture][view][mips]")
 {
-	spall::tests::FakeTexture texture(spall::tests::textureInfo(spall::TextureUsageFlags::Sampled, 7));
+	FakeTexture texture(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.MipLevels = 7,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::Sampled});
 	spall::TextureViewCreateInfo info = {};
 	info.Texture = &texture;
 	info.BaseMipLevel = 7;
@@ -373,7 +387,11 @@ TEST_CASE(
 	"A texture view cannot reinterpret its format",
 	"[texture][view]")
 {
-	spall::tests::FakeTexture texture(spall::tests::textureInfo(spall::TextureUsageFlags::Sampled));
+	FakeTexture texture(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::Sampled});
 	spall::TextureViewCreateInfo info = {};
 	info.Texture = &texture;
 	info.Format = spall::Format::BGRA8;
@@ -385,14 +403,21 @@ TEST_CASE(
 	"A texture view rejects aspects absent from its format",
 	"[texture][view]")
 {
-	spall::tests::FakeTexture color(spall::tests::textureInfo(spall::TextureUsageFlags::Sampled));
+	FakeTexture color(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::Sampled});
 	spall::TextureViewCreateInfo colorAsDepth = {};
 	colorAsDepth.Texture = &color;
 	colorAsDepth.Aspects = spall::TextureAspectFlags::Depth;
 
-	spall::TextureInfo depthInfo = spall::tests::textureInfo(spall::TextureUsageFlags::DepthStencilAttachment);
-	depthInfo.Format = spall::Format::Depth32Float;
-	spall::tests::FakeTexture depth(depthInfo);
+	spall::TextureInfo depthInfo = {
+		.Width = 64,
+		.Height = 64,
+		.Format = spall::Format::Depth32Float,
+		.Usage = spall::TextureUsageFlags::DepthStencilAttachment};
+	FakeTexture depth(depthInfo);
 	spall::TextureViewCreateInfo depthAsColor = {};
 	depthAsColor.Texture = &depth;
 	depthAsColor.Aspects = spall::TextureAspectFlags::Color;
@@ -401,9 +426,12 @@ TEST_CASE(
 	depthAsStencil.Texture = &depth;
 	depthAsStencil.Aspects = spall::TextureAspectFlags::Stencil;
 
-	spall::TextureInfo combinedInfo = spall::tests::textureInfo(spall::TextureUsageFlags::DepthStencilAttachment);
-	combinedInfo.Format = spall::Format::Depth32FloatStencil8;
-	spall::tests::FakeTexture combined(combinedInfo);
+	spall::TextureInfo combinedInfo = {
+		.Width = 64,
+		.Height = 64,
+		.Format = spall::Format::Depth32FloatStencil8,
+		.Usage = spall::TextureUsageFlags::DepthStencilAttachment};
+	FakeTexture combined(combinedInfo);
 	spall::TextureViewCreateInfo combinedAsStencil = {};
 	combinedAsStencil.Texture = &combined;
 	combinedAsStencil.Aspects = spall::TextureAspectFlags::Stencil;
@@ -418,14 +446,21 @@ TEST_CASE(
 	"A texture view aspect requires matching texture usage",
 	"[texture][view]")
 {
-	spall::tests::FakeTexture transferOnly(spall::tests::textureInfo(spall::TextureUsageFlags::TransferSource));
+	FakeTexture transferOnly(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::TransferSource});
 	spall::TextureViewCreateInfo colorView = {};
 	colorView.Texture = &transferOnly;
 	colorView.Aspects = spall::TextureAspectFlags::Color;
 
-	spall::TextureInfo depthInfo = spall::tests::textureInfo(spall::TextureUsageFlags::TransferSource);
-	depthInfo.Format = spall::Format::Depth32Float;
-	spall::tests::FakeTexture depth(depthInfo);
+	spall::TextureInfo depthInfo = {
+		.Width = 64,
+		.Height = 64,
+		.Format = spall::Format::Depth32Float,
+		.Usage = spall::TextureUsageFlags::TransferSource};
+	FakeTexture depth(depthInfo);
 	spall::TextureViewCreateInfo depthView = {};
 	depthView.Texture = &depth;
 	depthView.Aspects = spall::TextureAspectFlags::Depth;
@@ -520,7 +555,12 @@ TEST_CASE(
 	"A texture view accepts a layer subresource range",
 	"[texture][view][layers]")
 {
-	spall::tests::FakeTexture texture(spall::tests::textureInfo(spall::TextureUsageFlags::Sampled, 1, 8));
+	FakeTexture texture(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.ArrayLayers = 8,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::Sampled});
 	spall::TextureViewCreateInfo info = {};
 	info.Texture = &texture;
 	info.BaseArrayLayer = 2;
@@ -536,7 +576,12 @@ TEST_CASE(
 	"A texture view rejects layer ranges outside its texture",
 	"[texture][view][layers]")
 {
-	spall::tests::FakeTexture texture(spall::tests::textureInfo(spall::TextureUsageFlags::Sampled, 1, 8));
+	FakeTexture texture(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.ArrayLayers = 8,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::Sampled});
 	spall::TextureViewCreateInfo info = {};
 	info.Texture = &texture;
 	info.BaseArrayLayer = 8;
@@ -552,14 +597,25 @@ TEST_CASE(
 	"A cubemap view requires whole faces of a cubemap texture",
 	"[texture][view][cubemap]")
 {
-	spall::tests::FakeTexture array(spall::tests::textureInfo(spall::TextureUsageFlags::Sampled, 1, 12));
+	FakeTexture array(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.ArrayLayers = 12,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::Sampled});
 	spall::TextureViewCreateInfo arrayAsCube = {};
 	arrayAsCube.Texture = &array;
 	arrayAsCube.Cubemap = true;
 
 	CHECK(spall::validateTextureViewCreateInfo(arrayAsCube) == spall::ERR_UNSUPPORTED_USAGE);
 
-	spall::tests::FakeTexture cube(spall::tests::textureInfo(spall::TextureUsageFlags::Sampled, 1, 12, true));
+	FakeTexture cube(spall::TextureInfo {
+		.Width = 64,
+		.Height = 64,
+		.ArrayLayers = 12,
+		.Cubemap = true,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::Sampled});
 	spall::TextureViewCreateInfo wholeCube = {};
 	wholeCube.Texture = &cube;
 	wholeCube.Cubemap = true;
@@ -590,7 +646,13 @@ TEST_CASE(
 	"A subresource range resolves its open counts",
 	"[texture][subresource]")
 {
-	const spall::TextureInfo info = spall::tests::textureInfo(spall::TextureUsageFlags::Sampled, 7, 6);
+	const spall::TextureInfo info = {
+		.Width = 64,
+		.Height = 64,
+		.MipLevels = 7,
+		.ArrayLayers = 6,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::Sampled};
 
 	const spall::TextureSubresourceRange whole = spall::resolveTextureSubresourceRange(info, {});
 	CHECK(whole.BaseMipLevel == 0);
@@ -611,7 +673,13 @@ TEST_CASE(
 	"A subresource range stays inside its texture",
 	"[texture][subresource]")
 {
-	const spall::TextureInfo info = spall::tests::textureInfo(spall::TextureUsageFlags::Sampled, 7, 6);
+	const spall::TextureInfo info = {
+		.Width = 64,
+		.Height = 64,
+		.MipLevels = 7,
+		.ArrayLayers = 6,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::Sampled};
 
 	CHECK(spall::validateTextureSubresourceRange(info, {}) == spall::SUCCESS);
 	CHECK(spall::validateTextureSubresourceRange(info, spall::TextureSubresourceRange {6, 1, 5, 1}) == spall::SUCCESS);
@@ -625,7 +693,13 @@ TEST_CASE(
 	"A subresource index runs mip-major over the layers",
 	"[texture][subresource]")
 {
-	const spall::TextureInfo info = spall::tests::textureInfo(spall::TextureUsageFlags::Sampled, 3, 6);
+	const spall::TextureInfo info = {
+		.Width = 64,
+		.Height = 64,
+		.MipLevels = 3,
+		.ArrayLayers = 6,
+		.Format = spall::Format::RGBA8,
+		.Usage = spall::TextureUsageFlags::Sampled};
 
 	CHECK(spall::textureSubresourceCount(info) == 18);
 	CHECK(spall::textureSubresourceIndex(info, 0, 0) == 0);

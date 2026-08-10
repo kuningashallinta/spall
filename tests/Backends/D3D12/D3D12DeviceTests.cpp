@@ -30,110 +30,104 @@
 #include <span>
 #include <vector>
 
-namespace
+static std::uint32_t mipExtent(
+	std::uint32_t baseExtent,
+	std::uint32_t mipLevel)
 {
-	using spall::tests::HiddenWindow;
-	using spall::tests::requireDevice;
+	const std::uint32_t extent = baseExtent >> mipLevel;
 
-	std::uint32_t mipExtent(
-		std::uint32_t baseExtent,
-		std::uint32_t mipLevel)
+	return (extent != 0) ? extent : 1;
+}
+
+static void clearAndReadBack(
+	spall::IDevice& device,
+	std::uint32_t extent)
+{
+	spall::TextureCreateInfo textureInfo = {};
+	textureInfo.Width = extent;
+	textureInfo.Height = extent;
+	textureInfo.Format = spall::Format::RGBA8;
+	textureInfo.Usage = spall::TextureUsageFlags::ColorAttachment | spall::TextureUsageFlags::TransferSource;
+
+	spall::Resource<spall::ITexture> texture;
+	REQUIRE(device.resources().createTexture(textureInfo, &texture) == spall::SUCCESS);
+
+	spall::TextureViewCreateInfo viewInfo = {};
+	viewInfo.Texture = texture.get();
+
+	spall::Resource<spall::ITextureView> view;
+	REQUIRE(device.resources().createTextureView(viewInfo, &view) == spall::SUCCESS);
+
+	spall::FramebufferCreateInfo framebufferInfo = {};
+	framebufferInfo.ColorAttachments[0] = view.get();
+	framebufferInfo.ColorAttachmentCount = 1;
+
+	spall::Resource<spall::IFramebuffer> framebuffer;
+	REQUIRE(device.resources().createFramebuffer(framebufferInfo, &framebuffer) == spall::SUCCESS);
+
+	const std::uint32_t rowPitch = extent * 4;
+
+	spall::BufferCreateInfo readbackInfo = {};
+	readbackInfo.Size = rowPitch * extent;
+	readbackInfo.Usage = spall::BufferUsageFlags::TransferDestination;
+	readbackInfo.CpuAccess = spall::MemoryAccess::Read;
+	readbackInfo.InitialState = spall::ResourceStateFlags::CopyDest;
+
+	spall::Resource<spall::IBuffer> readback;
+	REQUIRE(device.resources().createBuffer(readbackInfo, &readback) == spall::SUCCESS);
+
+	spall::Resource<spall::ICommandList> commands;
+	REQUIRE(device.createCommandList(&commands) == spall::SUCCESS);
+
+	spall::RenderPassBeginInfo passInfo = {};
+	passInfo.Framebuffer = framebuffer.get();
+	passInfo.ColorAttachments[0].LoadAction = spall::LoadAction::Clear;
+	passInfo.ColorAttachments[0].ClearColor = {0.25f, 0.5f, 0.75f, 1.0f};
+
+	REQUIRE(commands->begin() == spall::SUCCESS);
+	REQUIRE(commands->beginRenderPass(passInfo) == spall::SUCCESS);
+	REQUIRE(commands->endRenderPass() == spall::SUCCESS);
+	REQUIRE(commands->copyTextureToBuffer(*readback, 0, rowPitch, *texture, {}) == spall::SUCCESS);
+	REQUIRE(commands->end() == spall::SUCCESS);
+	REQUIRE(device.graphicsQueue().submit(*commands) == spall::SUCCESS);
+	REQUIRE(device.graphicsQueue().waitIdle() == spall::SUCCESS);
+
+	std::vector<std::uint8_t> pixels(readbackInfo.Size);
+	REQUIRE(device.resources()
+				.readBuffer(
+					*readback,
+					std::span<std::byte>(reinterpret_cast<std::byte*>(pixels.data()), pixels.size()),
+					0) == spall::SUCCESS);
+
+	const std::uint8_t expected[4] = {64, 128, 191, 255};
+	bool everyPixelMatches = true;
+
+	for (std::uint32_t y = 0; y < extent; ++y)
 	{
-		const std::uint32_t extent = baseExtent >> mipLevel;
-
-		return (extent != 0) ? extent : 1;
-	}
-
-	void clearAndReadBack(
-		spall::IDevice& device,
-		std::uint32_t extent)
-	{
-		spall::TextureCreateInfo textureInfo = {};
-		textureInfo.Width = extent;
-		textureInfo.Height = extent;
-		textureInfo.Format = spall::Format::RGBA8;
-		textureInfo.Usage = spall::TextureUsageFlags::ColorAttachment | spall::TextureUsageFlags::TransferSource;
-
-		spall::Resource<spall::ITexture> texture;
-		REQUIRE(device.resources().createTexture(textureInfo, &texture) == spall::SUCCESS);
-
-		spall::TextureViewCreateInfo viewInfo = {};
-		viewInfo.Texture = texture.get();
-
-		spall::Resource<spall::ITextureView> view;
-		REQUIRE(device.resources().createTextureView(viewInfo, &view) == spall::SUCCESS);
-
-		spall::FramebufferCreateInfo framebufferInfo = {};
-		framebufferInfo.ColorAttachments[0] = view.get();
-		framebufferInfo.ColorAttachmentCount = 1;
-
-		spall::Resource<spall::IFramebuffer> framebuffer;
-		REQUIRE(device.resources().createFramebuffer(framebufferInfo, &framebuffer) == spall::SUCCESS);
-
-		const std::uint32_t rowPitch = extent * 4;
-
-		spall::BufferCreateInfo readbackInfo = {};
-		readbackInfo.Size = rowPitch * extent;
-		readbackInfo.Usage = spall::BufferUsageFlags::TransferDestination;
-		readbackInfo.CpuAccess = spall::MemoryAccess::Read;
-		readbackInfo.InitialState = spall::ResourceStateFlags::CopyDest;
-
-		spall::Resource<spall::IBuffer> readback;
-		REQUIRE(device.resources().createBuffer(readbackInfo, &readback) == spall::SUCCESS);
-
-		spall::Resource<spall::ICommandList> commands;
-		REQUIRE(device.createCommandList(&commands) == spall::SUCCESS);
-
-		spall::RenderPassBeginInfo passInfo = {};
-		passInfo.Framebuffer = framebuffer.get();
-		passInfo.ColorAttachments[0].LoadAction = spall::LoadAction::Clear;
-		passInfo.ColorAttachments[0].ClearColor = {0.25f, 0.5f, 0.75f, 1.0f};
-
-		REQUIRE(commands->begin() == spall::SUCCESS);
-		REQUIRE(commands->beginRenderPass(passInfo) == spall::SUCCESS);
-		REQUIRE(commands->endRenderPass() == spall::SUCCESS);
-		REQUIRE(commands->copyTextureToBuffer(*readback, 0, rowPitch, *texture, {}) == spall::SUCCESS);
-		REQUIRE(commands->end() == spall::SUCCESS);
-		REQUIRE(device.graphicsQueue().submit(*commands) == spall::SUCCESS);
-		REQUIRE(device.graphicsQueue().waitIdle() == spall::SUCCESS);
-
-		std::vector<std::uint8_t> pixels(readbackInfo.Size);
-		REQUIRE(device.resources()
-					.readBuffer(
-						*readback,
-						std::span<std::byte>(reinterpret_cast<std::byte*>(pixels.data()), pixels.size()),
-						0) == spall::SUCCESS);
-
-		const std::uint8_t expected[4] = {64, 128, 191, 255};
-		bool everyPixelMatches = true;
-
-		for (std::uint32_t y = 0; y < extent; ++y)
+		for (std::uint32_t x = 0; x < extent; ++x)
 		{
-			for (std::uint32_t x = 0; x < extent; ++x)
+			const std::uint8_t* pixel = pixels.data() + (y * rowPitch) + (x * 4);
+
+			for (std::uint32_t channel = 0; channel < 4; ++channel)
 			{
-				const std::uint8_t* pixel = pixels.data() + (y * rowPitch) + (x * 4);
+				const int difference = static_cast<int>(pixel[channel]) - static_cast<int>(expected[channel]);
 
-				for (std::uint32_t channel = 0; channel < 4; ++channel)
+				if ((difference > 1) or (difference < -1))
 				{
-					const int difference = static_cast<int>(pixel[channel]) - static_cast<int>(expected[channel]);
-
-					if ((difference > 1) or (difference < -1))
-					{
-						everyPixelMatches = false;
-					}
+					everyPixelMatches = false;
 				}
 			}
 		}
-
-		CHECK(everyPixelMatches);
 	}
-} // namespace
+
+	CHECK(everyPixelMatches);
+}
 
 TEST_CASE(
 	"A D3D12 device reports usable limits",
 	"[d3d12][GPU]")
 {
-	const spall::tests::TestDevice testDevice = requireDevice(spall::RenderBackendType::D3D12);
+	const TestDevice testDevice = requireDevice(spall::RenderBackendType::D3D12);
 	const spall::DeviceLimits& limits = testDevice.Device->limits();
 
 	CHECK(limits.MaxTexture2DDimension >= 16384);
@@ -146,7 +140,7 @@ TEST_CASE(
 	"A D3D12 compute queue submits a compute command list",
 	"[d3d12][GPU][compute]")
 {
-	const spall::tests::TestDevice testDevice = requireDevice(spall::RenderBackendType::D3D12);
+	const TestDevice testDevice = requireDevice(spall::RenderBackendType::D3D12);
 	spall::IDevice& device = *testDevice.Device;
 
 	spall::Resource<spall::ICommandList> compute;
@@ -162,7 +156,7 @@ TEST_CASE(
 	"A D3D12 queue rejects a command list of the wrong type",
 	"[d3d12][GPU][compute]")
 {
-	const spall::tests::TestDevice testDevice = requireDevice(spall::RenderBackendType::D3D12);
+	const TestDevice testDevice = requireDevice(spall::RenderBackendType::D3D12);
 	spall::IDevice& device = *testDevice.Device;
 
 	spall::Resource<spall::ICommandList> compute;
@@ -182,7 +176,7 @@ TEST_CASE(
 	"A D3D12 compute queue can wait on the graphics queue",
 	"[d3d12][GPU][compute]")
 {
-	const spall::tests::TestDevice testDevice = requireDevice(spall::RenderBackendType::D3D12);
+	const TestDevice testDevice = requireDevice(spall::RenderBackendType::D3D12);
 	spall::IDevice& device = *testDevice.Device;
 
 	spall::Resource<spall::ICommandList> graphics;
@@ -206,7 +200,7 @@ TEST_CASE(
 	"A D3D12 buffer round-trips through a device-local copy",
 	"[d3d12][GPU]")
 {
-	const spall::tests::TestDevice testDevice = requireDevice(spall::RenderBackendType::D3D12);
+	const TestDevice testDevice = requireDevice(spall::RenderBackendType::D3D12);
 	spall::IDevice& device = *testDevice.Device;
 
 	std::vector<std::uint8_t> sourceData(1024);
@@ -260,7 +254,7 @@ TEST_CASE(
 	"A D3D12 render pass clears to the requested color",
 	"[d3d12][GPU]")
 {
-	const spall::tests::TestDevice testDevice = requireDevice(spall::RenderBackendType::D3D12);
+	const TestDevice testDevice = requireDevice(spall::RenderBackendType::D3D12);
 
 	SECTION("with a row pitch the copy alignment already satisfies")
 	{
@@ -277,7 +271,7 @@ TEST_CASE(
 	"A D3D12 resource set accepts writes matching its layout",
 	"[d3d12][GPU]")
 {
-	const spall::tests::TestDevice testDevice = requireDevice(spall::RenderBackendType::D3D12);
+	const TestDevice testDevice = requireDevice(spall::RenderBackendType::D3D12);
 	spall::IDevice& device = *testDevice.Device;
 
 	spall::Resource<spall::ISampler> sampler = device.resources().createSampler({});
@@ -345,7 +339,7 @@ TEST_CASE(
 	"A D3D12 graphics pipeline draws into a color target",
 	"[d3d12][GPU]")
 {
-	const spall::tests::TestDevice testDevice = requireDevice(spall::RenderBackendType::D3D12);
+	const TestDevice testDevice = requireDevice(spall::RenderBackendType::D3D12);
 	spall::IDevice& device = *testDevice.Device;
 
 	static const char shaderSource[] =
@@ -546,7 +540,7 @@ TEST_CASE(
 	"A D3D12 depth test rejects a farther indexed draw",
 	"[d3d12][GPU]")
 {
-	const spall::tests::TestDevice testDevice = requireDevice(spall::RenderBackendType::D3D12);
+	const TestDevice testDevice = requireDevice(spall::RenderBackendType::D3D12);
 	spall::IDevice& device = *testDevice.Device;
 
 	static const char shaderSource[] =
@@ -774,7 +768,7 @@ TEST_CASE(
 	"A D3D12 indirect draw reads its arguments from a buffer",
 	"[d3d12][GPU]")
 {
-	const spall::tests::TestDevice testDevice = requireDevice(spall::RenderBackendType::D3D12);
+	const TestDevice testDevice = requireDevice(spall::RenderBackendType::D3D12);
 	spall::IDevice& device = *testDevice.Device;
 
 	static const char shaderSource[] =
@@ -960,7 +954,7 @@ TEST_CASE(
 	"A D3D12 texture tracks mip levels independently",
 	"[d3d12][GPU]")
 {
-	const spall::tests::TestDevice testDevice = requireDevice(spall::RenderBackendType::D3D12);
+	const TestDevice testDevice = requireDevice(spall::RenderBackendType::D3D12);
 	spall::IDevice& device = *testDevice.Device;
 
 	constexpr std::uint32_t Extent = 8;
@@ -1007,7 +1001,7 @@ TEST_CASE(
 	"A D3D12 generateMips fills the levels below the base",
 	"[d3d12][GPU]")
 {
-	const spall::tests::TestDevice testDevice = requireDevice(spall::RenderBackendType::D3D12);
+	const TestDevice testDevice = requireDevice(spall::RenderBackendType::D3D12);
 	spall::IDevice& device = *testDevice.Device;
 
 	constexpr std::uint32_t Extent = 16;
@@ -1106,7 +1100,7 @@ TEST_CASE(
 	"A D3D12 query pool reports elapsed GPU time",
 	"[d3d12][GPU]")
 {
-	const spall::tests::TestDevice testDevice = requireDevice(spall::RenderBackendType::D3D12);
+	const TestDevice testDevice = requireDevice(spall::RenderBackendType::D3D12);
 	spall::IDevice& device = *testDevice.Device;
 
 	if (not device.limits().SupportsTimestampQueries)
@@ -1183,7 +1177,7 @@ TEST_CASE(
 	"A D3D12 swap chain presents and resizes",
 	"[d3d12][GPU]")
 {
-	const spall::tests::TestDevice testDevice = requireDevice(spall::RenderBackendType::D3D12);
+	const TestDevice testDevice = requireDevice(spall::RenderBackendType::D3D12);
 	spall::IDevice& device = *testDevice.Device;
 
 	const HiddenWindow window;
@@ -1248,7 +1242,7 @@ TEST_CASE(
 	"A D3D12 command list records nested debug groups",
 	"[d3d12][GPU]")
 {
-	const spall::tests::TestDevice testDevice = requireDevice(spall::RenderBackendType::D3D12);
+	const TestDevice testDevice = requireDevice(spall::RenderBackendType::D3D12);
 	spall::IDevice& device = *testDevice.Device;
 
 	spall::Resource<spall::ICommandList> commands;
@@ -1272,7 +1266,7 @@ TEST_CASE(
 	"A D3D12 command list refuses to end with an open debug group",
 	"[d3d12][GPU]")
 {
-	const spall::tests::TestDevice testDevice = requireDevice(spall::RenderBackendType::D3D12);
+	const TestDevice testDevice = requireDevice(spall::RenderBackendType::D3D12);
 	spall::IDevice& device = *testDevice.Device;
 
 	spall::Resource<spall::ICommandList> commands;

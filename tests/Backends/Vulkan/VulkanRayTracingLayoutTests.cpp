@@ -47,8 +47,12 @@ TEST_CASE(
 	"A built instance packs the fields its native bitfields read back",
 	"[vulkan][acceleration][layout]")
 {
-	spall::tests::FakeAccelerationStructure structure(
-		spall::tests::accelerationStructureInfo(spall::AccelerationStructureType::BottomLevel));
+	FakeAccelerationStructure structure(spall::AccelerationStructureInfo {
+		.Type = spall::AccelerationStructureType::BottomLevel,
+		.Flags = spall::AccelerationStructureBuildFlags::PreferFastTrace,
+		.Size = 1024,
+		.BuildScratchSize = 512,
+		.GeometryCount = 1});
 
 	const float transform[12] = {
 		2.0f, 0.0f, 0.0f, 7.0f,

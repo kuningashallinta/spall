@@ -1,4 +1,4 @@
-namespace spall::dxgi
+namespace spall::d3d12
 {
 	inline Status mapHResult(HRESULT hr)
 	{
@@ -33,4 +33,4 @@ namespace spall::dxgi
 			}
 		}
 	}
-} // namespace spall::dxgi
+} // namespace spall::d3d12

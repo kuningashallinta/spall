@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 #include <src/Backends/D3D12/Device/D3D12_Device.h>
 
 #include <spall/Common/Alignment.h>
@@ -164,7 +167,7 @@ namespace spall::d3d12
 
 		for (const VertexAttributeInfo& attribute : info.VertexAttributes)
 		{
-			const DXGI_FORMAT attributeFormat = dxgi::nativeFormat(attribute.Format);
+			const DXGI_FORMAT attributeFormat = nativeFormat(attribute.Format);
 
 			if (attributeFormat == DXGI_FORMAT_UNKNOWN)
 			{
@@ -271,10 +274,10 @@ namespace spall::d3d12
 
 		for (std::uint32_t targetIndex = 0; targetIndex < info.ColorTargetFormatCount; ++targetIndex)
 		{
-			pipelineDesc.RTVFormats[targetIndex] = dxgi::nativeFormat(info.ColorTargetFormats[targetIndex]);
+			pipelineDesc.RTVFormats[targetIndex] = nativeFormat(info.ColorTargetFormats[targetIndex]);
 		}
 
-		pipelineDesc.DSVFormat = dxgi::nativeFormat(info.DepthStencilFormat);
+		pipelineDesc.DSVFormat = nativeFormat(info.DepthStencilFormat);
 		pipelineDesc.SampleDesc.Count = info.SampleCount;
 		pipelineDesc.SampleDesc.Quality = 0;
 		pipelineDesc.NodeMask = 0;
@@ -285,7 +288,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return dxgi::mapHResult(hr);
+			return mapHResult(hr);
 		}
 
 		std::vector<VertexBindingInfo> vertexBindings(info.VertexBindings.begin(), info.VertexBindings.end());
@@ -339,7 +342,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return dxgi::mapHResult(hr);
+			return mapHResult(hr);
 		}
 
 		*pipeline = Resource<IPipeline>(new ComputePipeline(*this, std::move(rootSignature), std::move(pipelineState)));
@@ -573,7 +576,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return dxgi::mapHResult(hr);
+			return mapHResult(hr);
 		}
 
 		ComPtr<ID3D12StateObjectProperties> stateObjectProperties;
@@ -581,7 +584,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return dxgi::mapHResult(hr);
+			return mapHResult(hr);
 		}
 
 		constexpr std::uint64_t identifierSize = D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
@@ -643,7 +646,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return dxgi::mapHResult(hr);
+			return mapHResult(hr);
 		}
 
 		void* mapped = nullptr;
@@ -652,7 +655,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return dxgi::mapHResult(hr);
+			return mapHResult(hr);
 		}
 
 		std::memcpy(mapped, tableData.data(), tableData.size());
