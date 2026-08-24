@@ -6,8 +6,8 @@ TEST_CASE(
 	"Vulkan maps every fill mode",
 	"[vulkan][pipeline][rasterizer]")
 {
-	CHECK(spall::vk::polygonMode(spall::FillMode::Solid) == VK_POLYGON_MODE_FILL);
-	CHECK(spall::vk::polygonMode(spall::FillMode::Wireframe) == VK_POLYGON_MODE_LINE);
+	CHECK(spall::vk::fillMode(spall::FillMode::Solid) == VK_POLYGON_MODE_FILL);
+	CHECK(spall::vk::fillMode(spall::FillMode::Wireframe) == VK_POLYGON_MODE_LINE);
 }
 
 TEST_CASE(
@@ -24,7 +24,7 @@ TEST_CASE(
 	blendState.AlphaBlendOp = spall::BlendOp::Max;
 	blendState.ColorWriteMask = spall::ColorComponentFlags::Red | spall::ColorComponentFlags::Alpha;
 
-	const VkPipelineColorBlendAttachmentState state = spall::vk::colorBlendAttachmentState(blendState);
+	const VkPipelineColorBlendAttachmentState state = spall::vk::blendState(blendState);
 
 	CHECK(state.blendEnable == VK_TRUE);
 	CHECK(state.srcColorBlendFactor == VK_BLEND_FACTOR_SRC_ALPHA);

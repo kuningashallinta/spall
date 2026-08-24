@@ -8,7 +8,7 @@
 
 namespace spall::d3d12
 {
-	inline D3D12_RESOURCE_FLAGS textureResourceFlags(
+	inline D3D12_RESOURCE_FLAGS textureUsageFlags(
 		TextureUsageFlags usage);
 
 	inline D3D12_FORMAT_SUPPORT1 requiredFormatSupport(

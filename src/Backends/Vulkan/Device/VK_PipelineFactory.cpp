@@ -492,7 +492,7 @@ namespace spall::vk
 		rasterizationState.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 		rasterizationState.depthClampEnable = VK_FALSE;
 		rasterizationState.rasterizerDiscardEnable = VK_FALSE;
-		rasterizationState.polygonMode = polygonMode(info.FillMode);
+		rasterizationState.polygonMode = fillMode(info.FillMode);
 		rasterizationState.cullMode = cullMode(info.CullMode);
 		rasterizationState.frontFace = frontFace(info.FrontFace);
 		rasterizationState.depthBiasEnable = ((info.DepthBias != 0) or (info.DepthBiasClamp != 0.0f) or
@@ -535,7 +535,7 @@ namespace spall::vk
 
 		for (std::uint32_t blendStateIndex = 0; blendStateIndex < info.ColorTargetFormatCount; ++blendStateIndex)
 		{
-			colorBlendAttachments.push_back(colorBlendAttachmentState(info.BlendStates[blendStateIndex]));
+			colorBlendAttachments.push_back(blendState(info.BlendStates[blendStateIndex]));
 		}
 
 		VkPipelineColorBlendStateCreateInfo colorBlendState = {};

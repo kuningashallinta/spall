@@ -297,7 +297,7 @@ namespace spall::d3d12
 		}
 	}
 
-	inline UINT8 colorWriteMask(
+	inline UINT8 colorComponentFlags(
 		ColorComponentFlags mask)
 	{
 		UINT8 writeMask = 0;
@@ -325,20 +325,20 @@ namespace spall::d3d12
 		return writeMask;
 	}
 
-	inline D3D12_RENDER_TARGET_BLEND_DESC renderTargetBlendDescription(
-		const BlendStateInfo& state)
+	inline D3D12_RENDER_TARGET_BLEND_DESC blendState(
+		const BlendStateInfo& info)
 	{
 		D3D12_RENDER_TARGET_BLEND_DESC description = {};
-		description.BlendEnable = state.EnableBlend ? TRUE : FALSE;
+		description.BlendEnable = info.EnableBlend ? TRUE : FALSE;
 		description.LogicOpEnable = FALSE;
-		description.SrcBlend = blendFactor(state.SourceColorFactor);
-		description.DestBlend = blendFactor(state.DestinationColorFactor);
-		description.BlendOp = blendOp(state.ColorBlendOp);
-		description.SrcBlendAlpha = blendFactor(state.SourceAlphaFactor);
-		description.DestBlendAlpha = blendFactor(state.DestinationAlphaFactor);
-		description.BlendOpAlpha = blendOp(state.AlphaBlendOp);
+		description.SrcBlend = blendFactor(info.SourceColorFactor);
+		description.DestBlend = blendFactor(info.DestinationColorFactor);
+		description.BlendOp = blendOp(info.ColorBlendOp);
+		description.SrcBlendAlpha = blendFactor(info.SourceAlphaFactor);
+		description.DestBlendAlpha = blendFactor(info.DestinationAlphaFactor);
+		description.BlendOpAlpha = blendOp(info.AlphaBlendOp);
 		description.LogicOp = D3D12_LOGIC_OP_NOOP;
-		description.RenderTargetWriteMask = colorWriteMask(state.ColorWriteMask);
+		description.RenderTargetWriteMask = colorComponentFlags(info.ColorWriteMask);
 
 		return description;
 	}
@@ -355,7 +355,7 @@ namespace spall::d3d12
 		return description;
 	}
 
-	inline D3D12_SHADER_VISIBILITY shaderVisibility(
+	inline D3D12_SHADER_VISIBILITY shaderStageFlags(
 		ShaderStageFlags stages)
 	{
 		switch (stages)

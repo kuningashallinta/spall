@@ -144,7 +144,7 @@ namespace spall::d3d12
 
 				D3D12_ROOT_PARAMETER parameter = {};
 				parameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-				parameter.ShaderVisibility = shaderVisibility(viewStages);
+				parameter.ShaderVisibility = shaderStageFlags(viewStages);
 				parameter.DescriptorTable.NumDescriptorRanges = static_cast<UINT>(views.size());
 				parameters.push_back(parameter);
 			}
@@ -155,7 +155,7 @@ namespace spall::d3d12
 
 				D3D12_ROOT_PARAMETER parameter = {};
 				parameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-				parameter.ShaderVisibility = shaderVisibility(samplerStages);
+				parameter.ShaderVisibility = shaderStageFlags(samplerStages);
 				parameter.DescriptorTable.NumDescriptorRanges = static_cast<UINT>(samplers.size());
 				parameters.push_back(parameter);
 			}
@@ -190,7 +190,7 @@ namespace spall::d3d12
 
 			D3D12_ROOT_PARAMETER parameter = {};
 			parameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-			parameter.ShaderVisibility = shaderVisibility(pushConstants.Stages);
+			parameter.ShaderVisibility = shaderStageFlags(pushConstants.Stages);
 			parameter.Constants.ShaderRegister = PushConstantRegister;
 			parameter.Constants.RegisterSpace = 0;
 			parameter.Constants.Num32BitValues = pushConstants.Size / 4;
@@ -216,7 +216,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		hr = device.m_Device->CreateRootSignature(
@@ -227,7 +227,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		*rootSignature = std::move(created);

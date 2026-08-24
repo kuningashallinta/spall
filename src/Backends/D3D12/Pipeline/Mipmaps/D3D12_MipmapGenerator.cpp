@@ -56,7 +56,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		hr = device.m_Device->CreateRootSignature(
@@ -67,7 +67,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		return {};
@@ -118,7 +118,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		*rootSignature = m_RootSignature.Get();

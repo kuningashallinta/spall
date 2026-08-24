@@ -18,7 +18,7 @@
 
 namespace spall::vk
 {
-	inline VkIndexType indexType(
+	inline VkIndexType indexFormat(
 		IndexFormat format);
 
 	inline std::optional<VertexFormatProperties> vertexFormatInfo(

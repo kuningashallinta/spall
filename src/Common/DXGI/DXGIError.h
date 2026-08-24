@@ -7,7 +7,7 @@
 
 namespace spall::d3d12
 {
-	inline Status mapHResult(HRESULT hr);
+	inline Status mapStatus(HRESULT hr);
 } // namespace spall::d3d12
 
 #include <src/Common/DXGI/DXGIError.inl>

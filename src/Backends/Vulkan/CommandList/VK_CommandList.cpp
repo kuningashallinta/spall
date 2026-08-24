@@ -1338,7 +1338,7 @@ namespace spall::vk
 
 		retainResource(*backendBuffer);
 
-		vkCmdBindIndexBuffer(m_CommandBuffer, backendBuffer->m_Buffer, offset, indexType(format));
+		vkCmdBindIndexBuffer(m_CommandBuffer, backendBuffer->m_Buffer, offset, indexFormat(format));
 		m_IndexBuffer = backendBuffer;
 
 		return {};

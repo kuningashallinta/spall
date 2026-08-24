@@ -48,7 +48,7 @@ namespace spall::d3d12
 
 			if (FAILED(hr))
 			{
-				return mapHResult(hr);
+				return mapStatus(hr);
 			}
 
 			hr = m_Device->CreateCommandList(
@@ -60,7 +60,7 @@ namespace spall::d3d12
 
 			if (FAILED(hr))
 			{
-				return mapHResult(hr);
+				return mapStatus(hr);
 			}
 		}
 		else
@@ -69,14 +69,14 @@ namespace spall::d3d12
 
 			if (FAILED(hr))
 			{
-				return mapHResult(hr);
+				return mapStatus(hr);
 			}
 
 			hr = m_UploadCommandList->Reset(m_UploadCommandAllocator.Get(), nullptr);
 
 			if (FAILED(hr))
 			{
-				return mapHResult(hr);
+				return mapStatus(hr);
 			}
 		}
 
@@ -110,7 +110,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		ID3D12CommandList* const submittedCommandLists[] = {commandList};
@@ -158,7 +158,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		const D3D12_FORMAT_SUPPORT1 required = requiredFormatSupport(info.Usage);
@@ -195,7 +195,7 @@ namespace spall::d3d12
 		resourceDesc.SampleDesc.Count = info.SampleCount;
 		resourceDesc.SampleDesc.Quality = 0;
 		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-		resourceDesc.Flags = textureResourceFlags(info.Usage);
+		resourceDesc.Flags = textureUsageFlags(info.Usage);
 
 		D3D12_CLEAR_VALUE clearValue = {};
 		clearValue.Format = textureFormat;
@@ -221,7 +221,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		TextureInfo textureInfo = {};
@@ -582,7 +582,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		const BufferInfo bufferInfo {info.Size, info.Usage, info.CpuAccess, info.InitialState, info.KeepInitialState, info.DebugName};
@@ -635,7 +635,7 @@ namespace spall::d3d12
 		{
 			m_ResourcePool.release(staging);
 
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		std::memcpy(mappedData, data.data(), data.size());
@@ -699,7 +699,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		std::memcpy(static_cast<std::uint8_t*>(mappedData) + offset, data.data(), data.size());
@@ -748,7 +748,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		std::memcpy(data.data(), static_cast<const std::uint8_t*>(mappedData) + offset, data.size());
@@ -823,7 +823,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		D3D12_RESOURCE_DESC resourceDesc = {};
@@ -850,7 +850,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		const QueryPoolInfo poolInfo {info.TimestampCount, info.DebugName};
@@ -895,7 +895,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		const std::uint64_t* ticks = static_cast<const std::uint64_t*>(mappedData) + firstQuery;
@@ -1073,7 +1073,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		AccelerationStructureInfo structureInfo = {};
@@ -1105,7 +1105,7 @@ namespace spall::d3d12
 
 			if (FAILED(sizeResult))
 			{
-				return mapHResult(sizeResult);
+				return mapStatus(sizeResult);
 			}
 
 			D3D12_RESOURCE_DESC readbackDesc = sizeDesc;
@@ -1123,7 +1123,7 @@ namespace spall::d3d12
 
 			if (FAILED(readbackResult))
 			{
-				return mapHResult(readbackResult);
+				return mapStatus(readbackResult);
 			}
 		}
 

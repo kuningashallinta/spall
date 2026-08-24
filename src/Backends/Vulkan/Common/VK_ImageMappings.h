@@ -16,7 +16,7 @@
 
 namespace spall::vk
 {
-	inline VkImageUsageFlags imageUsageFlags(
+	inline VkImageUsageFlags textureUsageFlags(
 		TextureUsageFlags usage);
 
 	inline std::optional<TextureStateInfo> textureState(

@@ -239,7 +239,7 @@ namespace spall::d3d12
 			else if (FAILED(testHr))
 			{
 				shouldPresent = false;
-				result = mapHResult(testHr);
+				result = mapStatus(testHr);
 			}
 			else
 			{
@@ -257,7 +257,7 @@ namespace spall::d3d12
 			}
 			else if (FAILED(hr))
 			{
-				result = mapHResult(hr);
+				result = mapStatus(hr);
 			}
 		}
 

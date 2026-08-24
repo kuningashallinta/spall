@@ -239,8 +239,8 @@ namespace spall::d3d12
 		for (std::uint32_t targetIndex = 0; targetIndex < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; ++targetIndex)
 		{
 			pipelineDesc.BlendState.RenderTarget[targetIndex] = (targetIndex < info.ColorTargetFormatCount)
-				? renderTargetBlendDescription(info.BlendStates[targetIndex])
-				: renderTargetBlendDescription(BlendStateInfo {});
+				? blendState(info.BlendStates[targetIndex])
+				: blendState(BlendStateInfo {});
 		}
 
 		pipelineDesc.SampleMask = UINT_MAX;
@@ -288,7 +288,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		std::vector<VertexBindingInfo> vertexBindings(info.VertexBindings.begin(), info.VertexBindings.end());
@@ -342,7 +342,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		*pipeline = Resource<IPipeline>(new ComputePipeline(*this, std::move(rootSignature), std::move(pipelineState)));
@@ -576,7 +576,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		ComPtr<ID3D12StateObjectProperties> stateObjectProperties;
@@ -584,7 +584,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		constexpr std::uint64_t identifierSize = D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
@@ -646,7 +646,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		void* mapped = nullptr;
@@ -655,7 +655,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		std::memcpy(mapped, tableData.data(), tableData.size());

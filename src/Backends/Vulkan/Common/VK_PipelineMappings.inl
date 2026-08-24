@@ -54,10 +54,10 @@ namespace spall::vk
 		}
 	}
 
-	inline VkPolygonMode polygonMode(
-		FillMode fillMode)
+	inline VkPolygonMode fillMode(
+		FillMode mode)
 	{
-		switch (fillMode)
+		switch (mode)
 		{
 			case FillMode::Wireframe:
 			{
@@ -325,18 +325,18 @@ namespace spall::vk
 		}
 	}
 
-	inline VkPipelineColorBlendAttachmentState colorBlendAttachmentState(
-		const BlendStateInfo& blendState)
+	inline VkPipelineColorBlendAttachmentState blendState(
+		const BlendStateInfo& info)
 	{
 		VkPipelineColorBlendAttachmentState state = {};
-		state.blendEnable = blendState.EnableBlend ? VK_TRUE : VK_FALSE;
-		state.srcColorBlendFactor = blendFactor(blendState.SourceColorFactor);
-		state.dstColorBlendFactor = blendFactor(blendState.DestinationColorFactor);
-		state.colorBlendOp = blendOp(blendState.ColorBlendOp);
-		state.srcAlphaBlendFactor = blendFactor(blendState.SourceAlphaFactor);
-		state.dstAlphaBlendFactor = blendFactor(blendState.DestinationAlphaFactor);
-		state.alphaBlendOp = blendOp(blendState.AlphaBlendOp);
-		state.colorWriteMask = colorComponentFlags(blendState.ColorWriteMask);
+		state.blendEnable = info.EnableBlend ? VK_TRUE : VK_FALSE;
+		state.srcColorBlendFactor = blendFactor(info.SourceColorFactor);
+		state.dstColorBlendFactor = blendFactor(info.DestinationColorFactor);
+		state.colorBlendOp = blendOp(info.ColorBlendOp);
+		state.srcAlphaBlendFactor = blendFactor(info.SourceAlphaFactor);
+		state.dstAlphaBlendFactor = blendFactor(info.DestinationAlphaFactor);
+		state.alphaBlendOp = blendOp(info.AlphaBlendOp);
+		state.colorWriteMask = colorComponentFlags(info.ColorWriteMask);
 
 		return state;
 	}

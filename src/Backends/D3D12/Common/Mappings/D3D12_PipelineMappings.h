@@ -42,16 +42,16 @@ namespace spall::d3d12
 	inline D3D12_STENCIL_OP stencilOp(
 		StencilOp op);
 
-	inline UINT8 colorWriteMask(
+	inline UINT8 colorComponentFlags(
 		ColorComponentFlags mask);
 
-	inline D3D12_RENDER_TARGET_BLEND_DESC renderTargetBlendDescription(
-		const BlendStateInfo& state);
+	inline D3D12_RENDER_TARGET_BLEND_DESC blendState(
+		const BlendStateInfo& info);
 
 	inline D3D12_DEPTH_STENCILOP_DESC stencilFaceDescription(
 		const StencilFaceStateInfo& state);
 
-	inline D3D12_SHADER_VISIBILITY shaderVisibility(
+	inline D3D12_SHADER_VISIBILITY shaderStageFlags(
 		ShaderStageFlags stages);
 } // namespace spall::d3d12
 

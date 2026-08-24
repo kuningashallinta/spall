@@ -130,7 +130,7 @@ namespace spall::vk
 		imageCreateInfo.format = format.value();
 		imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
 		imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		imageCreateInfo.usage = imageUsageFlags(info.Usage);
+		imageCreateInfo.usage = textureUsageFlags(info.Usage);
 		imageCreateInfo.samples = static_cast<VkSampleCountFlagBits>(info.SampleCount);
 		imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
@@ -766,9 +766,9 @@ namespace spall::vk
 		createInfo.magFilter = samplerFilter(info.MagFilter);
 		createInfo.minFilter = samplerFilter(info.MinFilter);
 		createInfo.mipmapMode = (info.MipFilter == Filter::Nearest) ? VK_SAMPLER_MIPMAP_MODE_NEAREST : VK_SAMPLER_MIPMAP_MODE_LINEAR;
-		createInfo.addressModeU = samplerAddressMode(info.AddressModeU);
-		createInfo.addressModeV = samplerAddressMode(info.AddressModeV);
-		createInfo.addressModeW = samplerAddressMode(info.AddressModeW);
+		createInfo.addressModeU = addressMode(info.AddressModeU);
+		createInfo.addressModeV = addressMode(info.AddressModeV);
+		createInfo.addressModeW = addressMode(info.AddressModeW);
 		createInfo.minLod = info.MinLod;
 		createInfo.maxLod = (info.MaxLod > VK_LOD_CLAMP_NONE) ? VK_LOD_CLAMP_NONE : info.MaxLod;
 		createInfo.maxAnisotropy = anisotropic ? ((info.MaxAnisotropy > anisotropyLimit) ? anisotropyLimit : info.MaxAnisotropy) : 1.0f;
@@ -1002,7 +1002,7 @@ namespace spall::vk
 				Buffer* indexBuffer = nullptr;
 				SPALL_TRY(resolveInput(geometry.IndexBuffer, &indexBuffer));
 
-				nativeGeometry.geometry.triangles.indexType = indexType(geometry.IndexFormat);
+				nativeGeometry.geometry.triangles.indexType = indexFormat(geometry.IndexFormat);
 				nativeGeometry.geometry.triangles.indexData.deviceAddress = bufferAddress(*indexBuffer) + geometry.IndexOffset;
 
 				primitiveCount = geometry.IndexCount / 3;

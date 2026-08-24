@@ -22,8 +22,8 @@ namespace spall::vk
 	inline VkCullModeFlags cullMode(
 		CullMode mode);
 
-	inline VkPolygonMode polygonMode(
-		FillMode fillMode);
+	inline VkPolygonMode fillMode(
+		FillMode mode);
 
 	inline VkFrontFace frontFace(
 		FrontFace face);
@@ -43,8 +43,8 @@ namespace spall::vk
 	inline VkBlendOp blendOp(
 		BlendOp op);
 
-	inline VkPipelineColorBlendAttachmentState colorBlendAttachmentState(
-		const BlendStateInfo& blendState);
+	inline VkPipelineColorBlendAttachmentState blendState(
+		const BlendStateInfo& info);
 } // namespace spall::vk
 
 #include <src/Backends/Vulkan/Common/VK_PipelineMappings.inl>

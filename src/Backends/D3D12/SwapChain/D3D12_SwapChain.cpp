@@ -87,7 +87,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			const Status resizeError = mapHResult(hr);
+			const Status resizeError = mapStatus(hr);
 			const Status recoveryError = recreateBackBuffers();
 
 			if (recoveryError != SUCCESS)
@@ -127,7 +127,7 @@ namespace spall::d3d12
 			{
 				releaseBackBuffers();
 
-				return mapHResult(hr);
+				return mapStatus(hr);
 			}
 
 			TextureInfo textureInfo = {};

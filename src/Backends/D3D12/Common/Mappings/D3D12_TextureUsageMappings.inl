@@ -3,7 +3,7 @@
 
 namespace spall::d3d12
 {
-	inline D3D12_RESOURCE_FLAGS textureResourceFlags(
+	inline D3D12_RESOURCE_FLAGS textureUsageFlags(
 		TextureUsageFlags usage)
 	{
 		D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE;

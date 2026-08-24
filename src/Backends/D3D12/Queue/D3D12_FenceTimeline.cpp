@@ -25,7 +25,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		m_FenceEvent = CreateEventW(nullptr, FALSE, FALSE, nullptr);
@@ -55,7 +55,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		++m_NextFenceValue;
@@ -76,7 +76,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		if (WaitForSingleObject(m_FenceEvent, INFINITE) != WAIT_OBJECT_0)

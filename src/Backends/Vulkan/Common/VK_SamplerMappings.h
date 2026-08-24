@@ -16,8 +16,8 @@
 
 namespace spall::vk
 {
-	inline VkSamplerAddressMode samplerAddressMode(
-		AddressMode addressMode);
+	inline VkSamplerAddressMode addressMode(
+		AddressMode mode);
 
 	inline VkFilter samplerFilter(
 		Filter filter);

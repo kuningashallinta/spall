@@ -3,10 +3,10 @@
 
 namespace spall::vk
 {
-	inline VkSamplerAddressMode samplerAddressMode(
-		AddressMode addressMode)
+	inline VkSamplerAddressMode addressMode(
+		AddressMode mode)
 	{
-		switch (addressMode)
+		switch (mode)
 		{
 			case AddressMode::ClampToEdge:
 			{

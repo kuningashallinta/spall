@@ -60,7 +60,7 @@ namespace spall::d3d12
 		{
 			m_ExecutionState = ExecutionState::Invalid;
 
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		hr = m_Device->m_Device->CreateCommandList(
@@ -74,7 +74,7 @@ namespace spall::d3d12
 		{
 			m_ExecutionState = ExecutionState::Invalid;
 
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		hr = m_CommandList->Close();
@@ -83,7 +83,7 @@ namespace spall::d3d12
 		{
 			m_ExecutionState = ExecutionState::Invalid;
 
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		m_StateTracker.setCommandList(m_CommandList.Get());
@@ -388,14 +388,14 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return fail(mapHResult(hr));
+			return fail(mapStatus(hr));
 		}
 
 		hr = m_CommandList->Reset(m_CommandAllocator.Get(), nullptr);
 
 		if (FAILED(hr))
 		{
-			return fail(mapHResult(hr));
+			return fail(mapStatus(hr));
 		}
 
 		m_Rings.Views.reset();
@@ -448,7 +448,7 @@ namespace spall::d3d12
 		{
 			m_ExecutionState = ExecutionState::Invalid;
 
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		m_ExecutionState = ExecutionState::Executable;
@@ -1859,7 +1859,7 @@ namespace spall::d3d12
 
 		if (FAILED(mapResult))
 		{
-			return mapHResult(mapResult);
+			return mapStatus(mapResult);
 		}
 
 		std::memcpy(&compactedSize, mapped, sizeof(compactedSize));
@@ -1888,7 +1888,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return fail(mapHResult(hr));
+			return fail(mapStatus(hr));
 		}
 
 		m_RayTracingCommandList->CopyRaytracingAccelerationStructure(

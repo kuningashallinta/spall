@@ -315,7 +315,7 @@ TEST_CASE(
 	"[vulkan][binding][storage][texture]")
 {
 	CHECK(spall::vk::descriptorType(spall::ResourceBindingType::StorageTexture) == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE);
-	CHECK((spall::vk::imageUsageFlags(spall::TextureUsageFlags::Storage) & VK_IMAGE_USAGE_STORAGE_BIT) != 0);
+	CHECK((spall::vk::textureUsageFlags(spall::TextureUsageFlags::Storage) & VK_IMAGE_USAGE_STORAGE_BIT) != 0);
 
 	const std::optional<spall::vk::TextureStateInfo> state = spall::vk::textureState(spall::ResourceStateFlags::UnorderedAccess);
 	REQUIRE(state.has_value());

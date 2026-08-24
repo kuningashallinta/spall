@@ -46,7 +46,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		m_GraphicsQueue = std::make_unique<GraphicsQueue>(*this, *m_CommandQueue.Get());
@@ -62,7 +62,7 @@ namespace spall::d3d12
 
 		if (FAILED(computeHr))
 		{
-			return mapHResult(computeHr);
+			return mapStatus(computeHr);
 		}
 
 		m_ComputeQueue = std::make_unique<ComputeQueue>(*this, *m_ComputeCommandQueue.Get());
@@ -173,7 +173,7 @@ namespace spall::d3d12
 
 			if (FAILED(hr))
 			{
-				return mapHResult(hr);
+				return mapStatus(hr);
 			}
 
 			*signatures[signatureIndex] = std::move(signature);
@@ -210,7 +210,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		*capabilities = formatCapabilities(format, formatSupport.Support1);

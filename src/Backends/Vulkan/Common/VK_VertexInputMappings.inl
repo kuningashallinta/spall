@@ -3,7 +3,7 @@
 
 namespace spall::vk
 {
-	inline VkIndexType indexType(
+	inline VkIndexType indexFormat(
 		IndexFormat format)
 	{
 		switch (format)

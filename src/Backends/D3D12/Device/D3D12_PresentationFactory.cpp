@@ -59,7 +59,7 @@ namespace spall::d3d12
 
 			if (FAILED(hr))
 			{
-				return mapHResult(hr);
+				return mapStatus(hr);
 			}
 
 			if (tearingSupported == FALSE)
@@ -97,49 +97,49 @@ namespace spall::d3d12
 
 			if (FAILED(hr))
 			{
-				return mapHResult(hr);
+				return mapStatus(hr);
 			}
 
 			hr = DCompositionCreateDevice(nullptr, IID_PPV_ARGS(&compositionDevice));
 
 			if (FAILED(hr))
 			{
-				return mapHResult(hr);
+				return mapStatus(hr);
 			}
 
 			hr = compositionDevice->CreateTargetForHwnd(window, TRUE, &compositionTarget);
 
 			if (FAILED(hr))
 			{
-				return mapHResult(hr);
+				return mapStatus(hr);
 			}
 
 			hr = compositionDevice->CreateVisual(&compositionVisual);
 
 			if (FAILED(hr))
 			{
-				return mapHResult(hr);
+				return mapStatus(hr);
 			}
 
 			hr = compositionVisual->SetContent(dxgiSwapChain.Get());
 
 			if (FAILED(hr))
 			{
-				return mapHResult(hr);
+				return mapStatus(hr);
 			}
 
 			hr = compositionTarget->SetRoot(compositionVisual.Get());
 
 			if (FAILED(hr))
 			{
-				return mapHResult(hr);
+				return mapStatus(hr);
 			}
 
 			hr = compositionDevice->Commit();
 
 			if (FAILED(hr))
 			{
-				return mapHResult(hr);
+				return mapStatus(hr);
 			}
 		}
 		else
@@ -148,14 +148,14 @@ namespace spall::d3d12
 
 			if (FAILED(hr))
 			{
-				return mapHResult(hr);
+				return mapStatus(hr);
 			}
 
 			hr = m_Factory->MakeWindowAssociation(window, DXGI_MWA_NO_ALT_ENTER);
 
 			if (FAILED(hr))
 			{
-				return mapHResult(hr);
+				return mapStatus(hr);
 			}
 		}
 
@@ -164,7 +164,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		std::unique_ptr<SwapChain> resultSwapChain = std::make_unique<SwapChain>(

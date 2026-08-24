@@ -51,7 +51,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		ComPtr<IDXGIFactory6> factory6;
@@ -74,7 +74,7 @@ namespace spall::d3d12
 
 			if (FAILED(hr))
 			{
-				return mapHResult(hr);
+				return mapStatus(hr);
 			}
 
 			DXGI_ADAPTER_DESC1 adapterDesc = {};

@@ -24,7 +24,7 @@ namespace spall::d3d12
 
 		if (FAILED(hr))
 		{
-			return mapHResult(hr);
+			return mapStatus(hr);
 		}
 
 		m_CpuStart = m_Heap->GetCPUDescriptorHandleForHeapStart();
