@@ -1,9 +1,6 @@
 // SPDX-FileCopyrightText: 2026 King Hallinta
 // SPDX-License-Identifier: Apache-2.0
 
-// SPDX-FileCopyrightText: 2026 King Hallinta
-// SPDX-License-Identifier: Apache-2.0
-
 namespace spall::vk
 {
 	inline std::optional<VkFormat> toVkFormat(
