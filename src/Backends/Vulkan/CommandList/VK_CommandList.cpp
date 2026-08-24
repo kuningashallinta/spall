@@ -59,7 +59,7 @@ namespace spall::vk
 		{
 			m_ExecutionState = ExecutionState::Invalid;
 
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		VkCommandBuffer commandBuffers[2] = {};
@@ -76,7 +76,7 @@ namespace spall::vk
 		{
 			m_ExecutionState = ExecutionState::Invalid;
 
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		m_EntryCommandBuffer = commandBuffers[0];
@@ -92,7 +92,7 @@ namespace spall::vk
 		{
 			m_ExecutionState = ExecutionState::Invalid;
 
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		return {};
@@ -534,7 +534,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		m_CompletedSubmissionSerial = submissionSerial;
@@ -700,7 +700,7 @@ namespace spall::vk
 
 			if (fenceStatus != VK_SUCCESS)
 			{
-				return fail(mapVulkanStatus(fenceStatus));
+				return fail(mapStatus(fenceStatus));
 			}
 
 			m_CompletedSubmissionSerial = m_SubmissionSerial;
@@ -727,7 +727,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return fail(mapVulkanStatus(vkResult));
+			return fail(mapStatus(vkResult));
 		}
 
 		VkCommandBufferBeginInfo beginInfo = {};
@@ -738,7 +738,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return fail(mapVulkanStatus(vkResult));
+			return fail(mapStatus(vkResult));
 		}
 
 		m_ExecutionState = ExecutionState::Recording;
@@ -800,7 +800,7 @@ namespace spall::vk
 		{
 			m_ExecutionState = ExecutionState::Invalid;
 
-			return fail(mapVulkanStatus(vkResult));
+			return fail(mapStatus(vkResult));
 		}
 
 		m_ExecutionState = ExecutionState::Executable;
@@ -1338,7 +1338,7 @@ namespace spall::vk
 
 		retainResource(*backendBuffer);
 
-		vkCmdBindIndexBuffer(m_CommandBuffer, backendBuffer->m_Buffer, offset, vulkanIndexType(format));
+		vkCmdBindIndexBuffer(m_CommandBuffer, backendBuffer->m_Buffer, offset, indexType(format));
 		m_IndexBuffer = backendBuffer;
 
 		return {};
@@ -1646,7 +1646,7 @@ namespace spall::vk
 		vkCmdPushConstants(
 			m_CommandBuffer,
 			pipelineLayout,
-			vulkanShaderStageFlags(stages),
+			shaderStageFlags(stages),
 			offset,
 			static_cast<std::uint32_t>(data.size()),
 			data.data());
@@ -2581,8 +2581,8 @@ namespace spall::vk
 
 		VkAccelerationStructureBuildGeometryInfoKHR buildGeometryInfo = {};
 		buildGeometryInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR;
-		buildGeometryInfo.type = vulkanAccelerationStructureType(structure->m_Info.Type);
-		buildGeometryInfo.flags = vulkanAccelerationStructureBuildFlags(structure->m_Info.Flags);
+		buildGeometryInfo.type = accelerationStructureType(structure->m_Info.Type);
+		buildGeometryInfo.flags = accelerationStructureBuildFlags(structure->m_Info.Flags);
 		buildGeometryInfo.srcAccelerationStructure = buildInfo.Update ? structure->m_AccelerationStructure : VK_NULL_HANDLE;
 		buildGeometryInfo.dstAccelerationStructure = structure->m_AccelerationStructure;
 		buildGeometryInfo.geometryCount = static_cast<std::uint32_t>(structure->m_Geometries.size());
@@ -2695,7 +2695,7 @@ namespace spall::vk
 
 		if (queryResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(queryResult);
+			return mapStatus(queryResult);
 		}
 
 		if ((compactedSize == 0) or (compactedSize > structure->m_Info.Size))
@@ -2718,7 +2718,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return fail(mapVulkanStatus(vkResult));
+			return fail(mapStatus(vkResult));
 		}
 
 		VkAccelerationStructureCreateInfoKHR structureCreateInfo = {};
@@ -2726,7 +2726,7 @@ namespace spall::vk
 		structureCreateInfo.buffer = compactedBuffer;
 		structureCreateInfo.offset = 0;
 		structureCreateInfo.size = compactedSize;
-		structureCreateInfo.type = vulkanAccelerationStructureType(structure->m_Info.Type);
+		structureCreateInfo.type = accelerationStructureType(structure->m_Info.Type);
 
 		VkAccelerationStructureKHR compacted = VK_NULL_HANDLE;
 		vkResult = m_Device->m_CreateAccelerationStructure(m_Device->m_Device, &structureCreateInfo, nullptr, &compacted);
@@ -2735,7 +2735,7 @@ namespace spall::vk
 		{
 			vmaDestroyBuffer(m_Device->m_Allocator, compactedBuffer, compactedAllocation);
 
-			return fail(mapVulkanStatus(vkResult));
+			return fail(mapStatus(vkResult));
 		}
 
 		VkCopyAccelerationStructureInfoKHR copyInfo = {};

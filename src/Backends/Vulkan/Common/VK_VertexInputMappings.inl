@@ -6,7 +6,7 @@
 
 namespace spall::vk
 {
-	inline VkIndexType vulkanIndexType(
+	inline VkIndexType indexType(
 		IndexFormat format)
 	{
 		switch (format)

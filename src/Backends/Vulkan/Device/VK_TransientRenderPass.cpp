@@ -135,7 +135,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		return {};
@@ -181,7 +181,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		return {};

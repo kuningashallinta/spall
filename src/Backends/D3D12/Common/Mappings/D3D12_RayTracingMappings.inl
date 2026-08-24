@@ -3,7 +3,7 @@
 
 namespace spall::d3d12
 {
-	inline D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE nativeAccelerationStructureType(
+	inline D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE accelerationStructureType(
 		AccelerationStructureType type)
 	{
 		return (type == AccelerationStructureType::TopLevel)
@@ -11,7 +11,7 @@ namespace spall::d3d12
 			: D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL;
 	}
 
-	inline D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS nativeAccelerationStructureBuildFlags(
+	inline D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS accelerationStructureBuildFlags(
 		AccelerationStructureBuildFlags flags)
 	{
 		D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS nativeFlags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
@@ -44,7 +44,7 @@ namespace spall::d3d12
 		return nativeFlags;
 	}
 
-	inline D3D12_RAYTRACING_GEOMETRY_FLAGS nativeAccelerationStructureGeometryFlags(
+	inline D3D12_RAYTRACING_GEOMETRY_FLAGS accelerationStructureGeometryFlags(
 		AccelerationStructureGeometryFlags flags)
 	{
 		D3D12_RAYTRACING_GEOMETRY_FLAGS nativeFlags = D3D12_RAYTRACING_GEOMETRY_FLAG_NONE;
@@ -78,8 +78,8 @@ namespace spall::d3d12
 		D3D12_GPU_VIRTUAL_ADDRESS instanceAddress)
 	{
 		D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS inputs = {};
-		inputs.Type = nativeAccelerationStructureType(type);
-		inputs.Flags = nativeAccelerationStructureBuildFlags(flags);
+		inputs.Type = accelerationStructureType(type);
+		inputs.Flags = accelerationStructureBuildFlags(flags);
 		inputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
 
 		if (type == AccelerationStructureType::TopLevel)

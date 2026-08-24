@@ -86,7 +86,7 @@ namespace spall::d3d12
 			SPALL_TRY(createRootSignature(device));
 		}
 
-		const DXGI_FORMAT nativeTargetFormat = nativeFormat(format);
+		const DXGI_FORMAT nativeTargetFormat = d3d12::format(format);
 		const auto cached = m_PipelineStates.find(nativeTargetFormat);
 
 		if (cached != m_PipelineStates.end())

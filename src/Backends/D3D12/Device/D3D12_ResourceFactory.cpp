@@ -133,7 +133,7 @@ namespace spall::d3d12
 
 		SPALL_TRY(validateTextureCreateInfo(info));
 
-		const DXGI_FORMAT textureFormat = nativeFormat(info.Format);
+		const DXGI_FORMAT textureFormat = format(info.Format);
 
 		if (textureFormat == DXGI_FORMAT_UNKNOWN)
 		{
@@ -208,7 +208,7 @@ namespace spall::d3d12
 		}
 
 		const D3D12_HEAP_PROPERTIES properties = heapProperties(D3D12_HEAP_TYPE_DEFAULT);
-		const D3D12_RESOURCE_STATES initialState = nativeResourceState(info.InitialState);
+		const D3D12_RESOURCE_STATES initialState = resourceState(info.InitialState);
 
 		ComPtr<ID3D12Resource> resource;
 		hr = m_Device->CreateCommittedResource(
@@ -267,7 +267,7 @@ namespace spall::d3d12
 		}
 
 		const Format format = (info.Format == Format::Unknown) ? texture->m_Info.Format : info.Format;
-		const DXGI_FORMAT viewFormat = nativeFormat(format);
+		const DXGI_FORMAT viewFormat = d3d12::format(format);
 
 		if (viewFormat == DXGI_FORMAT_UNKNOWN)
 		{
@@ -558,7 +558,7 @@ namespace spall::d3d12
 			? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS
 			: D3D12_RESOURCE_FLAG_NONE;
 
-		D3D12_RESOURCE_STATES initialState = nativeResourceState(info.InitialState);
+		D3D12_RESOURCE_STATES initialState = resourceState(info.InitialState);
 
 		if (heapType == D3D12_HEAP_TYPE_UPLOAD)
 		{
@@ -648,7 +648,7 @@ namespace spall::d3d12
 
 		const Status copyError = copyBufferImmediate(
 			*destinationBuffer->m_Resource.Get(),
-			nativeResourceState(info.InitialState),
+			resourceState(info.InitialState),
 			*staging.Get(),
 			info.Size);
 
@@ -977,7 +977,7 @@ namespace spall::d3d12
 
 				D3D12_RAYTRACING_GEOMETRY_DESC aabbDescription = {};
 				aabbDescription.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS;
-				aabbDescription.Flags = nativeAccelerationStructureGeometryFlags(geometry.Flags);
+				aabbDescription.Flags = accelerationStructureGeometryFlags(geometry.Flags);
 				aabbDescription.AABBs.AABBCount = geometry.AabbCount;
 				aabbDescription.AABBs.AABBs.StartAddress = aabbBuffer->m_Resource->GetGPUVirtualAddress() + geometry.AabbOffset;
 				aabbDescription.AABBs.AABBs.StrideInBytes = geometry.AabbStride;
@@ -997,8 +997,8 @@ namespace spall::d3d12
 
 			D3D12_RAYTRACING_GEOMETRY_DESC description = {};
 			description.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
-			description.Flags = nativeAccelerationStructureGeometryFlags(geometry.Flags);
-			description.Triangles.VertexFormat = nativeFormat(geometry.VertexFormat);
+			description.Flags = accelerationStructureGeometryFlags(geometry.Flags);
+			description.Triangles.VertexFormat = format(geometry.VertexFormat);
 			description.Triangles.VertexCount = geometry.VertexCount;
 			description.Triangles.VertexBuffer.StartAddress = vertexBuffer->m_Resource->GetGPUVirtualAddress() + geometry.VertexOffset;
 			description.Triangles.VertexBuffer.StrideInBytes = geometry.VertexStride;
@@ -1008,7 +1008,7 @@ namespace spall::d3d12
 				Buffer* indexBuffer = nullptr;
 				SPALL_TRY(resolveInput(geometry.IndexBuffer, &indexBuffer));
 
-				description.Triangles.IndexFormat = nativeIndexFormat(geometry.IndexFormat);
+				description.Triangles.IndexFormat = indexFormat(geometry.IndexFormat);
 				description.Triangles.IndexCount = geometry.IndexCount;
 				description.Triangles.IndexBuffer = indexBuffer->m_Resource->GetGPUVirtualAddress() + geometry.IndexOffset;
 			}

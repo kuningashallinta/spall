@@ -3,7 +3,7 @@
 
 namespace spall::vk
 {
-	inline VkShaderStageFlags vulkanShaderStageFlags(
+	inline VkShaderStageFlags shaderStageFlags(
 		ShaderStageFlags stages)
 	{
 		VkShaderStageFlags flags = 0;
@@ -66,7 +66,7 @@ namespace spall::vk
 		return flags;
 	}
 
-	inline VkDescriptorType vulkanDescriptorType(
+	inline VkDescriptorType descriptorType(
 		ResourceBindingType type)
 	{
 		switch (type)

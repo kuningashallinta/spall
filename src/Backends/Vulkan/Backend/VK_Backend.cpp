@@ -50,7 +50,7 @@ namespace spall::vk
 
 			if (vkResult != VK_SUCCESS)
 			{
-				return mapVulkanStatus(vkResult);
+				return mapStatus(vkResult);
 			}
 
 			properties.resize(propertyCount);
@@ -64,7 +64,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		for (const VkLayerProperties& property : properties)
@@ -95,7 +95,7 @@ namespace spall::vk
 
 			if (vkResult != VK_SUCCESS)
 			{
-				return mapVulkanStatus(vkResult);
+				return mapStatus(vkResult);
 			}
 
 			properties.resize(propertyCount);
@@ -109,7 +109,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		for (const VkExtensionProperties& property : properties)
@@ -141,7 +141,7 @@ namespace spall::vk
 
 			if (vkResult != VK_SUCCESS)
 			{
-				return mapVulkanStatus(vkResult);
+				return mapStatus(vkResult);
 			}
 
 			properties.resize(propertyCount);
@@ -155,7 +155,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		for (const VkExtensionProperties& property : properties)
@@ -267,7 +267,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		VkDebugUtilsMessengerEXT debugMessenger = VK_NULL_HANDLE;
@@ -291,7 +291,7 @@ namespace spall::vk
 			{
 				destroyInstanceObjects(instance, VK_NULL_HANDLE);
 
-				return mapVulkanStatus(vkResult);
+				return mapStatus(vkResult);
 			}
 		}
 
@@ -306,7 +306,7 @@ namespace spall::vk
 			if (vkResult != VK_SUCCESS)
 			{
 				destroyInstanceObjects(instance, debugMessenger);
-				return mapVulkanStatus(vkResult);
+				return mapStatus(vkResult);
 			}
 
 			physicalDevices.resize(physicalDeviceCount);
@@ -321,7 +321,7 @@ namespace spall::vk
 		if (vkResult != VK_SUCCESS)
 		{
 			destroyInstanceObjects(instance, debugMessenger);
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		if (physicalDevices.empty())
@@ -521,7 +521,7 @@ namespace spall::vk
 		{
 			destroyInstanceObjects(instance, debugMessenger);
 
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		VkQueue graphicsQueue = VK_NULL_HANDLE;
@@ -543,7 +543,7 @@ namespace spall::vk
 			vkDestroyDevice(vkDevice, nullptr);
 			destroyInstanceObjects(instance, debugMessenger);
 
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		Device* createdDevice = new Device(

@@ -258,7 +258,7 @@ namespace spall::d3d12
 		resourceDesc.Height = info.Height;
 		resourceDesc.DepthOrArraySize = static_cast<UINT16>(info.ArrayLayers);
 		resourceDesc.MipLevels = static_cast<UINT16>(info.MipLevels);
-		resourceDesc.Format = nativeFormat(info.Format);
+		resourceDesc.Format = format(info.Format);
 		resourceDesc.SampleDesc.Count = 1;
 		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 		resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
@@ -1034,7 +1034,7 @@ namespace spall::d3d12
 		D3D12_INDEX_BUFFER_VIEW view = {};
 		view.BufferLocation = backendBuffer->m_Resource->GetGPUVirtualAddress() + offset;
 		view.SizeInBytes = backendBuffer->m_Info.Size - offset;
-		view.Format = nativeIndexFormat(format);
+		view.Format = indexFormat(format);
 
 		m_CommandList->IASetIndexBuffer(&view);
 		m_IndexBufferSet = true;
@@ -2085,13 +2085,13 @@ namespace spall::d3d12
 		D3D12_TEXTURE_COPY_LOCATION destinationLocation = {};
 		destinationLocation.pResource = destinationTexture->m_Resource.Get();
 		destinationLocation.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
-		destinationLocation.SubresourceIndex = nativeSubresourceIndex(destinationTexture->m_Info, resolved.MipLevel, resolved.ArrayLayer);
+		destinationLocation.SubresourceIndex = subresourceIndex(destinationTexture->m_Info, resolved.MipLevel, resolved.ArrayLayer);
 
 		D3D12_TEXTURE_COPY_LOCATION sourceLocation = {};
 		sourceLocation.pResource = footprintResource;
 		sourceLocation.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
 		sourceLocation.PlacedFootprint.Offset = footprintOffset;
-		sourceLocation.PlacedFootprint.Footprint.Format = nativeFormat(destinationTexture->m_Info.Format);
+		sourceLocation.PlacedFootprint.Footprint.Format = format(destinationTexture->m_Info.Format);
 		sourceLocation.PlacedFootprint.Footprint.Width = layout.FootprintWidth;
 		sourceLocation.PlacedFootprint.Footprint.Height = layout.FootprintHeight;
 		sourceLocation.PlacedFootprint.Footprint.Depth = resolved.Depth;
@@ -2211,7 +2211,7 @@ namespace spall::d3d12
 		destinationLocation.pResource = footprintResource;
 		destinationLocation.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
 		destinationLocation.PlacedFootprint.Offset = footprintOffset;
-		destinationLocation.PlacedFootprint.Footprint.Format = nativeFormat(sourceTexture->m_Info.Format);
+		destinationLocation.PlacedFootprint.Footprint.Format = format(sourceTexture->m_Info.Format);
 		destinationLocation.PlacedFootprint.Footprint.Width = layout.FootprintWidth;
 		destinationLocation.PlacedFootprint.Footprint.Height = layout.FootprintHeight;
 		destinationLocation.PlacedFootprint.Footprint.Depth = resolved.Depth;
@@ -2220,7 +2220,7 @@ namespace spall::d3d12
 		D3D12_TEXTURE_COPY_LOCATION sourceLocation = {};
 		sourceLocation.pResource = sourceTexture->m_Resource.Get();
 		sourceLocation.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
-		sourceLocation.SubresourceIndex = nativeSubresourceIndex(sourceTexture->m_Info, resolved.MipLevel, resolved.ArrayLayer);
+		sourceLocation.SubresourceIndex = subresourceIndex(sourceTexture->m_Info, resolved.MipLevel, resolved.ArrayLayer);
 
 		D3D12_BOX sourceBox = {};
 		sourceBox.left = resolved.X;
@@ -2329,7 +2329,7 @@ namespace spall::d3d12
 						*scratch.Get(),
 						D3D12_RESOURCE_STATE_RENDER_TARGET,
 						D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-						nativeSubresourceIndex(info, mipLevel - 1, arrayLayer));
+						subresourceIndex(info, mipLevel - 1, arrayLayer));
 				}
 
 				D3D12_CPU_DESCRIPTOR_HANDLE sourceDescriptor = {};
@@ -2342,7 +2342,7 @@ namespace spall::d3d12
 				}
 
 				D3D12_SHADER_RESOURCE_VIEW_DESC sourceViewDesc = {};
-				sourceViewDesc.Format = nativeFormat(info.Format);
+				sourceViewDesc.Format = format(info.Format);
 				sourceViewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 				sourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
 				sourceViewDesc.Texture2DArray.MostDetailedMip = mipLevel - 1;
@@ -2361,7 +2361,7 @@ namespace spall::d3d12
 				}
 
 				D3D12_RENDER_TARGET_VIEW_DESC targetViewDesc = {};
-				targetViewDesc.Format = nativeFormat(info.Format);
+				targetViewDesc.Format = format(info.Format);
 				targetViewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY;
 				targetViewDesc.Texture2DArray.MipSlice = mipLevel;
 				targetViewDesc.Texture2DArray.FirstArraySlice = arrayLayer;
@@ -2404,17 +2404,17 @@ namespace spall::d3d12
 					*scratch.Get(),
 					scratchState,
 					D3D12_RESOURCE_STATE_COPY_SOURCE,
-					nativeSubresourceIndex(info, mipLevel, arrayLayer));
+					subresourceIndex(info, mipLevel, arrayLayer));
 
 				D3D12_TEXTURE_COPY_LOCATION destinationLocation = {};
 				destinationLocation.pResource = backendTexture->m_Resource.Get();
 				destinationLocation.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
-				destinationLocation.SubresourceIndex = nativeSubresourceIndex(info, mipLevel, arrayLayer);
+				destinationLocation.SubresourceIndex = subresourceIndex(info, mipLevel, arrayLayer);
 
 				D3D12_TEXTURE_COPY_LOCATION sourceLocation = {};
 				sourceLocation.pResource = scratch.Get();
 				sourceLocation.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
-				sourceLocation.SubresourceIndex = nativeSubresourceIndex(info, mipLevel, arrayLayer);
+				sourceLocation.SubresourceIndex = subresourceIndex(info, mipLevel, arrayLayer);
 
 				m_CommandList->CopyTextureRegion(&destinationLocation, 0, 0, 0, &sourceLocation, nullptr);
 			}

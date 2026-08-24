@@ -314,10 +314,10 @@ TEST_CASE(
 	"Vulkan maps storage textures to storage images",
 	"[vulkan][binding][storage][texture]")
 {
-	CHECK(spall::vk::vulkanDescriptorType(spall::ResourceBindingType::StorageTexture) == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE);
-	CHECK((spall::vk::vulkanImageUsageFlags(spall::TextureUsageFlags::Storage) & VK_IMAGE_USAGE_STORAGE_BIT) != 0);
+	CHECK(spall::vk::descriptorType(spall::ResourceBindingType::StorageTexture) == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE);
+	CHECK((spall::vk::imageUsageFlags(spall::TextureUsageFlags::Storage) & VK_IMAGE_USAGE_STORAGE_BIT) != 0);
 
-	const std::optional<spall::vk::TextureStateInfo> state = spall::vk::vulkanTextureState(spall::ResourceStateFlags::UnorderedAccess);
+	const std::optional<spall::vk::TextureStateInfo> state = spall::vk::textureState(spall::ResourceStateFlags::UnorderedAccess);
 	REQUIRE(state.has_value());
 	CHECK(state->layout == VK_IMAGE_LAYOUT_GENERAL);
 	CHECK((state->access & VK_ACCESS_SHADER_WRITE_BIT) != 0);

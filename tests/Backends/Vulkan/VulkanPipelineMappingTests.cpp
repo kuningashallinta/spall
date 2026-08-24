@@ -6,8 +6,8 @@ TEST_CASE(
 	"Vulkan maps every fill mode",
 	"[vulkan][pipeline][rasterizer]")
 {
-	CHECK(spall::vk::vulkanPolygonMode(spall::FillMode::Solid) == VK_POLYGON_MODE_FILL);
-	CHECK(spall::vk::vulkanPolygonMode(spall::FillMode::Wireframe) == VK_POLYGON_MODE_LINE);
+	CHECK(spall::vk::polygonMode(spall::FillMode::Solid) == VK_POLYGON_MODE_FILL);
+	CHECK(spall::vk::polygonMode(spall::FillMode::Wireframe) == VK_POLYGON_MODE_LINE);
 }
 
 TEST_CASE(
@@ -24,7 +24,7 @@ TEST_CASE(
 	blendState.AlphaBlendOp = spall::BlendOp::Max;
 	blendState.ColorWriteMask = spall::ColorComponentFlags::Red | spall::ColorComponentFlags::Alpha;
 
-	const VkPipelineColorBlendAttachmentState state = spall::vk::vulkanColorBlendAttachmentState(blendState);
+	const VkPipelineColorBlendAttachmentState state = spall::vk::colorBlendAttachmentState(blendState);
 
 	CHECK(state.blendEnable == VK_TRUE);
 	CHECK(state.srcColorBlendFactor == VK_BLEND_FACTOR_SRC_ALPHA);
@@ -40,12 +40,12 @@ TEST_CASE(
 	"Vulkan maps every stencil operation",
 	"[vulkan][pipeline][stencil]")
 {
-	CHECK(spall::vk::vulkanStencilOp(spall::StencilOp::Keep) == VK_STENCIL_OP_KEEP);
-	CHECK(spall::vk::vulkanStencilOp(spall::StencilOp::Zero) == VK_STENCIL_OP_ZERO);
-	CHECK(spall::vk::vulkanStencilOp(spall::StencilOp::Replace) == VK_STENCIL_OP_REPLACE);
-	CHECK(spall::vk::vulkanStencilOp(spall::StencilOp::IncrementClamp) == VK_STENCIL_OP_INCREMENT_AND_CLAMP);
-	CHECK(spall::vk::vulkanStencilOp(spall::StencilOp::DecrementClamp) == VK_STENCIL_OP_DECREMENT_AND_CLAMP);
-	CHECK(spall::vk::vulkanStencilOp(spall::StencilOp::Invert) == VK_STENCIL_OP_INVERT);
-	CHECK(spall::vk::vulkanStencilOp(spall::StencilOp::IncrementWrap) == VK_STENCIL_OP_INCREMENT_AND_WRAP);
-	CHECK(spall::vk::vulkanStencilOp(spall::StencilOp::DecrementWrap) == VK_STENCIL_OP_DECREMENT_AND_WRAP);
+	CHECK(spall::vk::stencilOp(spall::StencilOp::Keep) == VK_STENCIL_OP_KEEP);
+	CHECK(spall::vk::stencilOp(spall::StencilOp::Zero) == VK_STENCIL_OP_ZERO);
+	CHECK(spall::vk::stencilOp(spall::StencilOp::Replace) == VK_STENCIL_OP_REPLACE);
+	CHECK(spall::vk::stencilOp(spall::StencilOp::IncrementClamp) == VK_STENCIL_OP_INCREMENT_AND_CLAMP);
+	CHECK(spall::vk::stencilOp(spall::StencilOp::DecrementClamp) == VK_STENCIL_OP_DECREMENT_AND_CLAMP);
+	CHECK(spall::vk::stencilOp(spall::StencilOp::Invert) == VK_STENCIL_OP_INVERT);
+	CHECK(spall::vk::stencilOp(spall::StencilOp::IncrementWrap) == VK_STENCIL_OP_INCREMENT_AND_WRAP);
+	CHECK(spall::vk::stencilOp(spall::StencilOp::DecrementWrap) == VK_STENCIL_OP_DECREMENT_AND_WRAP);
 }

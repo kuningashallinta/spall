@@ -12,13 +12,13 @@
 
 namespace spall::vk
 {
-	inline VkAccelerationStructureTypeKHR vulkanAccelerationStructureType(
+	inline VkAccelerationStructureTypeKHR accelerationStructureType(
 		AccelerationStructureType type);
 
-	inline VkBuildAccelerationStructureFlagsKHR vulkanAccelerationStructureBuildFlags(
+	inline VkBuildAccelerationStructureFlagsKHR accelerationStructureBuildFlags(
 		AccelerationStructureBuildFlags flags);
 
-	inline VkGeometryFlagsKHR vulkanAccelerationStructureGeometryFlags(
+	inline VkGeometryFlagsKHR accelerationStructureGeometryFlags(
 		AccelerationStructureGeometryFlags flags);
 
 	inline bool isSupportedAccelerationStructureVertexFormat(

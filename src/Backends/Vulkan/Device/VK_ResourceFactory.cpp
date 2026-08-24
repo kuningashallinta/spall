@@ -130,7 +130,7 @@ namespace spall::vk
 		imageCreateInfo.format = format.value();
 		imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
 		imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		imageCreateInfo.usage = vulkanImageUsageFlags(info.Usage);
+		imageCreateInfo.usage = imageUsageFlags(info.Usage);
 		imageCreateInfo.samples = static_cast<VkSampleCountFlagBits>(info.SampleCount);
 		imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
@@ -143,7 +143,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		const VkImageAspectFlags aspectMask = imageAspectMask(info.Format);
@@ -225,7 +225,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		TextureView::Subresources subresources = {};
@@ -385,7 +385,7 @@ namespace spall::vk
 		VkBufferCreateInfo bufferCreateInfo = {};
 		bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 		bufferCreateInfo.size = info.Size;
-		bufferCreateInfo.usage = vulkanBufferUsageFlags(info.Usage, m_RayTracingEnabled);
+		bufferCreateInfo.usage = bufferUsageFlags(info.Usage, m_RayTracingEnabled);
 		bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
 		VmaAllocationCreateInfo allocationCreateInfo = {};
@@ -406,7 +406,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		const BufferInfo bufferInfo {info.Size, info.Usage, info.CpuAccess, info.InitialState, info.KeepInitialState, info.DebugName};
@@ -476,7 +476,7 @@ namespace spall::vk
 
 		const BufferInfo bufferInfo {info.Size, info.Usage, info.CpuAccess, info.InitialState, info.KeepInitialState, info.DebugName};
 		const ResourceStateFlags uploadedState = info.InitialState;
-		const std::optional<BufferStateInfo> uploadedStateInfo = vulkanBufferState(uploadedState);
+		const std::optional<BufferStateInfo> uploadedStateInfo = bufferState(uploadedState);
 
 		if (not uploadedStateInfo.has_value())
 		{
@@ -488,7 +488,7 @@ namespace spall::vk
 		VkBufferCreateInfo bufferCreateInfo = {};
 		bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 		bufferCreateInfo.size = info.Size;
-		bufferCreateInfo.usage = vulkanBufferUsageFlags(nativeUsage, m_RayTracingEnabled);
+		bufferCreateInfo.usage = bufferUsageFlags(nativeUsage, m_RayTracingEnabled);
 		bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
 		VmaAllocationCreateInfo allocationCreateInfo = {};
@@ -500,7 +500,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		VkCommandBuffer commandBuffer = allocateCommandBuffer();
@@ -523,7 +523,7 @@ namespace spall::vk
 			freeCommandBuffer(commandBuffer);
 			vmaDestroyBuffer(m_Allocator, vkBuffer, allocation);
 
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		VkBufferMemoryBarrier transferBarriers[2] = {};
@@ -594,7 +594,7 @@ namespace spall::vk
 			freeCommandBuffer(commandBuffer);
 			vmaDestroyBuffer(m_Allocator, vkBuffer, allocation);
 
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		VkSubmitInfo submitInfo = {};
@@ -613,7 +613,7 @@ namespace spall::vk
 			freeCommandBuffer(commandBuffer);
 			vmaDestroyBuffer(m_Allocator, vkBuffer, allocation);
 
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		vkResult = vkQueueSubmit(m_GraphicsQueue->m_NativeQueue, 1, &submitInfo, uploadFence);
@@ -626,7 +626,7 @@ namespace spall::vk
 
 			vmaDestroyBuffer(m_Allocator, vkBuffer, allocation);
 
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		vkResult = vkWaitForFences(m_Device, 1, &uploadFence, VK_TRUE, UINT64_MAX);
@@ -639,7 +639,7 @@ namespace spall::vk
 		{
 			vmaDestroyBuffer(m_Allocator, vkBuffer, allocation);
 
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		Buffer* createdBuffer = new Buffer(*this, bufferInfo, vkBuffer, allocation, uploadedState);
@@ -686,7 +686,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		std::memcpy(static_cast<std::uint8_t*>(mappedData) + offset, data.data(), data.size());
@@ -732,7 +732,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		std::memcpy(data.data(), static_cast<const std::uint8_t*>(mappedData) + offset, data.size());
@@ -763,25 +763,25 @@ namespace spall::vk
 
 		VkSamplerCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-		createInfo.magFilter = vulkanSamplerFilter(info.MagFilter);
-		createInfo.minFilter = vulkanSamplerFilter(info.MinFilter);
+		createInfo.magFilter = samplerFilter(info.MagFilter);
+		createInfo.minFilter = samplerFilter(info.MinFilter);
 		createInfo.mipmapMode = (info.MipFilter == Filter::Nearest) ? VK_SAMPLER_MIPMAP_MODE_NEAREST : VK_SAMPLER_MIPMAP_MODE_LINEAR;
-		createInfo.addressModeU = vulkanSamplerAddressMode(info.AddressModeU);
-		createInfo.addressModeV = vulkanSamplerAddressMode(info.AddressModeV);
-		createInfo.addressModeW = vulkanSamplerAddressMode(info.AddressModeW);
+		createInfo.addressModeU = samplerAddressMode(info.AddressModeU);
+		createInfo.addressModeV = samplerAddressMode(info.AddressModeV);
+		createInfo.addressModeW = samplerAddressMode(info.AddressModeW);
 		createInfo.minLod = info.MinLod;
 		createInfo.maxLod = (info.MaxLod > VK_LOD_CLAMP_NONE) ? VK_LOD_CLAMP_NONE : info.MaxLod;
 		createInfo.maxAnisotropy = anisotropic ? ((info.MaxAnisotropy > anisotropyLimit) ? anisotropyLimit : info.MaxAnisotropy) : 1.0f;
 		createInfo.anisotropyEnable = anisotropic ? VK_TRUE : VK_FALSE;
 		createInfo.compareEnable = info.ComparisonEnabled ? VK_TRUE : VK_FALSE;
-		createInfo.compareOp = info.ComparisonEnabled ? vulkanCompareOp(info.Comparison) : VK_COMPARE_OP_NEVER;
+		createInfo.compareOp = info.ComparisonEnabled ? compareOp(info.Comparison) : VK_COMPARE_OP_NEVER;
 
 		VkSampler vkSampler = VK_NULL_HANDLE;
 		const VkResult vkResult = vkCreateSampler(m_Device, &createInfo, nullptr, &vkSampler);
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		Sampler* createdSampler = new Sampler(*this, vkSampler);
@@ -817,7 +817,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		QueryPool* createdQueryPool = new QueryPool(
@@ -864,7 +864,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		const std::uint64_t validBitsMask = (m_TimestampValidBits >= 64)
@@ -958,7 +958,7 @@ namespace spall::vk
 				VkAccelerationStructureGeometryKHR aabbGeometry = {};
 				aabbGeometry.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
 				aabbGeometry.geometryType = VK_GEOMETRY_TYPE_AABBS_KHR;
-				aabbGeometry.flags = vulkanAccelerationStructureGeometryFlags(geometry.Flags);
+				aabbGeometry.flags = accelerationStructureGeometryFlags(geometry.Flags);
 				aabbGeometry.geometry.aabbs.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_AABBS_DATA_KHR;
 				aabbGeometry.geometry.aabbs.data.deviceAddress = bufferAddress(*aabbBuffer) + geometry.AabbOffset;
 				aabbGeometry.geometry.aabbs.stride = geometry.AabbStride;
@@ -987,7 +987,7 @@ namespace spall::vk
 			VkAccelerationStructureGeometryKHR nativeGeometry = {};
 			nativeGeometry.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
 			nativeGeometry.geometryType = VK_GEOMETRY_TYPE_TRIANGLES_KHR;
-			nativeGeometry.flags = vulkanAccelerationStructureGeometryFlags(geometry.Flags);
+			nativeGeometry.flags = accelerationStructureGeometryFlags(geometry.Flags);
 			nativeGeometry.geometry.triangles.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR;
 			nativeGeometry.geometry.triangles.vertexFormat = vertexFormat.value();
 			nativeGeometry.geometry.triangles.vertexData.deviceAddress = bufferAddress(*vertexBuffer) + geometry.VertexOffset;
@@ -1002,7 +1002,7 @@ namespace spall::vk
 				Buffer* indexBuffer = nullptr;
 				SPALL_TRY(resolveInput(geometry.IndexBuffer, &indexBuffer));
 
-				nativeGeometry.geometry.triangles.indexType = vulkanIndexType(geometry.IndexFormat);
+				nativeGeometry.geometry.triangles.indexType = indexType(geometry.IndexFormat);
 				nativeGeometry.geometry.triangles.indexData.deviceAddress = bufferAddress(*indexBuffer) + geometry.IndexOffset;
 
 				primitiveCount = geometry.IndexCount / 3;
@@ -1047,8 +1047,8 @@ namespace spall::vk
 
 		VkAccelerationStructureBuildGeometryInfoKHR buildGeometryInfo = {};
 		buildGeometryInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR;
-		buildGeometryInfo.type = vulkanAccelerationStructureType(info.Type);
-		buildGeometryInfo.flags = vulkanAccelerationStructureBuildFlags(info.Flags);
+		buildGeometryInfo.type = accelerationStructureType(info.Type);
+		buildGeometryInfo.flags = accelerationStructureBuildFlags(info.Flags);
 		buildGeometryInfo.mode = VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR;
 		buildGeometryInfo.geometryCount = static_cast<std::uint32_t>(geometries.size());
 		buildGeometryInfo.pGeometries = geometries.data();
@@ -1083,7 +1083,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		VkBufferCreateInfo scratchCreateInfo = {};
@@ -1107,7 +1107,7 @@ namespace spall::vk
 		{
 			vmaDestroyBuffer(m_Allocator, storeBuffer, storeAllocation);
 
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		VkAccelerationStructureCreateInfoKHR structureCreateInfo = {};
@@ -1115,7 +1115,7 @@ namespace spall::vk
 		structureCreateInfo.buffer = storeBuffer;
 		structureCreateInfo.offset = 0;
 		structureCreateInfo.size = sizes.accelerationStructureSize;
-		structureCreateInfo.type = vulkanAccelerationStructureType(info.Type);
+		structureCreateInfo.type = accelerationStructureType(info.Type);
 
 		VkAccelerationStructureKHR structure = VK_NULL_HANDLE;
 		vkResult = m_CreateAccelerationStructure(m_Device, &structureCreateInfo, nullptr, &structure);
@@ -1125,7 +1125,7 @@ namespace spall::vk
 			vmaDestroyBuffer(m_Allocator, scratchBuffer, scratchAllocation);
 			vmaDestroyBuffer(m_Allocator, storeBuffer, storeAllocation);
 
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		VkBufferDeviceAddressInfo scratchAddressInfo = {};
@@ -1163,7 +1163,7 @@ namespace spall::vk
 				vmaDestroyBuffer(m_Allocator, scratchBuffer, scratchAllocation);
 				vmaDestroyBuffer(m_Allocator, storeBuffer, storeAllocation);
 
-				return mapVulkanStatus(vkResult);
+				return mapStatus(vkResult);
 			}
 		}
 

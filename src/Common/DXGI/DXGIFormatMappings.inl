@@ -1,6 +1,6 @@
 namespace spall::d3d12
 {
-	inline DXGI_FORMAT nativeFormat(
+	inline DXGI_FORMAT format(
 		Format format)
 	{
 		switch (format)
@@ -322,7 +322,7 @@ namespace spall::d3d12
 		}
 	}
 
-	inline DXGI_FORMAT nativeSwapChainFormat(
+	inline DXGI_FORMAT swapChainFormat(
 		Format format)
 	{
 		switch (format)
@@ -339,12 +339,12 @@ namespace spall::d3d12
 
 			default:
 			{
-				return nativeFormat(format);
+				return d3d12::format(format);
 			}
 		}
 	}
 
-	inline DXGI_FORMAT nativeIndexFormat(
+	inline DXGI_FORMAT indexFormat(
 		IndexFormat format)
 	{
 		switch (format)

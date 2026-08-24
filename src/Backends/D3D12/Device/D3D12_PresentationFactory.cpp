@@ -73,7 +73,7 @@ namespace spall::d3d12
 		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
 		swapChainDesc.Width = info.Width;
 		swapChainDesc.Height = info.Height;
-		swapChainDesc.Format = nativeSwapChainFormat(info.Format);
+		swapChainDesc.Format = swapChainFormat(info.Format);
 		swapChainDesc.SampleDesc.Count = 1;
 		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		swapChainDesc.BufferCount = 2;

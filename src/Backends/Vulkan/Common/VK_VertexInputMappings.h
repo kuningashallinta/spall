@@ -21,7 +21,7 @@
 
 namespace spall::vk
 {
-	inline VkIndexType vulkanIndexType(
+	inline VkIndexType indexType(
 		IndexFormat format);
 
 	inline std::optional<VertexFormatProperties> vertexFormatInfo(

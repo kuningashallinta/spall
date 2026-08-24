@@ -6,7 +6,7 @@
 
 namespace spall::vk
 {
-	inline VkAccelerationStructureTypeKHR vulkanAccelerationStructureType(
+	inline VkAccelerationStructureTypeKHR accelerationStructureType(
 		AccelerationStructureType type)
 	{
 		return (type == AccelerationStructureType::TopLevel)
@@ -14,7 +14,7 @@ namespace spall::vk
 			: VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR;
 	}
 
-	inline VkBuildAccelerationStructureFlagsKHR vulkanAccelerationStructureBuildFlags(
+	inline VkBuildAccelerationStructureFlagsKHR accelerationStructureBuildFlags(
 		AccelerationStructureBuildFlags flags)
 	{
 		VkBuildAccelerationStructureFlagsKHR nativeFlags = 0;
@@ -47,7 +47,7 @@ namespace spall::vk
 		return nativeFlags;
 	}
 
-	inline VkGeometryFlagsKHR vulkanAccelerationStructureGeometryFlags(
+	inline VkGeometryFlagsKHR accelerationStructureGeometryFlags(
 		AccelerationStructureGeometryFlags flags)
 	{
 		VkGeometryFlagsKHR nativeFlags = 0;

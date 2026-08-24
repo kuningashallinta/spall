@@ -10,7 +10,7 @@
 namespace spall::d3d12
 {
 	/// Gets the flat subresource index D3D12 uses, which orders mip levels before array layers.
-	inline UINT nativeSubresourceIndex(
+	inline UINT subresourceIndex(
 		const TextureInfo& info,
 		std::uint32_t mipLevel,
 		std::uint32_t arrayLayer)

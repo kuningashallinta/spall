@@ -35,7 +35,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		VkBool32 supportsPresentation = VK_FALSE;
@@ -48,7 +48,7 @@ namespace spall::vk
 		if (vkResult != VK_SUCCESS)
 		{
 			vkDestroySurfaceKHR(m_Instance, surface, nullptr);
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		if (supportsPresentation == VK_FALSE)

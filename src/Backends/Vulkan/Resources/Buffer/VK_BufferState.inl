@@ -3,7 +3,7 @@
 
 namespace spall::vk
 {
-	inline std::optional<BufferStateInfo> vulkanBufferState(
+	inline std::optional<BufferStateInfo> bufferState(
 		ResourceStateFlags state)
 	{
 		const std::uint32_t stateValue = static_cast<std::uint32_t>(state);

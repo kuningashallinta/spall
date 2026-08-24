@@ -280,7 +280,7 @@ namespace spall::d3d12
 		const bool wholeResource = (range.BaseMipLevel == 0) and (range.MipLevels == texture.m_Info.MipLevels) and
 			(range.BaseArrayLayer == 0) and (range.ArrayLayers == texture.m_Info.ArrayLayers);
 
-		const D3D12_RESOURCE_STATES stateAfter = nativeResourceState(newState);
+		const D3D12_RESOURCE_STATES stateAfter = resourceState(newState);
 
 		if (wholeResource)
 		{
@@ -314,7 +314,7 @@ namespace spall::d3d12
 					return {};
 				}
 
-				const D3D12_RESOURCE_STATES stateBefore = nativeResourceState(before);
+				const D3D12_RESOURCE_STATES stateBefore = resourceState(before);
 
 				if (stateBefore != stateAfter)
 				{
@@ -353,7 +353,7 @@ namespace spall::d3d12
 					continue;
 				}
 
-				const D3D12_RESOURCE_STATES stateBefore = nativeResourceState(before);
+				const D3D12_RESOURCE_STATES stateBefore = resourceState(before);
 
 				if (stateBefore != stateAfter)
 				{
@@ -361,7 +361,7 @@ namespace spall::d3d12
 						*texture.m_Resource.Get(),
 						stateBefore,
 						stateAfter,
-						nativeSubresourceIndex(texture.m_Info, mipLevel, arrayLayer));
+						subresourceIndex(texture.m_Info, mipLevel, arrayLayer));
 				}
 
 				trackedState.Subresources[subresource] = newState;
@@ -394,7 +394,7 @@ namespace spall::d3d12
 
 		SPALL_TRY(validateBufferResourceState(buffer.m_Info, newState));
 
-		const D3D12_RESOURCE_STATES stateAfter = nativeResourceState(newState);
+		const D3D12_RESOURCE_STATES stateAfter = resourceState(newState);
 
 		if (isFixedStateHeap(buffer.m_HeapType))
 		{
@@ -429,7 +429,7 @@ namespace spall::d3d12
 			return {};
 		}
 
-		const D3D12_RESOURCE_STATES stateBefore = nativeResourceState(trackedState.CurrentState);
+		const D3D12_RESOURCE_STATES stateBefore = resourceState(trackedState.CurrentState);
 
 		if (stateBefore != stateAfter)
 		{

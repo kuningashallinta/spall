@@ -167,7 +167,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		VkSurfaceCapabilitiesKHR capabilities = {};
@@ -175,7 +175,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		std::vector<VkSurfaceFormatKHR> surfaceFormats;
@@ -191,7 +191,7 @@ namespace spall::vk
 
 			if (vkResult != VK_SUCCESS)
 			{
-				return mapVulkanStatus(vkResult);
+				return mapStatus(vkResult);
 			}
 
 			surfaceFormats.resize(surfaceFormatCount);
@@ -209,7 +209,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		if (surfaceFormats.empty())
@@ -244,7 +244,7 @@ namespace spall::vk
 
 			if (vkResult != VK_SUCCESS)
 			{
-				return mapVulkanStatus(vkResult);
+				return mapStatus(vkResult);
 			}
 
 			presentModes.resize(presentModeCount);
@@ -262,7 +262,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		if (presentModes.empty())
@@ -316,7 +316,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		std::vector<VkImage> images;
@@ -329,7 +329,7 @@ namespace spall::vk
 			if (vkResult != VK_SUCCESS)
 			{
 				vkDestroySwapchainKHR(m_Device->m_Device, newSwapChain, nullptr);
-				return mapVulkanStatus(vkResult);
+				return mapStatus(vkResult);
 			}
 
 			images.resize(imageCountFromDriver);
@@ -349,7 +349,7 @@ namespace spall::vk
 		{
 			vkDestroySwapchainKHR(m_Device->m_Device, newSwapChain, nullptr);
 
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		if (images.empty())
@@ -431,7 +431,7 @@ namespace spall::vk
 					}
 				}
 
-				return mapVulkanStatus(vkResult);
+				return mapStatus(vkResult);
 			}
 		}
 
@@ -524,7 +524,7 @@ namespace spall::vk
 					}
 				}
 
-				return mapVulkanStatus(vkResult);
+				return mapStatus(vkResult);
 			}
 
 			TextureView::Subresources subresources = {};
@@ -553,7 +553,7 @@ namespace spall::vk
 					}
 				}
 
-				return mapVulkanStatus(semaphoreResult);
+				return mapStatus(semaphoreResult);
 			}
 
 			backBuffers.push_back(std::move(backBuffer));

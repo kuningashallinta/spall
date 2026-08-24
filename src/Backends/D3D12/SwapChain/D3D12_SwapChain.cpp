@@ -83,7 +83,7 @@ namespace spall::d3d12
 		releaseBackBuffers();
 
 		const UINT flags = (m_PresentMode == PresentMode::Immediate) ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
-		const HRESULT hr = m_SwapChain->ResizeBuffers(m_BufferCount, width, height, nativeSwapChainFormat(m_Format), flags);
+		const HRESULT hr = m_SwapChain->ResizeBuffers(m_BufferCount, width, height, swapChainFormat(m_Format), flags);
 
 		if (FAILED(hr))
 		{
@@ -151,7 +151,7 @@ namespace spall::d3d12
 			}
 
 			D3D12_RENDER_TARGET_VIEW_DESC viewDesc = {};
-			viewDesc.Format = nativeFormat(m_Format);
+			viewDesc.Format = d3d12::format(m_Format);
 			viewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 			viewDesc.Texture2D.MipSlice = 0;
 			viewDesc.Texture2D.PlaneSlice = 0;

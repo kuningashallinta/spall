@@ -51,7 +51,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		return {};
@@ -170,7 +170,7 @@ namespace spall::vk
 
 			if ((vkResult != VK_SUCCESS) and (vkResult != VK_SUBOPTIMAL_KHR))
 			{
-				return mapVulkanStatus(vkResult);
+				return mapStatus(vkResult);
 			}
 
 			if (vkResult == VK_SUBOPTIMAL_KHR)
@@ -333,7 +333,7 @@ namespace spall::vk
 
 		if (entryResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(entryResult);
+			return mapStatus(entryResult);
 		}
 
 		bool entryCommandsRecorded = false;
@@ -361,7 +361,7 @@ namespace spall::vk
 
 		if (entryResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(entryResult);
+			return mapStatus(entryResult);
 		}
 
 		if (not entryCommandsRecorded)
@@ -375,14 +375,14 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		vkResult = vkQueueSubmit(m_NativeQueue, 1, &submitInfo, backendCommandList->m_SubmissionFence);
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		backendCommandList->m_StateTracker.commandListSubmitted();
@@ -452,7 +452,7 @@ namespace spall::vk
 
 		if ((vkResult != VK_SUCCESS) and (vkResult != VK_SUBOPTIMAL_KHR))
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		if (vkResult == VK_SUBOPTIMAL_KHR)
@@ -474,7 +474,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		return {};

@@ -72,7 +72,7 @@ namespace spall::vk
 				return ERR_INVALID_SIZE;
 			}
 
-			pushConstantRange.stageFlags = vulkanShaderStageFlags(pushConstants.Stages);
+			pushConstantRange.stageFlags = shaderStageFlags(pushConstants.Stages);
 			pushConstantRange.offset = 0;
 			pushConstantRange.size = pushConstants.Size;
 			pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
@@ -83,7 +83,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		return {};
@@ -118,7 +118,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		Shader* vkShader = new Shader(*this, info.Stage, std::move(bytecode), shaderModule);
@@ -173,9 +173,9 @@ namespace spall::vk
 		{
 			VkDescriptorSetLayoutBinding descriptorBinding = {};
 			descriptorBinding.binding = bindingInfo.Binding;
-			descriptorBinding.descriptorType = vulkanDescriptorType(bindingInfo.Type);
+			descriptorBinding.descriptorType = descriptorType(bindingInfo.Type);
 			descriptorBinding.descriptorCount = 1;
-			descriptorBinding.stageFlags = vulkanShaderStageFlags(bindingInfo.Stages);
+			descriptorBinding.stageFlags = shaderStageFlags(bindingInfo.Stages);
 			descriptorBindings.push_back(descriptorBinding);
 		}
 
@@ -189,7 +189,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		ResourceSetLayout* layout = new ResourceSetLayout(*this, std::move(bindings), descriptorSetLayout);
@@ -300,7 +300,7 @@ namespace spall::vk
 
 		if (poolResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(poolResult);
+			return mapStatus(poolResult);
 		}
 
 		VkDescriptorSetAllocateInfo allocateInfo = {};
@@ -315,7 +315,7 @@ namespace spall::vk
 		if (vkResult != VK_SUCCESS)
 		{
 			vkDestroyDescriptorPool(m_Device, descriptorPool, nullptr);
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		std::unique_ptr<ResourceSet> vkResourceSet = std::make_unique<ResourceSet>(*this, *layout, descriptorPool, descriptorSet);
@@ -476,7 +476,7 @@ namespace spall::vk
 
 		VkPipelineInputAssemblyStateCreateInfo inputAssemblyState = {};
 		inputAssemblyState.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-		inputAssemblyState.topology = vulkanPrimitiveTopology(info.PrimitiveTopology);
+		inputAssemblyState.topology = primitiveTopology(info.PrimitiveTopology);
 		inputAssemblyState.primitiveRestartEnable = VK_FALSE;
 
 		VkPipelineTessellationStateCreateInfo tessellationState = {};
@@ -492,9 +492,9 @@ namespace spall::vk
 		rasterizationState.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 		rasterizationState.depthClampEnable = VK_FALSE;
 		rasterizationState.rasterizerDiscardEnable = VK_FALSE;
-		rasterizationState.polygonMode = vulkanPolygonMode(info.FillMode);
-		rasterizationState.cullMode = vulkanCullMode(info.CullMode);
-		rasterizationState.frontFace = vulkanFrontFace(info.FrontFace);
+		rasterizationState.polygonMode = polygonMode(info.FillMode);
+		rasterizationState.cullMode = cullMode(info.CullMode);
+		rasterizationState.frontFace = frontFace(info.FrontFace);
 		rasterizationState.depthBiasEnable = ((info.DepthBias != 0) or (info.DepthBiasClamp != 0.0f) or
 												 (info.SlopeScaledDepthBias != 0.0f))
 			? VK_TRUE
@@ -512,20 +512,20 @@ namespace spall::vk
 		depthStencilState.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
 		depthStencilState.depthTestEnable = info.EnableDepthTest ? VK_TRUE : VK_FALSE;
 		depthStencilState.depthWriteEnable = info.EnableDepthWrite ? VK_TRUE : VK_FALSE;
-		depthStencilState.depthCompareOp = vulkanCompareOp(info.DepthCompareOp);
+		depthStencilState.depthCompareOp = compareOp(info.DepthCompareOp);
 		depthStencilState.depthBoundsTestEnable = VK_FALSE;
 		depthStencilState.stencilTestEnable = info.EnableStencilTest ? VK_TRUE : VK_FALSE;
-		depthStencilState.front.failOp = vulkanStencilOp(info.FrontStencilState.FailOp);
-		depthStencilState.front.passOp = vulkanStencilOp(info.FrontStencilState.PassOp);
-		depthStencilState.front.depthFailOp = vulkanStencilOp(info.FrontStencilState.DepthFailOp);
-		depthStencilState.front.compareOp = vulkanCompareOp(info.FrontStencilState.Compare);
+		depthStencilState.front.failOp = stencilOp(info.FrontStencilState.FailOp);
+		depthStencilState.front.passOp = stencilOp(info.FrontStencilState.PassOp);
+		depthStencilState.front.depthFailOp = stencilOp(info.FrontStencilState.DepthFailOp);
+		depthStencilState.front.compareOp = compareOp(info.FrontStencilState.Compare);
 		depthStencilState.front.compareMask = info.StencilReadMask;
 		depthStencilState.front.writeMask = info.StencilWriteMask;
 		depthStencilState.front.reference = info.StencilReference;
-		depthStencilState.back.failOp = vulkanStencilOp(info.BackStencilState.FailOp);
-		depthStencilState.back.passOp = vulkanStencilOp(info.BackStencilState.PassOp);
-		depthStencilState.back.depthFailOp = vulkanStencilOp(info.BackStencilState.DepthFailOp);
-		depthStencilState.back.compareOp = vulkanCompareOp(info.BackStencilState.Compare);
+		depthStencilState.back.failOp = stencilOp(info.BackStencilState.FailOp);
+		depthStencilState.back.passOp = stencilOp(info.BackStencilState.PassOp);
+		depthStencilState.back.depthFailOp = stencilOp(info.BackStencilState.DepthFailOp);
+		depthStencilState.back.compareOp = compareOp(info.BackStencilState.Compare);
 		depthStencilState.back.compareMask = info.StencilReadMask;
 		depthStencilState.back.writeMask = info.StencilWriteMask;
 		depthStencilState.back.reference = info.StencilReference;
@@ -535,7 +535,7 @@ namespace spall::vk
 
 		for (std::uint32_t blendStateIndex = 0; blendStateIndex < info.ColorTargetFormatCount; ++blendStateIndex)
 		{
-			colorBlendAttachments.push_back(vulkanColorBlendAttachmentState(info.BlendStates[blendStateIndex]));
+			colorBlendAttachments.push_back(colorBlendAttachmentState(info.BlendStates[blendStateIndex]));
 		}
 
 		VkPipelineColorBlendStateCreateInfo colorBlendState = {};
@@ -578,7 +578,7 @@ namespace spall::vk
 		if (vkResult != VK_SUCCESS)
 		{
 			vkDestroyPipelineLayout(m_Device, pipelineLayout, nullptr);
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		GraphicsPipeline::Bindings bindings = {};
@@ -657,7 +657,7 @@ namespace spall::vk
 		if (vkResult != VK_SUCCESS)
 		{
 			vkDestroyPipelineLayout(m_Device, pipelineLayout, nullptr);
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		ComputePipeline* computePipeline = new ComputePipeline(
@@ -820,7 +820,7 @@ namespace spall::vk
 		if (vkResult != VK_SUCCESS)
 		{
 			vkDestroyPipelineLayout(m_Device, pipelineLayout, nullptr);
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		RayTracingPipeline* rayTracingPipeline = new RayTracingPipeline(
@@ -863,7 +863,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		rayTracingPipeline->m_ShaderBindingTable = tableBuffer;
@@ -876,7 +876,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		void* mapped = nullptr;
@@ -884,7 +884,7 @@ namespace spall::vk
 
 		if (vkResult != VK_SUCCESS)
 		{
-			return mapVulkanStatus(vkResult);
+			return mapStatus(vkResult);
 		}
 
 		std::memset(mapped, 0, static_cast<std::size_t>(tableSize));

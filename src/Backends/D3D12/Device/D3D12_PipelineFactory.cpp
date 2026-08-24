@@ -167,7 +167,7 @@ namespace spall::d3d12
 
 		for (const VertexAttributeInfo& attribute : info.VertexAttributes)
 		{
-			const DXGI_FORMAT attributeFormat = nativeFormat(attribute.Format);
+			const DXGI_FORMAT attributeFormat = format(attribute.Format);
 
 			if (attributeFormat == DXGI_FORMAT_UNKNOWN)
 			{
@@ -274,10 +274,10 @@ namespace spall::d3d12
 
 		for (std::uint32_t targetIndex = 0; targetIndex < info.ColorTargetFormatCount; ++targetIndex)
 		{
-			pipelineDesc.RTVFormats[targetIndex] = nativeFormat(info.ColorTargetFormats[targetIndex]);
+			pipelineDesc.RTVFormats[targetIndex] = format(info.ColorTargetFormats[targetIndex]);
 		}
 
-		pipelineDesc.DSVFormat = nativeFormat(info.DepthStencilFormat);
+		pipelineDesc.DSVFormat = format(info.DepthStencilFormat);
 		pipelineDesc.SampleDesc.Count = info.SampleCount;
 		pipelineDesc.SampleDesc.Quality = 0;
 		pipelineDesc.NodeMask = 0;

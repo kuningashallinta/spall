@@ -19,10 +19,10 @@
 
 namespace spall::vk
 {
-	inline VkImageUsageFlags vulkanImageUsageFlags(
+	inline VkImageUsageFlags imageUsageFlags(
 		TextureUsageFlags usage);
 
-	inline std::optional<TextureStateInfo> vulkanTextureState(
+	inline std::optional<TextureStateInfo> textureState(
 		ResourceStateFlags state);
 } // namespace spall::vk
 

@@ -6,7 +6,7 @@
 
 namespace spall::vk
 {
-	inline VkImageUsageFlags vulkanImageUsageFlags(
+	inline VkImageUsageFlags imageUsageFlags(
 		TextureUsageFlags usage)
 	{
 		VkImageUsageFlags imageUsage = 0;
@@ -44,7 +44,7 @@ namespace spall::vk
 		return imageUsage;
 	}
 
-	inline std::optional<TextureStateInfo> vulkanTextureState(
+	inline std::optional<TextureStateInfo> textureState(
 		ResourceStateFlags state)
 	{
 		switch (state)

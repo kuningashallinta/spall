@@ -19,34 +19,34 @@
 
 namespace spall::vk
 {
-	inline VkPrimitiveTopology vulkanPrimitiveTopology(
+	inline VkPrimitiveTopology primitiveTopology(
 		PrimitiveTopology topology);
 
-	inline VkCullModeFlags vulkanCullMode(
-		CullMode cullMode);
+	inline VkCullModeFlags cullMode(
+		CullMode mode);
 
-	inline VkPolygonMode vulkanPolygonMode(
+	inline VkPolygonMode polygonMode(
 		FillMode fillMode);
 
-	inline VkFrontFace vulkanFrontFace(
-		FrontFace frontFace);
+	inline VkFrontFace frontFace(
+		FrontFace face);
 
-	inline VkBlendFactor vulkanBlendFactor(
-		BlendFactor blendFactor);
+	inline VkBlendFactor blendFactor(
+		BlendFactor factor);
 
-	inline VkCompareOp vulkanCompareOp(
-		CompareOp compareOp);
+	inline VkCompareOp compareOp(
+		CompareOp op);
 
-	inline VkStencilOp vulkanStencilOp(
-		StencilOp stencilOp);
+	inline VkStencilOp stencilOp(
+		StencilOp op);
 
-	inline VkColorComponentFlags vulkanColorComponentFlags(
+	inline VkColorComponentFlags colorComponentFlags(
 		ColorComponentFlags mask);
 
-	inline VkBlendOp vulkanBlendOp(
-		BlendOp blendOp);
+	inline VkBlendOp blendOp(
+		BlendOp op);
 
-	inline VkPipelineColorBlendAttachmentState vulkanColorBlendAttachmentState(
+	inline VkPipelineColorBlendAttachmentState colorBlendAttachmentState(
 		const BlendStateInfo& blendState);
 } // namespace spall::vk
 

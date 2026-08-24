@@ -16,10 +16,10 @@
 
 namespace spall::vk
 {
-	inline VkShaderStageFlags vulkanShaderStageFlags(
+	inline VkShaderStageFlags shaderStageFlags(
 		ShaderStageFlags stages);
 
-	inline VkDescriptorType vulkanDescriptorType(
+	inline VkDescriptorType descriptorType(
 		ResourceBindingType type);
 } // namespace spall::vk
 

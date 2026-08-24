@@ -6,7 +6,7 @@
 
 namespace spall::vk
 {
-	inline VkPrimitiveTopology vulkanPrimitiveTopology(
+	inline VkPrimitiveTopology primitiveTopology(
 		PrimitiveTopology topology)
 	{
 		switch (topology)
@@ -34,10 +34,10 @@ namespace spall::vk
 		}
 	}
 
-	inline VkCullModeFlags vulkanCullMode(
-		CullMode cullMode)
+	inline VkCullModeFlags cullMode(
+		CullMode mode)
 	{
-		switch (cullMode)
+		switch (mode)
 		{
 			case CullMode::Front:
 			{
@@ -57,7 +57,7 @@ namespace spall::vk
 		}
 	}
 
-	inline VkPolygonMode vulkanPolygonMode(
+	inline VkPolygonMode polygonMode(
 		FillMode fillMode)
 	{
 		switch (fillMode)
@@ -75,10 +75,10 @@ namespace spall::vk
 		}
 	}
 
-	inline VkFrontFace vulkanFrontFace(
-		FrontFace frontFace)
+	inline VkFrontFace frontFace(
+		FrontFace face)
 	{
-		switch (frontFace)
+		switch (face)
 		{
 			case FrontFace::CounterClockwise:
 			{
@@ -93,10 +93,10 @@ namespace spall::vk
 		}
 	}
 
-	inline VkBlendFactor vulkanBlendFactor(
-		BlendFactor blendFactor)
+	inline VkBlendFactor blendFactor(
+		BlendFactor factor)
 	{
-		switch (blendFactor)
+		switch (factor)
 		{
 			case BlendFactor::Zero:
 			{
@@ -171,10 +171,10 @@ namespace spall::vk
 		}
 	}
 
-	inline VkCompareOp vulkanCompareOp(
-		CompareOp compareOp)
+	inline VkCompareOp compareOp(
+		CompareOp op)
 	{
-		switch (compareOp)
+		switch (op)
 		{
 			case CompareOp::Never:
 			{
@@ -219,10 +219,10 @@ namespace spall::vk
 		}
 	}
 
-	inline VkStencilOp vulkanStencilOp(
-		StencilOp stencilOp)
+	inline VkStencilOp stencilOp(
+		StencilOp op)
 	{
-		switch (stencilOp)
+		switch (op)
 		{
 			case StencilOp::Zero:
 			{
@@ -267,7 +267,7 @@ namespace spall::vk
 		}
 	}
 
-	inline VkColorComponentFlags vulkanColorComponentFlags(
+	inline VkColorComponentFlags colorComponentFlags(
 		ColorComponentFlags mask)
 	{
 		VkColorComponentFlags componentFlags = 0;
@@ -295,10 +295,10 @@ namespace spall::vk
 		return componentFlags;
 	}
 
-	inline VkBlendOp vulkanBlendOp(
-		BlendOp blendOp)
+	inline VkBlendOp blendOp(
+		BlendOp op)
 	{
-		switch (blendOp)
+		switch (op)
 		{
 			case BlendOp::Subtract:
 			{
@@ -328,18 +328,18 @@ namespace spall::vk
 		}
 	}
 
-	inline VkPipelineColorBlendAttachmentState vulkanColorBlendAttachmentState(
+	inline VkPipelineColorBlendAttachmentState colorBlendAttachmentState(
 		const BlendStateInfo& blendState)
 	{
 		VkPipelineColorBlendAttachmentState state = {};
 		state.blendEnable = blendState.EnableBlend ? VK_TRUE : VK_FALSE;
-		state.srcColorBlendFactor = vulkanBlendFactor(blendState.SourceColorFactor);
-		state.dstColorBlendFactor = vulkanBlendFactor(blendState.DestinationColorFactor);
-		state.colorBlendOp = vulkanBlendOp(blendState.ColorBlendOp);
-		state.srcAlphaBlendFactor = vulkanBlendFactor(blendState.SourceAlphaFactor);
-		state.dstAlphaBlendFactor = vulkanBlendFactor(blendState.DestinationAlphaFactor);
-		state.alphaBlendOp = vulkanBlendOp(blendState.AlphaBlendOp);
-		state.colorWriteMask = vulkanColorComponentFlags(blendState.ColorWriteMask);
+		state.srcColorBlendFactor = blendFactor(blendState.SourceColorFactor);
+		state.dstColorBlendFactor = blendFactor(blendState.DestinationColorFactor);
+		state.colorBlendOp = blendOp(blendState.ColorBlendOp);
+		state.srcAlphaBlendFactor = blendFactor(blendState.SourceAlphaFactor);
+		state.dstAlphaBlendFactor = blendFactor(blendState.DestinationAlphaFactor);
+		state.alphaBlendOp = blendOp(blendState.AlphaBlendOp);
+		state.colorWriteMask = colorComponentFlags(blendState.ColorWriteMask);
 
 		return state;
 	}

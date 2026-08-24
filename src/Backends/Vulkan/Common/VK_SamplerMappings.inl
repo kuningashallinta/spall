@@ -6,7 +6,7 @@
 
 namespace spall::vk
 {
-	inline VkSamplerAddressMode vulkanSamplerAddressMode(
+	inline VkSamplerAddressMode samplerAddressMode(
 		AddressMode addressMode)
 	{
 		switch (addressMode)
@@ -24,7 +24,7 @@ namespace spall::vk
 		}
 	}
 
-	inline VkFilter vulkanSamplerFilter(
+	inline VkFilter samplerFilter(
 		Filter filter)
 	{
 		switch (filter)

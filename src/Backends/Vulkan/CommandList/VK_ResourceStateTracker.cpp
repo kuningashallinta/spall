@@ -119,7 +119,7 @@ namespace spall::vk
 		ResourceStateFlags state,
 		const TextureSubresourceRange& subresources)
 	{
-		const std::optional<TextureStateInfo> stateInfo = vulkanTextureState(state);
+		const std::optional<TextureStateInfo> stateInfo = textureState(state);
 
 		if ((texture.m_PermanentState != ResourceStateFlags::Unknown) or
 			(not stateInfo.has_value()) or (stateInfo->layout == VK_IMAGE_LAYOUT_UNDEFINED))
@@ -172,7 +172,7 @@ namespace spall::vk
 		ResourceStateFlags state)
 	{
 		if ((buffer.m_PermanentState != ResourceStateFlags::Unknown) or
-			(m_BufferStates.find(&buffer) != m_BufferStates.end()) or (not vulkanBufferState(state).has_value()))
+			(m_BufferStates.find(&buffer) != m_BufferStates.end()) or (not bufferState(state).has_value()))
 		{
 			return ERR_INVALID_RESOURCE_STATE;
 		}
@@ -329,7 +329,7 @@ namespace spall::vk
 			return validateTextureState(texture, newState, subresources);
 		}
 
-		const std::optional<TextureStateInfo> target = vulkanTextureState(newState);
+		const std::optional<TextureStateInfo> target = textureState(newState);
 
 		if ((not target.has_value()) or (target->layout == VK_IMAGE_LAYOUT_UNDEFINED))
 		{
@@ -434,7 +434,7 @@ namespace spall::vk
 			return validateBufferState(buffer, newState);
 		}
 
-		const std::optional<BufferStateInfo> target = vulkanBufferState(newState);
+		const std::optional<BufferStateInfo> target = bufferState(newState);
 
 		if (not target.has_value())
 		{
@@ -614,8 +614,8 @@ namespace spall::vk
 
 		for (const TextureBarrier& pendingBarrier : m_TextureBarriers)
 		{
-			const std::optional<TextureStateInfo> before = vulkanTextureState(pendingBarrier.StateBefore);
-			const std::optional<TextureStateInfo> after = vulkanTextureState(pendingBarrier.StateAfter);
+			const std::optional<TextureStateInfo> before = textureState(pendingBarrier.StateBefore);
+			const std::optional<TextureStateInfo> after = textureState(pendingBarrier.StateAfter);
 			const bool unsupportedSource = (not before.has_value()) or (before->layout == VK_IMAGE_LAYOUT_UNDEFINED);
 			const bool unsupportedTarget = (not after.has_value()) or (after->layout == VK_IMAGE_LAYOUT_UNDEFINED);
 
@@ -645,8 +645,8 @@ namespace spall::vk
 
 		for (const BufferBarrier& pendingBarrier : m_BufferBarriers)
 		{
-			const std::optional<BufferStateInfo> before = vulkanBufferState(pendingBarrier.StateBefore);
-			const std::optional<BufferStateInfo> after = vulkanBufferState(pendingBarrier.StateAfter);
+			const std::optional<BufferStateInfo> before = bufferState(pendingBarrier.StateBefore);
+			const std::optional<BufferStateInfo> after = bufferState(pendingBarrier.StateAfter);
 
 			if ((not before.has_value()) or (not after.has_value()))
 			{
@@ -731,8 +731,8 @@ namespace spall::vk
 						continue;
 					}
 
-					const std::optional<TextureStateInfo> before = vulkanTextureState(priorState);
-					const std::optional<TextureStateInfo> after = vulkanTextureState(entryState);
+					const std::optional<TextureStateInfo> before = textureState(priorState);
+					const std::optional<TextureStateInfo> after = textureState(entryState);
 					const bool unsupportedTarget = (not after.has_value()) or (after->layout == VK_IMAGE_LAYOUT_UNDEFINED);
 
 					if ((not before.has_value()) or unsupportedTarget)
@@ -778,8 +778,8 @@ namespace spall::vk
 				continue;
 			}
 
-			const std::optional<BufferStateInfo> before = vulkanBufferState(priorState);
-			const std::optional<BufferStateInfo> after = vulkanBufferState(entryState);
+			const std::optional<BufferStateInfo> before = bufferState(priorState);
+			const std::optional<BufferStateInfo> after = bufferState(entryState);
 
 			if ((not before.has_value()) or (not after.has_value()))
 			{

@@ -19,10 +19,10 @@
 
 namespace spall::vk
 {
-	inline VkSamplerAddressMode vulkanSamplerAddressMode(
+	inline VkSamplerAddressMode samplerAddressMode(
 		AddressMode addressMode);
 
-	inline VkFilter vulkanSamplerFilter(
+	inline VkFilter samplerFilter(
 		Filter filter);
 } // namespace spall::vk
 

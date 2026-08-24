@@ -16,7 +16,7 @@
 
 namespace spall::vk
 {
-	inline VkBufferUsageFlags vulkanBufferUsageFlags(
+	inline VkBufferUsageFlags bufferUsageFlags(
 		BufferUsageFlags usage,
 		bool rayTracingEnabled);
 } // namespace spall::vk

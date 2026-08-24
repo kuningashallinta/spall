@@ -199,7 +199,7 @@ namespace spall::d3d12
 		SPALL_TRY(validateFormatCapabilityQuery(format, capabilities));
 
 		D3D12_FEATURE_DATA_FORMAT_SUPPORT formatSupport = {};
-		formatSupport.Format = nativeFormat(format);
+		formatSupport.Format = d3d12::format(format);
 
 		if (formatSupport.Format == DXGI_FORMAT_UNKNOWN)
 		{

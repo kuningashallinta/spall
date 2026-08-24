@@ -8,7 +8,7 @@
 
 namespace spall::d3d12
 {
-	inline D3D12_RESOURCE_STATES nativeResourceState(
+	inline D3D12_RESOURCE_STATES resourceState(
 		ResourceStateFlags state);
 } // namespace spall::d3d12
 
