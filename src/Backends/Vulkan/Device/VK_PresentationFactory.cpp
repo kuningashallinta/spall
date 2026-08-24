@@ -25,10 +25,12 @@ namespace spall::vk
 
 		SPALL_TRY(validateSwapChainCreateInfo(info));
 
+		const HWND window = static_cast<HWND>(info.Window.Value);
+
 		VkWin32SurfaceCreateInfoKHR surfaceCreateInfo = {};
 		surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-		surfaceCreateInfo.hinstance = GetModuleHandleW(nullptr);
-		surfaceCreateInfo.hwnd = static_cast<HWND>(info.Window.Value);
+		surfaceCreateInfo.hinstance = reinterpret_cast<HINSTANCE>(GetWindowLongPtrW(window, GWLP_HINSTANCE));
+		surfaceCreateInfo.hwnd = window;
 
 		VkSurfaceKHR surface = VK_NULL_HANDLE;
 		VkResult vkResult = vkCreateWin32SurfaceKHR(m_Instance, &surfaceCreateInfo, nullptr, &surface);
