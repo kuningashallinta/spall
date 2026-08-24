@@ -14,8 +14,6 @@
 #include <vector>
 #include <windows.h>
 
-#pragma comment(lib, "vulkan-1.lib")
-
 namespace spall::vk
 {
 	VKAPI_ATTR VkBool32 VKAPI_CALL Backend::handleValidationMessage(
