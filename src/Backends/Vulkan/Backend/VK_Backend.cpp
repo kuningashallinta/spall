@@ -209,7 +209,20 @@ namespace spall::vk
 
 		const char* validationLayerName = "VK_LAYER_KHRONOS_validation";
 		std::vector<const char*> enabledLayers;
+
+		bool hasSurface = false;
+		SPALL_TRY(hasInstanceExtension(VK_KHR_SURFACE_EXTENSION_NAME, &hasSurface));
+
+		bool hasPlatformSurface = false;
+		SPALL_TRY(hasInstanceExtension(VK_KHR_WIN32_SURFACE_EXTENSION_NAME, &hasPlatformSurface));
+
+		if ((not hasSurface) or (not hasPlatformSurface))
+		{
+			return ERR_UNSUPPORTED;
+		}
+
 		std::vector<const char*> enabledExtensions = {VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_WIN32_SURFACE_EXTENSION_NAME};
+
 		bool hasDebugUtils = false;
 		SPALL_TRY(hasInstanceExtension(VK_EXT_DEBUG_UTILS_EXTENSION_NAME, &hasDebugUtils));
 
