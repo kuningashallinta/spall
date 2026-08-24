@@ -8,8 +8,6 @@
 
 #include <spall/Common/Enums/ResourceEnums.h>
 
-#define VK_USE_PLATFORM_WIN32_KHR
-
 #include <vulkan/vulkan.hpp>
 
 namespace spall::vk

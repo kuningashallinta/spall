@@ -91,6 +91,7 @@ target_link_libraries(spall_tests PRIVATE
 
 if(SPALL_ENABLE_VULKAN)
 	target_link_libraries(spall_tests PRIVATE Vulkan::Vulkan)
+	target_compile_definitions(spall_tests PRIVATE VK_USE_PLATFORM_WIN32_KHR)
 endif()
 
 add_test(NAME spall_tests COMMAND spall_tests)

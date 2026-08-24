@@ -12,8 +12,6 @@
 #include <spall/Device/FormatCapabilities.h>
 #include <src/Validation/Common/FormatValidation.h>
 
-#define VK_USE_PLATFORM_WIN32_KHR
-
 #include <cstdint>
 #include <optional>
 #include <src/Backends/Vulkan/Common/VK_TextureFormatProperties.h>

@@ -5,8 +5,6 @@
 
 #include <spall/Resources/Buffer/BufferInfo.h>
 
-#define VK_USE_PLATFORM_WIN32_KHR
-
 #include <cstdint>
 #include <optional>
 #include <vulkan/vulkan.hpp>

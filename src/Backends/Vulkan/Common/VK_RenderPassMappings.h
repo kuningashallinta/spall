@@ -10,8 +10,6 @@
 #include <spall/Common/Enums/ResourceEnums.h>
 #include <spall/Common/Enums/ResourceStateFlags.h>
 
-#define VK_USE_PLATFORM_WIN32_KHR
-
 #include <cstdint>
 #include <optional>
 #include <src/Backends/Vulkan/Common/VK_TextureFormatProperties.h>

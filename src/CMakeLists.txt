@@ -114,6 +114,8 @@ if(SPALL_ENABLE_VULKAN)
 
 	target_include_directories(spall_vulkan PRIVATE "${PROJECT_SOURCE_DIR}")
 
+	target_compile_definitions(spall_vulkan PRIVATE VK_USE_PLATFORM_WIN32_KHR)
+
 	target_link_libraries(spall_vulkan PUBLIC
 		spall::spall
 		Vulkan::Vulkan)
