@@ -40,12 +40,10 @@ namespace spall
 		virtual IQueue& computeQueue(void) = 0;
 
 		/// Creates a command list for the given queue, returning an empty resource on failure.
-		Resource<ICommandList> createCommandList(
-			QueueType type = QueueType::Graphics);
+		Resource<ICommandList> createCommandList(QueueType type = QueueType::Graphics);
 
 		/// Creates a graphics-queue command list into the provided resource.
-		Status createCommandList(
-			Resource<ICommandList>* commandList);
+		Status createCommandList(Resource<ICommandList>* commandList);
 
 		virtual Status createCommandList(
 			QueueType type,

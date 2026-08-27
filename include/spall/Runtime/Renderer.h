@@ -40,8 +40,7 @@ namespace spall
 			Renderer* renderer);
 
 		/// Creates a renderer, returning an invalid renderer on failure.
-		static Renderer create(
-			const RendererCreateInfo& info);
+		static Renderer create(const RendererCreateInfo& info);
 
 		RenderBackendType backendType(void) const;
 		std::uint32_t width(void) const;
@@ -58,8 +57,7 @@ namespace spall
 			Frame* frame);
 
 		/// Acquires and begins a managed frame, returning an invalid frame on failure.
-		Frame beginFrame(
-			const FrameBeginInfo& info = {});
+		Frame beginFrame(const FrameBeginInfo& info = {});
 
 		/// Resizes presentation resources. Zero dimensions suspend frame acquisition.
 		Status resize(

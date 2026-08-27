@@ -7,14 +7,11 @@
 
 namespace spall::d3d12
 {
-	inline DXGI_FORMAT format(
-		Format format);
+	inline DXGI_FORMAT format(Format format);
 
-	inline DXGI_FORMAT swapChainFormat(
-		Format format);
+	inline DXGI_FORMAT swapChainFormat(Format format);
 
-	inline DXGI_FORMAT indexFormat(
-		IndexFormat format);
+	inline DXGI_FORMAT indexFormat(IndexFormat format);
 } // namespace spall::d3d12
 
 #include <src/Common/DXGI/DXGIFormatMappings.inl>

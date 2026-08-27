@@ -17,8 +17,7 @@ namespace spall
 	{
 	public:
 		/// Acquires a frame, returning an empty resource on failure.
-		Resource<IFrame> acquireFrame(
-			ISwapChain& swapChain);
+		Resource<IFrame> acquireFrame(ISwapChain& swapChain);
 
 		/// Begins a presentation cycle. Only one acquired frame may be active on the queue.
 		virtual Status acquireFrame(

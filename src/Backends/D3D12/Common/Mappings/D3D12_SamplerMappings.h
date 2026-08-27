@@ -16,8 +16,7 @@ namespace spall::d3d12
 		bool anisotropic,
 		bool comparisonEnabled);
 
-	inline D3D12_TEXTURE_ADDRESS_MODE addressMode(
-		AddressMode mode);
+	inline D3D12_TEXTURE_ADDRESS_MODE addressMode(AddressMode mode);
 } // namespace spall::d3d12
 
 #include <src/Backends/D3D12/Common/Mappings/D3D12_SamplerMappings.inl>

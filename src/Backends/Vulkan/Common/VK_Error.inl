@@ -3,7 +3,8 @@
 
 namespace spall::vk
 {
-	inline Status mapStatus(VkResult result)
+	inline Status mapStatus(
+		VkResult result)
 	{
 		switch (result)
 		{

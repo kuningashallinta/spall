@@ -11,20 +11,16 @@
 
 namespace spall::d3d12
 {
-	inline D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE accelerationStructureType(
-		AccelerationStructureType type);
+	inline D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE accelerationStructureType(AccelerationStructureType type);
 
 	/// Maps the portable build flags. A recorded update contributes its own
 	/// flag, so PERFORM_UPDATE is never produced here.
-	inline D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS accelerationStructureBuildFlags(
-		AccelerationStructureBuildFlags flags);
+	inline D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS accelerationStructureBuildFlags(AccelerationStructureBuildFlags flags);
 
-	inline D3D12_RAYTRACING_GEOMETRY_FLAGS accelerationStructureGeometryFlags(
-		AccelerationStructureGeometryFlags flags);
+	inline D3D12_RAYTRACING_GEOMETRY_FLAGS accelerationStructureGeometryFlags(AccelerationStructureGeometryFlags flags);
 
 	/// Reports whether a format is legal for a traced vertex position.
-	inline bool isSupportedAccelerationStructureVertexFormat(
-		Format format);
+	inline bool isSupportedAccelerationStructureVertexFormat(Format format);
 
 	/// Assembles the build inputs for one acceleration structure.
 	///

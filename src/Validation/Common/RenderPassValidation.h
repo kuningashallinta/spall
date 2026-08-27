@@ -11,8 +11,7 @@
 
 namespace spall
 {
-	inline Status validatePassBeginInfo(
-		const RenderPassBeginInfo& beginInfo);
+	inline Status validatePassBeginInfo(const RenderPassBeginInfo& beginInfo);
 } // namespace spall
 
 #include <src/Validation/Common/RenderPassValidation.inl>

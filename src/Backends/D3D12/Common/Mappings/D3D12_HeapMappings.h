@@ -8,11 +8,9 @@
 
 namespace spall::d3d12
 {
-	inline D3D12_HEAP_PROPERTIES heapProperties(
-		D3D12_HEAP_TYPE heapType);
+	inline D3D12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE heapType);
 
-	inline D3D12_HEAP_TYPE bufferHeapType(
-		MemoryAccess access);
+	inline D3D12_HEAP_TYPE bufferHeapType(MemoryAccess access);
 
 	/// Reports whether a heap pins its resources to one state for their whole lifetime.
 	inline bool isFixedStateHeap(

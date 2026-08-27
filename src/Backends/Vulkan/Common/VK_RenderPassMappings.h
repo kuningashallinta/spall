@@ -16,14 +16,11 @@
 
 namespace spall::vk
 {
-	inline VkAttachmentLoadOp attachmentLoadOp(
-		LoadAction loadOp);
+	inline VkAttachmentLoadOp attachmentLoadOp(LoadAction loadOp);
 
-	inline VkAttachmentStoreOp attachmentStoreOp(
-		StoreAction storeOp);
+	inline VkAttachmentStoreOp attachmentStoreOp(StoreAction storeOp);
 
-	inline VkSubpassDependency graphicsSubpassDependency(
-		void);
+	inline VkSubpassDependency graphicsSubpassDependency(void);
 } // namespace spall::vk
 
 #include <src/Backends/Vulkan/Common/VK_RenderPassMappings.inl>

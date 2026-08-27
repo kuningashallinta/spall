@@ -9,10 +9,10 @@
 #include <spall/Device/IPipelineFactory.h>
 #include <spall/Device/IPresentationFactory.h>
 #include <spall/Device/IResourceFactory.h>
+#include <src/Backends/D3D12/Common/D3D12_Types.h>
 #include <src/Backends/D3D12/Common/Descriptors/D3D12_DescriptorHeap.h>
 #include <src/Backends/D3D12/Common/Descriptors/D3D12_DescriptorRingPool.h>
 #include <src/Backends/D3D12/Common/Resources/D3D12_ResourcePool.h>
-#include <src/Backends/D3D12/Common/D3D12_Types.h>
 #include <src/Backends/D3D12/Pipeline/Mipmaps/D3D12_MipmapGenerator.h>
 
 #include <cstddef>

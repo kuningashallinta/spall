@@ -7,8 +7,8 @@
 #include <spall/Common/Resource/SharedObject.h>
 
 #include <spall/Pipeline/Binding/IResourceSet.h>
-#include <src/Backends/D3D12/Common/Descriptors/D3D12_DescriptorHeap.h>
 #include <src/Backends/D3D12/Common/D3D12_Types.h>
+#include <src/Backends/D3D12/Common/Descriptors/D3D12_DescriptorHeap.h>
 
 #include <cstdint>
 #include <vector>

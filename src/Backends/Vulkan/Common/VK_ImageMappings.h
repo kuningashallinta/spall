@@ -16,11 +16,9 @@
 
 namespace spall::vk
 {
-	inline VkImageUsageFlags textureUsageFlags(
-		TextureUsageFlags usage);
+	inline VkImageUsageFlags textureUsageFlags(TextureUsageFlags usage);
 
-	inline std::optional<TextureStateInfo> textureState(
-		ResourceStateFlags state);
+	inline std::optional<TextureStateInfo> textureState(ResourceStateFlags state);
 } // namespace spall::vk
 
 #include <src/Backends/Vulkan/Common/VK_ImageMappings.inl>

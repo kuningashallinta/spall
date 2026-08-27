@@ -36,29 +36,25 @@ namespace spall
 	public:
 		virtual ~IResourceFactory(void) = default;
 
-		Resource<ITexture> createTexture(
-			const TextureCreateInfo& createInfo);
+		Resource<ITexture> createTexture(const TextureCreateInfo& createInfo);
 
 		virtual Status createTexture(
 			const TextureCreateInfo& createInfo,
 			Resource<ITexture>* texture) = 0;
 
-		Resource<ITextureView> createTextureView(
-			const TextureViewCreateInfo& info);
+		Resource<ITextureView> createTextureView(const TextureViewCreateInfo& info);
 
 		virtual Status createTextureView(
 			const TextureViewCreateInfo& info,
 			Resource<ITextureView>* textureView) = 0;
 
-		Resource<IFramebuffer> createFramebuffer(
-			const FramebufferCreateInfo& createInfo);
+		Resource<IFramebuffer> createFramebuffer(const FramebufferCreateInfo& createInfo);
 
 		virtual Status createFramebuffer(
 			const FramebufferCreateInfo& createInfo,
 			Resource<IFramebuffer>* framebuffer) = 0;
 
-		Resource<IBuffer> createBuffer(
-			const BufferCreateInfo& createInfo);
+		Resource<IBuffer> createBuffer(const BufferCreateInfo& createInfo);
 
 		virtual Status createBuffer(
 			const BufferCreateInfo& createInfo,
@@ -125,15 +121,13 @@ namespace spall
 			std::span<std::byte> data,
 			std::uint32_t offset) = 0;
 
-		Resource<ISampler> createSampler(
-			const SamplerCreateInfo& info);
+		Resource<ISampler> createSampler(const SamplerCreateInfo& info);
 
 		virtual Status createSampler(
 			const SamplerCreateInfo& info,
 			Resource<ISampler>* sampler) = 0;
 
-		Resource<IQueryPool> createQueryPool(
-			const QueryPoolCreateInfo& info);
+		Resource<IQueryPool> createQueryPool(const QueryPoolCreateInfo& info);
 
 		virtual Status createQueryPool(
 			const QueryPoolCreateInfo& info,
@@ -147,8 +141,7 @@ namespace spall
 
 		/// The structure is sized from the supplied description and is undefined
 		/// until a recorded build completes.
-		Resource<IAccelerationStructure> createAccelerationStructure(
-			const AccelerationStructureCreateInfo& info);
+		Resource<IAccelerationStructure> createAccelerationStructure(const AccelerationStructureCreateInfo& info);
 
 		virtual Status createAccelerationStructure(
 			const AccelerationStructureCreateInfo& info,

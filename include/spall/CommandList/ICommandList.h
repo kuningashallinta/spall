@@ -208,8 +208,7 @@ namespace spall
 		/// changes deviceAddress, so referencing instances must be rewritten and
 		/// their top-level structures rebuilt. It is invalid inside a render pass
 		/// or on an already compacted structure.
-		virtual Status compactAccelerationStructure(
-			IAccelerationStructure& accelerationStructure) = 0;
+		virtual Status compactAccelerationStructure(IAccelerationStructure& accelerationStructure) = 0;
 
 		virtual Status copyBuffer(
 			IBuffer& destination,

@@ -9,17 +9,13 @@
 
 namespace spall::vk
 {
-	inline VkAccelerationStructureTypeKHR accelerationStructureType(
-		AccelerationStructureType type);
+	inline VkAccelerationStructureTypeKHR accelerationStructureType(AccelerationStructureType type);
 
-	inline VkBuildAccelerationStructureFlagsKHR accelerationStructureBuildFlags(
-		AccelerationStructureBuildFlags flags);
+	inline VkBuildAccelerationStructureFlagsKHR accelerationStructureBuildFlags(AccelerationStructureBuildFlags flags);
 
-	inline VkGeometryFlagsKHR accelerationStructureGeometryFlags(
-		AccelerationStructureGeometryFlags flags);
+	inline VkGeometryFlagsKHR accelerationStructureGeometryFlags(AccelerationStructureGeometryFlags flags);
 
-	inline bool isSupportedAccelerationStructureVertexFormat(
-		Format format);
+	inline bool isSupportedAccelerationStructureVertexFormat(Format format);
 } // namespace spall::vk
 
 #include <src/Backends/Vulkan/Common/VK_RayTracingMappings.inl>

@@ -19,8 +19,7 @@ namespace spall
 	public:
 		virtual ~IPresentationFactory(void) = default;
 
-		Resource<ISwapChain> createSwapChain(
-			const SwapChainCreateInfo& info);
+		Resource<ISwapChain> createSwapChain(const SwapChainCreateInfo& info);
 
 		virtual Status createSwapChain(
 			const SwapChainCreateInfo& info,

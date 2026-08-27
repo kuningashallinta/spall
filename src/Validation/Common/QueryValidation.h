@@ -8,8 +8,7 @@
 
 namespace spall
 {
-	inline Status validateQueryPoolCreateInfo(
-		const QueryPoolCreateInfo& info);
+	inline Status validateQueryPoolCreateInfo(const QueryPoolCreateInfo& info);
 
 	inline Status validateTimestampWrite(
 		const QueryPoolInfo& info,

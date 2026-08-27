@@ -17,8 +17,7 @@ namespace spall::vk
 		VkPipelineStageFlags stage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 	};
 
-	inline std::optional<BufferStateInfo> bufferState(
-		ResourceStateFlags state);
+	inline std::optional<BufferStateInfo> bufferState(ResourceStateFlags state);
 } // namespace spall::vk
 
 #include <src/Backends/Vulkan/Resources/Buffer/VK_BufferState.inl>

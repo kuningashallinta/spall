@@ -11,8 +11,8 @@
 #include <spall/Common/Enums/PipelineType.h>
 #include <spall/Common/Enums/QueueType.h>
 #include <src/Backends/D3D12/CommandList/D3D12_ResourceStateTracker.h>
-#include <src/Backends/D3D12/Common/Descriptors/D3D12_DescriptorRingPool.h>
 #include <src/Backends/D3D12/Common/D3D12_Types.h>
+#include <src/Backends/D3D12/Common/Descriptors/D3D12_DescriptorRingPool.h>
 
 #include <cstddef>
 #include <cstdint>
@@ -161,8 +161,7 @@ namespace spall::d3d12
 			IBuffer& argumentBuffer,
 			std::uint32_t offset) override;
 
-		Status compactAccelerationStructure(
-			IAccelerationStructure& accelerationStructure) override;
+		Status compactAccelerationStructure(IAccelerationStructure& accelerationStructure) override;
 
 		Status buildAccelerationStructure(
 			IAccelerationStructure& accelerationStructure,

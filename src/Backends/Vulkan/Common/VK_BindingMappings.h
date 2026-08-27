@@ -16,11 +16,9 @@
 
 namespace spall::vk
 {
-	inline VkShaderStageFlags shaderStageFlags(
-		ShaderStageFlags stages);
+	inline VkShaderStageFlags shaderStageFlags(ShaderStageFlags stages);
 
-	inline VkDescriptorType descriptorType(
-		ResourceBindingType type);
+	inline VkDescriptorType descriptorType(ResourceBindingType type);
 } // namespace spall::vk
 
 #include <src/Backends/Vulkan/Common/VK_BindingMappings.inl>

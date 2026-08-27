@@ -25,11 +25,9 @@ namespace spall
 		std::uint32_t offset,
 		std::size_t size);
 
-	inline Status validateViewport(
-		const Viewport& viewport);
+	inline Status validateViewport(const Viewport& viewport);
 
-	inline Status validateScissor(
-		const Scissor& scissor);
+	inline Status validateScissor(const Scissor& scissor);
 
 	inline Status validateCopyBufferArguments(
 		const IBuffer& destination,
@@ -58,8 +56,7 @@ namespace spall
 		const ITexture& destination,
 		const ITexture& source);
 
-	inline Status validateGenerateMipsArguments(
-		const ITexture& texture);
+	inline Status validateGenerateMipsArguments(const ITexture& texture);
 } // namespace spall
 
 #include <src/Validation/Common/CommandValidation.inl>

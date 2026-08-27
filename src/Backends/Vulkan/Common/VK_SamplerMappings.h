@@ -16,11 +16,9 @@
 
 namespace spall::vk
 {
-	inline VkSamplerAddressMode addressMode(
-		AddressMode mode);
+	inline VkSamplerAddressMode addressMode(AddressMode mode);
 
-	inline VkFilter samplerFilter(
-		Filter filter);
+	inline VkFilter samplerFilter(Filter filter);
 } // namespace spall::vk
 
 #include <src/Backends/Vulkan/Common/VK_SamplerMappings.inl>

@@ -31,8 +31,7 @@ namespace spall
 	public:
 		virtual ~IPipelineFactory(void) = default;
 
-		Resource<IShader> createShader(
-			const ShaderCreateInfo& info);
+		Resource<IShader> createShader(const ShaderCreateInfo& info);
 
 		template <typename T, std::size_t Extent>
 			requires std::is_trivially_copyable_v<T>
@@ -50,36 +49,31 @@ namespace spall
 			const ShaderCreateInfo& info,
 			Resource<IShader>* shader) = 0;
 
-		Resource<IResourceSetLayout> createResourceSetLayout(
-			const ResourceSetLayoutCreateInfo& info);
+		Resource<IResourceSetLayout> createResourceSetLayout(const ResourceSetLayoutCreateInfo& info);
 
 		virtual Status createResourceSetLayout(
 			const ResourceSetLayoutCreateInfo& info,
 			Resource<IResourceSetLayout>* resourceSetLayout) = 0;
 
-		Resource<IResourceSet> createResourceSet(
-			const ResourceSetCreateInfo& info);
+		Resource<IResourceSet> createResourceSet(const ResourceSetCreateInfo& info);
 
 		virtual Status createResourceSet(
 			const ResourceSetCreateInfo& info,
 			Resource<IResourceSet>* resourceSet) = 0;
 
-		Resource<IPipeline> createPipeline(
-			const PipelineCreateInfo& info);
+		Resource<IPipeline> createPipeline(const PipelineCreateInfo& info);
 
 		virtual Status createPipeline(
 			const PipelineCreateInfo& info,
 			Resource<IPipeline>* pipeline) = 0;
 
-		Resource<IPipeline> createComputePipeline(
-			const ComputePipelineCreateInfo& info);
+		Resource<IPipeline> createComputePipeline(const ComputePipelineCreateInfo& info);
 
 		virtual Status createComputePipeline(
 			const ComputePipelineCreateInfo& info,
 			Resource<IPipeline>* pipeline) = 0;
 
-		Resource<IPipeline> createRayTracingPipeline(
-			const RayTracingPipelineCreateInfo& info);
+		Resource<IPipeline> createRayTracingPipeline(const RayTracingPipelineCreateInfo& info);
 
 		virtual Status createRayTracingPipeline(
 			const RayTracingPipelineCreateInfo& info,

@@ -4,8 +4,8 @@
 #pragma once
 
 #include <spall/Common/Status/Status.h>
-#include <src/Backends/D3D12/Common/Descriptors/D3D12_DescriptorRing.h>
 #include <src/Backends/D3D12/Common/D3D12_Types.h>
+#include <src/Backends/D3D12/Common/Descriptors/D3D12_DescriptorRing.h>
 
 #include <cstdint>
 #include <mutex>

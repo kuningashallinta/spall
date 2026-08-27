@@ -22,11 +22,9 @@ namespace spall
 			(format == Format::Depth32FloatStencil8);
 	}
 
-	inline bool isBlockCompressedFormat(
-		Format format);
+	inline bool isBlockCompressedFormat(Format format);
 
-	inline bool isColorFormat(
-		Format format);
+	inline bool isColorFormat(Format format);
 
 	inline bool isSrgbFormat(
 		Format format)
@@ -56,11 +54,9 @@ namespace spall
 			(format == Format::RGB32Float));
 	}
 
-	inline std::uint32_t formatBytesPerPixel(
-		Format format);
+	inline std::uint32_t formatBytesPerPixel(Format format);
 
-	inline std::uint32_t formatBlockWidth(
-		Format format);
+	inline std::uint32_t formatBlockWidth(Format format);
 
 	inline std::uint32_t formatBlockHeight(
 		Format format)
@@ -68,8 +64,7 @@ namespace spall
 		return formatBlockWidth(format);
 	}
 
-	inline std::uint32_t formatBytesPerBlock(
-		Format format);
+	inline std::uint32_t formatBytesPerBlock(Format format);
 
 	inline std::uint32_t formatBlockCount(
 		std::uint32_t extent,

@@ -5,8 +5,7 @@
 
 namespace spall
 {
-	inline Status validateShaderCreateInfo(
-		const ShaderCreateInfo& info);
+	inline Status validateShaderCreateInfo(const ShaderCreateInfo& info);
 } // namespace spall
 
 #include <src/Validation/Common/ShaderValidation.inl>

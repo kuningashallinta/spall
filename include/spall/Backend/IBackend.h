@@ -22,8 +22,7 @@ namespace spall
 
 		virtual RenderBackendType backendType(void) const = 0;
 
-		Resource<IDevice> createDevice(
-			const DeviceCreateInfo& info = {});
+		Resource<IDevice> createDevice(const DeviceCreateInfo& info = {});
 
 		virtual Status createDevice(
 			const DeviceCreateInfo& info,

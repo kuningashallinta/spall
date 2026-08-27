@@ -16,42 +16,31 @@
 
 namespace spall
 {
-	inline Status validateResourceSetLayoutList(
-		std::span<const IResourceSetLayout* const> resourceSetLayouts);
+	inline Status validateResourceSetLayoutList(std::span<const IResourceSetLayout* const> resourceSetLayouts);
 
 	inline Status validatePushConstantInfo(
 		const PushConstantInfo& info,
 		ShaderStageFlags supportedStages);
 
-	inline Status validateRasterizerState(
-		const PipelineCreateInfo& info);
+	inline Status validateRasterizerState(const PipelineCreateInfo& info);
 
-	inline Status validateBlendState(
-		const PipelineCreateInfo& info);
+	inline Status validateBlendState(const PipelineCreateInfo& info);
 
-	inline Status validateShaderStages(
-		const PipelineCreateInfo& info);
+	inline Status validateShaderStages(const PipelineCreateInfo& info);
 
-	inline Status validateColorTargets(
-		const PipelineCreateInfo& info);
+	inline Status validateColorTargets(const PipelineCreateInfo& info);
 
-	inline Status validateDepthState(
-		const PipelineCreateInfo& info);
+	inline Status validateDepthState(const PipelineCreateInfo& info);
 
-	inline Status validateVertexLayout(
-		const PipelineCreateInfo& info);
+	inline Status validateVertexLayout(const PipelineCreateInfo& info);
 
-	inline Status validatePipelineCreateInfo(
-		const PipelineCreateInfo& info);
+	inline Status validatePipelineCreateInfo(const PipelineCreateInfo& info);
 
-	inline Status validateComputePipelineCreateInfo(
-		const ComputePipelineCreateInfo& info);
+	inline Status validateComputePipelineCreateInfo(const ComputePipelineCreateInfo& info);
 
-	inline Status validateRayTracingShaderStage(
-		const PipelineShaderStageInfo& stage);
+	inline Status validateRayTracingShaderStage(const PipelineShaderStageInfo& stage);
 
-	inline Status validateRayTracingPipelineCreateInfo(
-		const RayTracingPipelineCreateInfo& info);
+	inline Status validateRayTracingPipelineCreateInfo(const RayTracingPipelineCreateInfo& info);
 } // namespace spall
 
 #include <src/Validation/Common/PipelineValidation.inl>

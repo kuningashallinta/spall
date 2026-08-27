@@ -7,8 +7,7 @@
 
 namespace spall
 {
-	inline Status validateSamplerCreateInfo(
-		const SamplerCreateInfo& info);
+	inline Status validateSamplerCreateInfo(const SamplerCreateInfo& info);
 } // namespace spall
 
 #include <src/Validation/Common/SamplerValidation.inl>

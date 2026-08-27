@@ -16,35 +16,25 @@
 
 namespace spall::vk
 {
-	inline VkPrimitiveTopology primitiveTopology(
-		PrimitiveTopology topology);
+	inline VkPrimitiveTopology primitiveTopology(PrimitiveTopology topology);
 
-	inline VkCullModeFlags cullMode(
-		CullMode mode);
+	inline VkCullModeFlags cullMode(CullMode mode);
 
-	inline VkPolygonMode fillMode(
-		FillMode mode);
+	inline VkPolygonMode fillMode(FillMode mode);
 
-	inline VkFrontFace frontFace(
-		FrontFace face);
+	inline VkFrontFace frontFace(FrontFace face);
 
-	inline VkBlendFactor blendFactor(
-		BlendFactor factor);
+	inline VkBlendFactor blendFactor(BlendFactor factor);
 
-	inline VkCompareOp compareOp(
-		CompareOp op);
+	inline VkCompareOp compareOp(CompareOp op);
 
-	inline VkStencilOp stencilOp(
-		StencilOp op);
+	inline VkStencilOp stencilOp(StencilOp op);
 
-	inline VkColorComponentFlags colorComponentFlags(
-		ColorComponentFlags mask);
+	inline VkColorComponentFlags colorComponentFlags(ColorComponentFlags mask);
 
-	inline VkBlendOp blendOp(
-		BlendOp op);
+	inline VkBlendOp blendOp(BlendOp op);
 
-	inline VkPipelineColorBlendAttachmentState blendState(
-		const BlendStateInfo& info);
+	inline VkPipelineColorBlendAttachmentState blendState(const BlendStateInfo& info);
 } // namespace spall::vk
 
 #include <src/Backends/Vulkan/Common/VK_PipelineMappings.inl>

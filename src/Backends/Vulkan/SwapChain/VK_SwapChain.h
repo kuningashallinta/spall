@@ -86,8 +86,7 @@ namespace spall::vk
 			std::uint32_t width,
 			std::uint32_t height);
 
-		static VkCompositeAlphaFlagBitsKHR chooseCompositeAlpha(
-			const VkSurfaceCapabilitiesKHR& capabilities);
+		static VkCompositeAlphaFlagBitsKHR chooseCompositeAlpha(const VkSurfaceCapabilitiesKHR& capabilities);
 
 		Status createFrameResources(std::uint32_t frameCount);
 		void destroyFrameResources(void);

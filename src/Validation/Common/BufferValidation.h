@@ -9,14 +9,11 @@
 
 namespace spall
 {
-	inline Status validateBufferUsage(
-		const BufferCreateInfo& info);
+	inline Status validateBufferUsage(const BufferCreateInfo& info);
 
-	inline Status validateBufferInitialState(
-		const BufferCreateInfo& info);
+	inline Status validateBufferInitialState(const BufferCreateInfo& info);
 
-	inline Status validateBufferCreateInfo(
-		const BufferCreateInfo& info);
+	inline Status validateBufferCreateInfo(const BufferCreateInfo& info);
 } // namespace spall
 
 #include <src/Validation/Common/BufferValidation.inl>

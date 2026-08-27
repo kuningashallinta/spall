@@ -159,8 +159,7 @@ namespace spall::vk
 			IBuffer& argumentBuffer,
 			std::uint32_t offset) override;
 
-		Status compactAccelerationStructure(
-			IAccelerationStructure& accelerationStructure) override;
+		Status compactAccelerationStructure(IAccelerationStructure& accelerationStructure) override;
 
 		Status buildAccelerationStructure(
 			IAccelerationStructure& accelerationStructure,

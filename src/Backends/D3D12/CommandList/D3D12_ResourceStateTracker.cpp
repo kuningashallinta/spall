@@ -4,9 +4,9 @@
 #include <src/Backends/D3D12/CommandList/D3D12_ResourceStateTracker.h>
 
 #include <spall/Common/Assert.h>
-#include <src/Backends/D3D12/Common/Resources/D3D12_CopyLayout.h>
 #include <src/Backends/D3D12/Common/Mappings/D3D12_HeapMappings.h>
 #include <src/Backends/D3D12/Common/Mappings/D3D12_ResourceStateMappings.h>
+#include <src/Backends/D3D12/Common/Resources/D3D12_CopyLayout.h>
 #include <src/Backends/D3D12/Resources/Buffer/D3D12_Buffer.h>
 #include <src/Backends/D3D12/Resources/Texture/D3D12_Texture.h>
 #include <src/Validation/Common/ResourceStateValidation.h>

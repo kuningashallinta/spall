@@ -18,24 +18,19 @@
 
 namespace spall::vk
 {
-	inline std::optional<VkFormat> toVkFormat(
-		Format format);
+	inline std::optional<VkFormat> toVkFormat(Format format);
 
-	inline std::optional<Format> toSpallFormat(
-		VkFormat format);
+	inline std::optional<Format> toSpallFormat(VkFormat format);
 
 	inline FormatCapabilities formatCapabilities(
 		Format format,
 		const VkFormatProperties& properties);
 
-	inline VkImageAspectFlags aspectMask(
-		TextureAspectFlags aspects);
+	inline VkImageAspectFlags aspectMask(TextureAspectFlags aspects);
 
-	inline TextureAspectFlags defaultAspects(
-		Format format);
+	inline TextureAspectFlags defaultAspects(Format format);
 
-	inline std::optional<TextureFormatProperties> textureFormatInfo(
-		Format format);
+	inline std::optional<TextureFormatProperties> textureFormatInfo(Format format);
 } // namespace spall::vk
 
 #include <src/Backends/Vulkan/Common/VK_FormatMappings.inl>

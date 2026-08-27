@@ -6,8 +6,7 @@
 
 namespace spall
 {
-	inline Status validateSwapChainCreateInfo(
-		const SwapChainCreateInfo& info);
+	inline Status validateSwapChainCreateInfo(const SwapChainCreateInfo& info);
 } // namespace spall
 
 #include <src/Validation/Common/SwapChainValidation.inl>

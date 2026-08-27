@@ -22,17 +22,13 @@ namespace spall
 			(type == ResourceBindingType::AccelerationStructure);
 	}
 
-	inline Status validateBindingStages(
-		ShaderStageFlags stages);
+	inline Status validateBindingStages(ShaderStageFlags stages);
 
-	inline Status validateResourceSetLayoutCreateInfo(
-		const ResourceSetLayoutCreateInfo& info);
+	inline Status validateResourceSetLayoutCreateInfo(const ResourceSetLayoutCreateInfo& info);
 
-	inline Status validateResourceSetCreateInfo(
-		const ResourceSetCreateInfo& info);
+	inline Status validateResourceSetCreateInfo(const ResourceSetCreateInfo& info);
 
-	inline Status validateResourceWrites(
-		std::span<const ResourceWrite> writes);
+	inline Status validateResourceWrites(std::span<const ResourceWrite> writes);
 } // namespace spall
 
 #include <src/Validation/Common/ResourceSetValidation.inl>

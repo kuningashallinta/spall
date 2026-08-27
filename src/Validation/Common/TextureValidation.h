@@ -51,11 +51,9 @@ namespace spall
 		const TextureInfo& info,
 		const TextureSubresourceRange& range);
 
-	inline Status validateTextureCreateInfo(
-		const TextureCreateInfo& info);
+	inline Status validateTextureCreateInfo(const TextureCreateInfo& info);
 
-	inline Status validateTextureViewCreateInfo(
-		const TextureViewCreateInfo& info);
+	inline Status validateTextureViewCreateInfo(const TextureViewCreateInfo& info);
 } // namespace spall
 
 #include <src/Validation/Common/TextureValidation.inl>

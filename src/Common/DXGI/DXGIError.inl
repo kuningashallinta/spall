@@ -1,6 +1,7 @@
 namespace spall::d3d12
 {
-	inline Status mapStatus(HRESULT hr)
+	inline Status mapStatus(
+		HRESULT hr)
 	{
 		if (SUCCEEDED(hr))
 		{

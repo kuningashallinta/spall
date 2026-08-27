@@ -25,8 +25,7 @@ namespace spall
 		bool isRecording,
 		bool expectedRecording);
 
-	inline Status validateDebugLabel(
-		const char* label);
+	inline Status validateDebugLabel(const char* label);
 
 	inline Status validateDispatchState(
 		bool renderPassActive,

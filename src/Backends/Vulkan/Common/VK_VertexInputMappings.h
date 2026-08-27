@@ -18,11 +18,9 @@
 
 namespace spall::vk
 {
-	inline VkIndexType indexFormat(
-		IndexFormat format);
+	inline VkIndexType indexFormat(IndexFormat format);
 
-	inline std::optional<VertexFormatProperties> vertexFormatInfo(
-		Format format);
+	inline std::optional<VertexFormatProperties> vertexFormatInfo(Format format);
 } // namespace spall::vk
 
 #include <src/Backends/Vulkan/Common/VK_VertexInputMappings.inl>
