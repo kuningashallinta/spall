@@ -11,6 +11,8 @@
 #include <memory>
 #include <utility>
 
+#pragma comment(lib, "dcomp.lib")
+
 namespace spall::d3d12
 {
 	Status Device::createSwapChain(
