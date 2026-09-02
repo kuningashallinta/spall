@@ -277,7 +277,7 @@ namespace spall::vk
 			}
 
 			if ((backendCommandList->m_ReferencedSwapChain != m_ActiveSwapChain) or
-				(backendCommandList->m_ReferencedPresentTexture.get() != m_ActiveFrame->m_PresentTexture))
+				(textureStorage(*backendCommandList->m_ReferencedPresentTexture) != m_ActiveFrame->m_PresentTexture))
 			{
 				return ERR_INVALID_RESOURCE_STATE;
 			}

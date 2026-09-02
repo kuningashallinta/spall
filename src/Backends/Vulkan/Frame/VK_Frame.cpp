@@ -20,7 +20,7 @@ namespace spall::vk
 		SwapChain& swapChain,
 		std::uint32_t frameSlotIndex,
 		std::uint32_t imageIndex,
-		Texture& presentTexture,
+		Texture2D& presentTexture,
 		TextureView& presentTextureView)
 		: m_SwapChain(&swapChain), m_FrameSlotIndex(frameSlotIndex), m_ImageIndex(imageIndex), m_PresentTexture(&presentTexture), m_PresentTextureView(&presentTextureView)
 	{

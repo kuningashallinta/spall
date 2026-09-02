@@ -15,7 +15,7 @@
 #include <spall/Queue/IGraphicsQueue.h>
 #include <spall/RenderPass/RenderPassBeginInfo.h>
 #include <spall/Resources/Sampler/ISampler.h>
-#include <spall/Resources/Texture/ITexture.h>
+#include <spall/Resources/Texture/ITexture2D.h>
 #include <spall/Resources/TextureView/ITextureView.h>
 #include <spall/SwapChain/ISwapChain.h>
 
@@ -151,7 +151,7 @@ int WINAPI wWinMain(
 		}
 	}
 
-	const spall::Resource<spall::ITexture> texture = device->resources().createTexture({.Width = ImageWidth,
+	const spall::Resource<spall::ITexture2D> texture = device->resources().createTexture2D({.Width = ImageWidth,
 		.Height = ImageHeight,
 		.Format = spall::Format::RGBA8,
 		.Usage = spall::TextureUsageFlags::Storage | spall::TextureUsageFlags::Sampled});

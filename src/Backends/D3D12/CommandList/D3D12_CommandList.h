@@ -318,7 +318,7 @@ namespace spall::d3d12
 		/// out of them has completed.
 		std::vector<ComPtr<ID3D12Resource>> m_RetiredAccelerationStructures;
 
-		Resource<Texture> m_ReferencedPresentTexture;
+		Resource<ITexture> m_ReferencedPresentTexture;
 		SwapChain* m_ReferencedSwapChain = nullptr;
 
 		Texture* m_RenderPassColorTextures[MaxColorAttachments] = {};

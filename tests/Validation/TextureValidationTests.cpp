@@ -3,9 +3,21 @@
 #include <src/Validation/Common/TextureValidation.h>
 #include <tests/Support/Fakes.h>
 
-static spall::TextureCreateInfo sampledTextureCreateInfo()
+static spall::Texture3DCreateInfo sampledVolumeCreateInfo()
 {
-	spall::TextureCreateInfo info = {};
+	spall::Texture3DCreateInfo info = {};
+	info.Width = 64;
+	info.Height = 64;
+	info.Depth = 8;
+	info.Format = spall::Format::RGBA8;
+	info.Usage = spall::TextureUsageFlags::Sampled;
+
+	return info;
+}
+
+static spall::Texture2DCreateInfo sampledTextureCreateInfo()
+{
+	spall::Texture2DCreateInfo info = {};
 	info.Width = 64;
 	info.Height = 64;
 	info.Format = spall::Format::RGBA8;
@@ -18,257 +30,257 @@ TEST_CASE(
 	"The mip chain runs down to a single pixel",
 	"[texture][mips]")
 {
-	CHECK(spall::maxTextureMipLevels(1, 1) == 1);
-	CHECK(spall::maxTextureMipLevels(2, 2) == 2);
-	CHECK(spall::maxTextureMipLevels(64, 64) == 7);
-	CHECK(spall::maxTextureMipLevels(256, 256) == 9);
+	CHECK(spall::maxTextureMipLevels(1, 1, 1) == 1);
+	CHECK(spall::maxTextureMipLevels(2, 2, 1) == 2);
+	CHECK(spall::maxTextureMipLevels(64, 64, 1) == 7);
+	CHECK(spall::maxTextureMipLevels(256, 256, 1) == 9);
 }
 
 TEST_CASE(
 	"The mip chain follows the larger dimension",
 	"[texture][mips]")
 {
-	CHECK(spall::maxTextureMipLevels(64, 1) == 7);
-	CHECK(spall::maxTextureMipLevels(1, 64) == 7);
-	CHECK(spall::maxTextureMipLevels(64, 16) == 7);
+	CHECK(spall::maxTextureMipLevels(64, 1, 1) == 7);
+	CHECK(spall::maxTextureMipLevels(1, 64, 1) == 7);
+	CHECK(spall::maxTextureMipLevels(64, 16, 1) == 7);
 }
 
 TEST_CASE(
 	"A non-power-of-two mip chain halves down to one",
 	"[texture][mips]")
 {
-	CHECK(spall::maxTextureMipLevels(100, 100) == 7);
-	CHECK(spall::maxTextureMipLevels(3, 3) == 2);
-	CHECK(spall::maxTextureMipLevels(5, 5) == 3);
+	CHECK(spall::maxTextureMipLevels(100, 100, 1) == 7);
+	CHECK(spall::maxTextureMipLevels(3, 3, 1) == 2);
+	CHECK(spall::maxTextureMipLevels(5, 5, 1) == 3);
 }
 
 TEST_CASE(
 	"A texture accepts every mip level its dimensions imply",
 	"[texture][mips]")
 {
-	spall::TextureCreateInfo info = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo info = sampledTextureCreateInfo();
 	info.MipLevels = 7;
 
-	CHECK(spall::validateTextureCreateInfo(info) == spall::SUCCESS);
+	CHECK(spall::validateTexture2DCreateInfo(info) == spall::SUCCESS);
 }
 
 TEST_CASE(
 	"A texture rejects one mip level beyond its dimensions",
 	"[texture][mips]")
 {
-	spall::TextureCreateInfo info = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo info = sampledTextureCreateInfo();
 	info.MipLevels = 8;
 
-	CHECK(spall::validateTextureCreateInfo(info) != spall::SUCCESS);
+	CHECK(spall::validateTexture2DCreateInfo(info) != spall::SUCCESS);
 }
 
 TEST_CASE(
 	"A texture rejects zero mip levels",
 	"[texture][mips]")
 {
-	spall::TextureCreateInfo info = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo info = sampledTextureCreateInfo();
 	info.MipLevels = 0;
 
-	CHECK(spall::validateTextureCreateInfo(info) != spall::SUCCESS);
+	CHECK(spall::validateTexture2DCreateInfo(info) != spall::SUCCESS);
 }
 
 TEST_CASE(
 	"A texture defaults to a single mip level",
 	"[texture][mips]")
 {
-	const spall::TextureCreateInfo info = sampledTextureCreateInfo();
+	const spall::Texture2DCreateInfo info = sampledTextureCreateInfo();
 
 	CHECK(info.MipLevels == 1);
-	CHECK(spall::validateTextureCreateInfo(info) == spall::SUCCESS);
+	CHECK(spall::validateTexture2DCreateInfo(info) == spall::SUCCESS);
 }
 
 TEST_CASE(
 	"A texture requires nonzero dimensions",
 	"[texture][create]")
 {
-	spall::TextureCreateInfo zeroWidth = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo zeroWidth = sampledTextureCreateInfo();
 	zeroWidth.Width = 0;
 
-	spall::TextureCreateInfo zeroHeight = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo zeroHeight = sampledTextureCreateInfo();
 	zeroHeight.Height = 0;
 
-	CHECK(spall::validateTextureCreateInfo(zeroWidth) == spall::ERR_INVALID_SIZE);
-	CHECK(spall::validateTextureCreateInfo(zeroHeight) == spall::ERR_INVALID_SIZE);
+	CHECK(spall::validateTexture2DCreateInfo(zeroWidth) == spall::ERR_INVALID_SIZE);
+	CHECK(spall::validateTexture2DCreateInfo(zeroHeight) == spall::ERR_INVALID_SIZE);
 }
 
 TEST_CASE(
 	"A texture requires a texture-capable format",
 	"[texture][create]")
 {
-	spall::TextureCreateInfo unknown = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo unknown = sampledTextureCreateInfo();
 	unknown.Format = spall::Format::Unknown;
 
-	spall::TextureCreateInfo vertexOnly = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo vertexOnly = sampledTextureCreateInfo();
 	vertexOnly.Format = spall::Format::RGB32Float;
 
-	CHECK(spall::validateTextureCreateInfo(unknown) == spall::ERR_INVALID_FORMAT);
-	CHECK(spall::validateTextureCreateInfo(vertexOnly) == spall::ERR_INVALID_FORMAT);
+	CHECK(spall::validateTexture2DCreateInfo(unknown) == spall::ERR_INVALID_FORMAT);
+	CHECK(spall::validateTexture2DCreateInfo(vertexOnly) == spall::ERR_INVALID_FORMAT);
 }
 
 TEST_CASE(
 	"Textures accept sRGB formats for sampling and color attachments",
 	"[texture][create][srgb]")
 {
-	spall::TextureCreateInfo rgba = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo rgba = sampledTextureCreateInfo();
 	rgba.Format = spall::Format::RGBA8Srgb;
 	rgba.Usage = spall::TextureUsageFlags::Sampled | spall::TextureUsageFlags::ColorAttachment;
 
-	spall::TextureCreateInfo bgra = rgba;
+	spall::Texture2DCreateInfo bgra = rgba;
 	bgra.Format = spall::Format::BGRA8Srgb;
 
-	CHECK(spall::validateTextureCreateInfo(rgba) == spall::SUCCESS);
-	CHECK(spall::validateTextureCreateInfo(bgra) == spall::SUCCESS);
+	CHECK(spall::validateTexture2DCreateInfo(rgba) == spall::SUCCESS);
+	CHECK(spall::validateTexture2DCreateInfo(bgra) == spall::SUCCESS);
 }
 
 TEST_CASE(
 	"A texture requires known usage flags",
 	"[texture][create]")
 {
-	spall::TextureCreateInfo noUsage = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo noUsage = sampledTextureCreateInfo();
 	noUsage.Usage = spall::TextureUsageFlags::None;
 
-	spall::TextureCreateInfo unknownUsage = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo unknownUsage = sampledTextureCreateInfo();
 	unknownUsage.Usage = spall::TextureUsageFlags::Sampled | static_cast<spall::TextureUsageFlags>(1u << 20);
 
-	CHECK(spall::validateTextureCreateInfo(noUsage) == spall::ERR_INVALID_USAGE_FLAGS);
-	CHECK(spall::validateTextureCreateInfo(unknownUsage) == spall::ERR_INVALID_USAGE_FLAGS);
+	CHECK(spall::validateTexture2DCreateInfo(noUsage) == spall::ERR_INVALID_USAGE_FLAGS);
+	CHECK(spall::validateTexture2DCreateInfo(unknownUsage) == spall::ERR_INVALID_USAGE_FLAGS);
 }
 
 TEST_CASE(
 	"Texture attachment usage must match the format",
 	"[texture][create]")
 {
-	spall::TextureCreateInfo depthAsColor = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo depthAsColor = sampledTextureCreateInfo();
 	depthAsColor.Format = spall::Format::Depth32Float;
 	depthAsColor.Usage = spall::TextureUsageFlags::ColorAttachment;
 
-	spall::TextureCreateInfo colorAsDepth = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo colorAsDepth = sampledTextureCreateInfo();
 	colorAsDepth.Usage = spall::TextureUsageFlags::DepthStencilAttachment;
 
-	spall::TextureCreateInfo bothAttachmentKinds = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo bothAttachmentKinds = sampledTextureCreateInfo();
 	bothAttachmentKinds.Usage = spall::TextureUsageFlags::ColorAttachment | spall::TextureUsageFlags::DepthStencilAttachment;
 
-	CHECK(spall::validateTextureCreateInfo(depthAsColor) == spall::ERR_INVALID_USAGE_FLAGS);
-	CHECK(spall::validateTextureCreateInfo(colorAsDepth) == spall::ERR_INVALID_USAGE_FLAGS);
-	CHECK(spall::validateTextureCreateInfo(bothAttachmentKinds) == spall::ERR_INVALID_USAGE_FLAGS);
+	CHECK(spall::validateTexture2DCreateInfo(depthAsColor) == spall::ERR_INVALID_USAGE_FLAGS);
+	CHECK(spall::validateTexture2DCreateInfo(colorAsDepth) == spall::ERR_INVALID_USAGE_FLAGS);
+	CHECK(spall::validateTexture2DCreateInfo(bothAttachmentKinds) == spall::ERR_INVALID_USAGE_FLAGS);
 }
 
 TEST_CASE(
 	"Sampled depth textures report an unsupported usage",
 	"[texture][create]")
 {
-	spall::TextureCreateInfo info = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo info = sampledTextureCreateInfo();
 	info.Format = spall::Format::Depth32Float;
 	info.Usage = spall::TextureUsageFlags::DepthStencilAttachment | spall::TextureUsageFlags::Sampled;
 
-	CHECK(spall::validateTextureCreateInfo(info) == spall::ERR_UNSUPPORTED_USAGE);
+	CHECK(spall::validateTexture2DCreateInfo(info) == spall::ERR_UNSUPPORTED_USAGE);
 }
 
 TEST_CASE(
 	"Storage usage is limited to color textures",
 	"[texture][create][storage]")
 {
-	spall::TextureCreateInfo color = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo color = sampledTextureCreateInfo();
 	color.Usage = spall::TextureUsageFlags::Storage;
 
-	spall::TextureCreateInfo depth = color;
+	spall::Texture2DCreateInfo depth = color;
 	depth.Format = spall::Format::Depth32Float;
 
-	CHECK(spall::validateTextureCreateInfo(color) == spall::SUCCESS);
-	CHECK(spall::validateTextureCreateInfo(depth) == spall::ERR_UNSUPPORTED_USAGE);
+	CHECK(spall::validateTexture2DCreateInfo(color) == spall::SUCCESS);
+	CHECK(spall::validateTexture2DCreateInfo(depth) == spall::ERR_UNSUPPORTED_USAGE);
 }
 
 TEST_CASE(
 	"Block-compressed textures are accepted for sampling and transfers",
 	"[texture][create][compressed]")
 {
-	spall::TextureCreateInfo info = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo info = sampledTextureCreateInfo();
 	info.Format = spall::Format::BC7RGBASrgb;
 	info.Usage = spall::TextureUsageFlags::Sampled | spall::TextureUsageFlags::TransferDestination;
 	info.MipLevels = 7;
 
-	CHECK(spall::validateTextureCreateInfo(info) == spall::SUCCESS);
+	CHECK(spall::validateTexture2DCreateInfo(info) == spall::SUCCESS);
 }
 
 TEST_CASE(
 	"Block-compressed textures reject attachment and storage usage",
 	"[texture][create][compressed]")
 {
-	spall::TextureCreateInfo colorAttachment = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo colorAttachment = sampledTextureCreateInfo();
 	colorAttachment.Format = spall::Format::BC1RGBAUnorm;
 	colorAttachment.Usage = spall::TextureUsageFlags::Sampled | spall::TextureUsageFlags::ColorAttachment;
 
-	spall::TextureCreateInfo storage = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo storage = sampledTextureCreateInfo();
 	storage.Format = spall::Format::BC1RGBAUnorm;
 	storage.Usage = spall::TextureUsageFlags::Storage;
 
-	CHECK(spall::validateTextureCreateInfo(colorAttachment) == spall::ERR_UNSUPPORTED_USAGE);
-	CHECK(spall::validateTextureCreateInfo(storage) == spall::ERR_UNSUPPORTED_USAGE);
+	CHECK(spall::validateTexture2DCreateInfo(colorAttachment) == spall::ERR_UNSUPPORTED_USAGE);
+	CHECK(spall::validateTexture2DCreateInfo(storage) == spall::ERR_UNSUPPORTED_USAGE);
 }
 
 TEST_CASE(
 	"Block-compressed texture dimensions cover whole blocks",
 	"[texture][create][compressed]")
 {
-	spall::TextureCreateInfo aligned = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo aligned = sampledTextureCreateInfo();
 	aligned.Format = spall::Format::BC3RGBAUnorm;
 	aligned.Width = 68;
 	aligned.Height = 4;
 
-	spall::TextureCreateInfo unalignedWidth = aligned;
+	spall::Texture2DCreateInfo unalignedWidth = aligned;
 	unalignedWidth.Width = 66;
 
-	spall::TextureCreateInfo unalignedHeight = aligned;
+	spall::Texture2DCreateInfo unalignedHeight = aligned;
 	unalignedHeight.Height = 6;
 
-	CHECK(spall::validateTextureCreateInfo(aligned) == spall::SUCCESS);
-	CHECK(spall::validateTextureCreateInfo(unalignedWidth) == spall::ERR_INVALID_SIZE);
-	CHECK(spall::validateTextureCreateInfo(unalignedHeight) == spall::ERR_INVALID_SIZE);
+	CHECK(spall::validateTexture2DCreateInfo(aligned) == spall::SUCCESS);
+	CHECK(spall::validateTexture2DCreateInfo(unalignedWidth) == spall::ERR_INVALID_SIZE);
+	CHECK(spall::validateTexture2DCreateInfo(unalignedHeight) == spall::ERR_INVALID_SIZE);
 }
 
 TEST_CASE(
 	"A texture accepts initial states backed by its usage",
 	"[texture][create][state]")
 {
-	spall::TextureCreateInfo sampled = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo sampled = sampledTextureCreateInfo();
 	sampled.InitialState = spall::ResourceStateFlags::ShaderResource;
 
-	spall::TextureCreateInfo color = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo color = sampledTextureCreateInfo();
 	color.Usage = spall::TextureUsageFlags::ColorAttachment;
 	color.InitialState = spall::ResourceStateFlags::RenderTarget;
 
-	spall::TextureCreateInfo depth = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo depth = sampledTextureCreateInfo();
 	depth.Format = spall::Format::Depth32Float;
 	depth.Usage = spall::TextureUsageFlags::DepthStencilAttachment;
 	depth.InitialState = spall::ResourceStateFlags::DepthWrite;
 
-	spall::TextureCreateInfo depthRead = depth;
+	spall::Texture2DCreateInfo depthRead = depth;
 	depthRead.InitialState = spall::ResourceStateFlags::DepthRead;
 
-	spall::TextureCreateInfo source = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo source = sampledTextureCreateInfo();
 	source.Usage = spall::TextureUsageFlags::TransferSource;
 	source.InitialState = spall::ResourceStateFlags::CopySource;
 
-	spall::TextureCreateInfo destination = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo destination = sampledTextureCreateInfo();
 	destination.Usage = spall::TextureUsageFlags::TransferDestination;
 	destination.InitialState = spall::ResourceStateFlags::CopyDest;
 
-	spall::TextureCreateInfo storage = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo storage = sampledTextureCreateInfo();
 	storage.Usage = spall::TextureUsageFlags::Storage;
 	storage.InitialState = spall::ResourceStateFlags::UnorderedAccess;
 
-	CHECK(spall::validateTextureCreateInfo(sampled) == spall::SUCCESS);
-	CHECK(spall::validateTextureCreateInfo(color) == spall::SUCCESS);
-	CHECK(spall::validateTextureCreateInfo(depth) == spall::SUCCESS);
-	CHECK(spall::validateTextureCreateInfo(depthRead) == spall::SUCCESS);
-	CHECK(spall::validateTextureCreateInfo(source) == spall::SUCCESS);
-	CHECK(spall::validateTextureCreateInfo(destination) == spall::SUCCESS);
-	CHECK(spall::validateTextureCreateInfo(storage) == spall::SUCCESS);
+	CHECK(spall::validateTexture2DCreateInfo(sampled) == spall::SUCCESS);
+	CHECK(spall::validateTexture2DCreateInfo(color) == spall::SUCCESS);
+	CHECK(spall::validateTexture2DCreateInfo(depth) == spall::SUCCESS);
+	CHECK(spall::validateTexture2DCreateInfo(depthRead) == spall::SUCCESS);
+	CHECK(spall::validateTexture2DCreateInfo(source) == spall::SUCCESS);
+	CHECK(spall::validateTexture2DCreateInfo(destination) == spall::SUCCESS);
+	CHECK(spall::validateTexture2DCreateInfo(storage) == spall::SUCCESS);
 }
 
 TEST_CASE(
@@ -285,10 +297,10 @@ TEST_CASE(
 
 	for (const spall::ResourceStateFlags state : incompatibleStates)
 	{
-		spall::TextureCreateInfo info = sampledTextureCreateInfo();
+		spall::Texture2DCreateInfo info = sampledTextureCreateInfo();
 		info.InitialState = state;
 
-		CHECK(spall::validateTextureCreateInfo(info) == spall::ERR_INVALID_RESOURCE_STATE);
+		CHECK(spall::validateTexture2DCreateInfo(info) == spall::ERR_INVALID_RESOURCE_STATE);
 	}
 }
 
@@ -296,15 +308,15 @@ TEST_CASE(
 	"A texture initial state contains exactly one state",
 	"[texture][create][state]")
 {
-	spall::TextureCreateInfo unknown = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo unknown = sampledTextureCreateInfo();
 	unknown.InitialState = spall::ResourceStateFlags::Unknown;
 
-	spall::TextureCreateInfo combined = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo combined = sampledTextureCreateInfo();
 	combined.Usage = spall::TextureUsageFlags::Sampled | spall::TextureUsageFlags::TransferSource;
 	combined.InitialState = spall::ResourceStateFlags::ShaderResource | spall::ResourceStateFlags::CopySource;
 
-	CHECK(spall::validateTextureCreateInfo(unknown) == spall::ERR_INVALID_RESOURCE_STATE);
-	CHECK(spall::validateTextureCreateInfo(combined) == spall::ERR_INVALID_RESOURCE_STATE);
+	CHECK(spall::validateTexture2DCreateInfo(unknown) == spall::ERR_INVALID_RESOURCE_STATE);
+	CHECK(spall::validateTexture2DCreateInfo(combined) == spall::ERR_INVALID_RESOURCE_STATE);
 }
 
 TEST_CASE(
@@ -473,82 +485,77 @@ TEST_CASE(
 	"A texture requires at least one array layer",
 	"[texture][create][layers]")
 {
-	spall::TextureCreateInfo info = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo info = sampledTextureCreateInfo();
 	info.ArrayLayers = 0;
 
-	CHECK(spall::validateTextureCreateInfo(info) == spall::ERR_INVALID_SIZE);
+	CHECK(spall::validateTexture2DCreateInfo(info) == spall::ERR_INVALID_SIZE);
 
 	info.ArrayLayers = 8;
-	CHECK(spall::validateTextureCreateInfo(info) == spall::SUCCESS);
+	CHECK(spall::validateTexture2DCreateInfo(info) == spall::SUCCESS);
 }
 
 TEST_CASE(
 	"A cubemap requires square faces in multiples of six",
 	"[texture][create][cubemap]")
 {
-	spall::TextureCreateInfo faces = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo faces = sampledTextureCreateInfo();
 	faces.Cubemap = true;
 	faces.ArrayLayers = 6;
 
-	CHECK(spall::validateTextureCreateInfo(faces) == spall::SUCCESS);
+	CHECK(spall::validateTexture2DCreateInfo(faces) == spall::SUCCESS);
 
 	faces.ArrayLayers = 12;
-	CHECK(spall::validateTextureCreateInfo(faces) == spall::SUCCESS);
+	CHECK(spall::validateTexture2DCreateInfo(faces) == spall::SUCCESS);
 
 	faces.ArrayLayers = 5;
-	CHECK(spall::validateTextureCreateInfo(faces) == spall::ERR_INVALID_SIZE);
+	CHECK(spall::validateTexture2DCreateInfo(faces) == spall::ERR_INVALID_SIZE);
 
-	spall::TextureCreateInfo oblong = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo oblong = sampledTextureCreateInfo();
 	oblong.Cubemap = true;
 	oblong.ArrayLayers = 6;
 	oblong.Height = 32;
 
-	CHECK(spall::validateTextureCreateInfo(oblong) == spall::ERR_INVALID_SIZE);
+	CHECK(spall::validateTexture2DCreateInfo(oblong) == spall::ERR_INVALID_SIZE);
 }
 
 TEST_CASE(
 	"A volume texture accepts a depth extent",
 	"[texture][create][volume]")
 {
-	spall::TextureCreateInfo info = sampledTextureCreateInfo();
-	info.Depth = 8;
+	spall::Texture3DCreateInfo info = sampledVolumeCreateInfo();
 
-	CHECK(spall::validateTextureCreateInfo(info) == spall::SUCCESS);
+	CHECK(spall::validateTexture3DCreateInfo(info) == spall::SUCCESS);
 }
 
 TEST_CASE(
-	"A volume texture rejects array layers",
+	"A volume texture rejects a zero depth extent",
 	"[texture][create][volume]")
 {
-	spall::TextureCreateInfo info = sampledTextureCreateInfo();
-	info.Depth = 8;
-	info.ArrayLayers = 2;
+	spall::Texture3DCreateInfo info = sampledVolumeCreateInfo();
+	info.Depth = 0;
 
-	CHECK(spall::validateTextureCreateInfo(info) == spall::ERR_INVALID_SIZE);
+	CHECK(spall::validateTexture3DCreateInfo(info) == spall::ERR_INVALID_SIZE);
 }
 
 TEST_CASE(
-	"A volume texture rejects multisampling",
+	"A volume texture rejects block-compressed formats",
 	"[texture][create][volume]")
 {
-	spall::TextureCreateInfo info = sampledTextureCreateInfo();
-	info.Depth = 8;
-	info.SampleCount = 4;
-	info.Usage = spall::TextureUsageFlags::ColorAttachment;
+	spall::Texture3DCreateInfo info = sampledVolumeCreateInfo();
+	info.Format = spall::Format::BC1RGBAUnorm;
 
-	CHECK(spall::validateTextureCreateInfo(info) == spall::ERR_UNSUPPORTED_USAGE);
+	CHECK(spall::validateTexture3DCreateInfo(info) == spall::ERR_UNSUPPORTED_USAGE);
 }
 
 TEST_CASE(
 	"A volume texture rejects depth-stencil usage",
 	"[texture][create][volume]")
 {
-	spall::TextureCreateInfo info = sampledTextureCreateInfo();
-	info.Depth = 8;
+	spall::Texture3DCreateInfo info = sampledVolumeCreateInfo();
 	info.Format = spall::Format::Depth32Float;
 	info.Usage = spall::TextureUsageFlags::DepthStencilAttachment;
 
-	CHECK(spall::validateTextureCreateInfo(info) == spall::ERR_INVALID_USAGE_FLAGS);
+	CHECK(spall::validateTexture3DCreateInfo(info) == spall::ERR_INVALID_USAGE_FLAGS);
 }
 
 TEST_CASE(
@@ -721,46 +728,46 @@ TEST_CASE(
 	CHECK_FALSE(spall::isValidSampleCount(6));
 	CHECK_FALSE(spall::isValidSampleCount(128));
 
-	spall::TextureCreateInfo info = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo info = sampledTextureCreateInfo();
 	info.SampleCount = 3;
 
-	CHECK(spall::validateTextureCreateInfo(info) == spall::ERR_INVALID_SIZE);
+	CHECK(spall::validateTexture2DCreateInfo(info) == spall::ERR_INVALID_SIZE);
 }
 
 TEST_CASE(
 	"A multisampled texture requires attachment usage",
 	"[texture][create][msaa]")
 {
-	spall::TextureCreateInfo sampled = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo sampled = sampledTextureCreateInfo();
 	sampled.SampleCount = 4;
 
-	CHECK(spall::validateTextureCreateInfo(sampled) == spall::ERR_UNSUPPORTED_USAGE);
+	CHECK(spall::validateTexture2DCreateInfo(sampled) == spall::ERR_UNSUPPORTED_USAGE);
 
-	spall::TextureCreateInfo attachment = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo attachment = sampledTextureCreateInfo();
 	attachment.SampleCount = 4;
 	attachment.Usage = spall::TextureUsageFlags::ColorAttachment;
 
-	CHECK(spall::validateTextureCreateInfo(attachment) == spall::SUCCESS);
+	CHECK(spall::validateTexture2DCreateInfo(attachment) == spall::SUCCESS);
 }
 
 TEST_CASE(
 	"A multisampled texture rejects mips, storage, and cubemaps",
 	"[texture][create][msaa]")
 {
-	spall::TextureCreateInfo info = sampledTextureCreateInfo();
+	spall::Texture2DCreateInfo info = sampledTextureCreateInfo();
 	info.SampleCount = 4;
 	info.Usage = spall::TextureUsageFlags::ColorAttachment;
 
-	spall::TextureCreateInfo mipped = info;
+	spall::Texture2DCreateInfo mipped = info;
 	mipped.MipLevels = 4;
-	CHECK(spall::validateTextureCreateInfo(mipped) == spall::ERR_INVALID_SIZE);
+	CHECK(spall::validateTexture2DCreateInfo(mipped) == spall::ERR_INVALID_SIZE);
 
-	spall::TextureCreateInfo storage = info;
+	spall::Texture2DCreateInfo storage = info;
 	storage.Usage = spall::TextureUsageFlags::ColorAttachment | spall::TextureUsageFlags::Storage;
-	CHECK(spall::validateTextureCreateInfo(storage) == spall::ERR_UNSUPPORTED_USAGE);
+	CHECK(spall::validateTexture2DCreateInfo(storage) == spall::ERR_UNSUPPORTED_USAGE);
 
-	spall::TextureCreateInfo cube = info;
+	spall::Texture2DCreateInfo cube = info;
 	cube.Cubemap = true;
 	cube.ArrayLayers = 6;
-	CHECK(spall::validateTextureCreateInfo(cube) == spall::ERR_UNSUPPORTED_USAGE);
+	CHECK(spall::validateTexture2DCreateInfo(cube) == spall::ERR_UNSUPPORTED_USAGE);
 }

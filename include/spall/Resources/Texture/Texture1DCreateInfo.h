@@ -10,25 +10,26 @@
 
 namespace spall
 {
-	struct TextureInfo
+	/// Describes a one-dimensional texture to be created by a resource factory.
+	struct Texture1DCreateInfo
 	{
-		TextureType Type = TextureType::Texture2D;
-
 		std::uint32_t Width = 0;
-		std::uint32_t Height = 0;
-		std::uint32_t Depth = 1;
 
+		/// Number of mip levels to allocate.
+		///
+		/// Levels beyond the first are created without initial contents.
 		std::uint32_t MipLevels = 1;
 		std::uint32_t ArrayLayers = 1;
-		std::uint32_t SampleCount = 1;
-
-		bool Cubemap = false;
 
 		spall::Format Format = spall::Format::Unknown;
-
 		TextureUsageFlags Usage = TextureUsageFlags::None;
 
+		/// State reported by the texture immediately after creation.
+		///
+		/// The backend establishes this state when the texture is first used.
 		ResourceStateFlags InitialState = ResourceStateFlags::Common;
+
+		/// Restores InitialState after an automatic operation.
 		bool KeepInitialState = false;
 
 		const char* DebugName = nullptr;

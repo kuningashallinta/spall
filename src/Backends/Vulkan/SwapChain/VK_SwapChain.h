@@ -20,6 +20,7 @@ namespace spall::vk
 {
 	class Device;
 	class Texture;
+	class Texture2D;
 	class TextureView;
 	class Frame;
 	class GraphicsQueue;
@@ -31,7 +32,7 @@ namespace spall::vk
 	public:
 		struct BackBuffer
 		{
-			Resource<Texture> Texture;
+			Resource<Texture2D> Texture;
 			Resource<TextureView> View;
 
 			/// Presentation keeps this semaphore in use until the image is acquired again, so it is owned per image rather than per frame slot.

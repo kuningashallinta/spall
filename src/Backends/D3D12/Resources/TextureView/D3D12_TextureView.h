@@ -6,6 +6,7 @@
 #include <spall/Common/Resource/Resource.h>
 #include <spall/Common/Resource/SharedObject.h>
 
+#include <spall/Resources/Texture/ITexture.h>
 #include <spall/Resources/TextureView/ITextureView.h>
 #include <src/Backends/D3D12/Common/D3D12_Limits.h>
 #include <src/Backends/D3D12/Common/D3D12_Types.h>
@@ -35,7 +36,7 @@ namespace spall::d3d12
 		};
 
 		TextureView(
-			Texture& texture,
+			ITexture& texture,
 			const Subresources& subresources,
 			std::uint32_t renderTargetViewIndex,
 			std::uint32_t depthStencilViewIndex = InvalidDescriptorIndex);
@@ -54,7 +55,8 @@ namespace spall::d3d12
 		bool isCubemap(void) const override;
 
 	private:
-		Resource<Texture> m_Texture;
+		Resource<ITexture> m_Texture;
+		Texture* m_Storage = nullptr;
 
 		TextureAspectFlags m_Aspects = TextureAspectFlags::None;
 		std::uint32_t m_BaseMipLevel = 0;

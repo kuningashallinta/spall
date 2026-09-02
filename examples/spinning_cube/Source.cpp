@@ -13,7 +13,7 @@
 #include <spall/Queue/IGraphicsQueue.h>
 #include <spall/RenderPass/RenderPassBeginInfo.h>
 #include <spall/Resources/Buffer/IBuffer.h>
-#include <spall/Resources/Texture/ITexture.h>
+#include <spall/Resources/Texture/ITexture2D.h>
 #include <spall/Resources/TextureView/ITextureView.h>
 #include <spall/SwapChain/ISwapChain.h>
 
@@ -135,7 +135,7 @@ int WINAPI wWinMain(
 		return EXIT_FAILURE;
 	}
 
-	const spall::Resource<spall::ITexture> depthTexture = device->resources().createTexture({
+	const spall::Resource<spall::ITexture2D> depthTexture = device->resources().createTexture2D({
 		.Width = WindowWidth,
 		.Height = WindowHeight,
 		.Format = spall::Format::Depth32Float,

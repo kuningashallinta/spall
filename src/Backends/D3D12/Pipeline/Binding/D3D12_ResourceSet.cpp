@@ -91,7 +91,7 @@ namespace spall::d3d12
 			case ResourceBindingType::SampledTexture:
 			{
 				TextureView* view = backendCast<TextureView>(write.TextureView);
-				Texture* texture = view->m_Texture.get();
+				Texture* texture = view->m_Storage;
 
 				D3D12_SHADER_RESOURCE_VIEW_DESC viewDesc = {};
 				viewDesc.Format = format(texture->m_Info.Format);
@@ -113,7 +113,26 @@ namespace spall::d3d12
 					viewDesc.TextureCube.MostDetailedMip = view->m_BaseMipLevel;
 					viewDesc.TextureCube.MipLevels = view->m_MipLevels;
 				}
-				else if (texture->m_Info.Depth > 1)
+				else if (texture->m_Info.Type == TextureType::Texture1D)
+				{
+					if (layered)
+					{
+						viewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE1DARRAY;
+						viewDesc.Texture1DArray.MostDetailedMip = view->m_BaseMipLevel;
+						viewDesc.Texture1DArray.MipLevels = view->m_MipLevels;
+						viewDesc.Texture1DArray.FirstArraySlice = view->m_BaseArrayLayer;
+						viewDesc.Texture1DArray.ArraySize = view->m_ArrayLayers;
+						viewDesc.Texture1DArray.ResourceMinLODClamp = 0.0f;
+					}
+					else
+					{
+						viewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE1D;
+						viewDesc.Texture1D.MostDetailedMip = view->m_BaseMipLevel;
+						viewDesc.Texture1D.MipLevels = view->m_MipLevels;
+						viewDesc.Texture1D.ResourceMinLODClamp = 0.0f;
+					}
+				}
+				else if (texture->m_Info.Type == TextureType::Texture3D)
 				{
 					viewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE3D;
 					viewDesc.Texture3D.MostDetailedMip = view->m_BaseMipLevel;
@@ -167,12 +186,27 @@ namespace spall::d3d12
 			default:
 			{
 				TextureView* view = backendCast<TextureView>(write.TextureView);
-				Texture* texture = view->m_Texture.get();
+				Texture* texture = view->m_Storage;
 
 				D3D12_UNORDERED_ACCESS_VIEW_DESC viewDesc = {};
 				viewDesc.Format = format(texture->m_Info.Format);
 
-				if (texture->m_Info.Depth > 1)
+				if (texture->m_Info.Type == TextureType::Texture1D)
+				{
+					if ((view->m_ArrayLayers > 1) or (view->m_BaseArrayLayer != 0))
+					{
+						viewDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE1DARRAY;
+						viewDesc.Texture1DArray.MipSlice = view->m_BaseMipLevel;
+						viewDesc.Texture1DArray.FirstArraySlice = view->m_BaseArrayLayer;
+						viewDesc.Texture1DArray.ArraySize = view->m_ArrayLayers;
+					}
+					else
+					{
+						viewDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE1D;
+						viewDesc.Texture1D.MipSlice = view->m_BaseMipLevel;
+					}
+				}
+				else if (texture->m_Info.Type == TextureType::Texture3D)
 				{
 					viewDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE3D;
 					viewDesc.Texture3D.MipSlice = view->m_BaseMipLevel;
@@ -275,7 +309,7 @@ namespace spall::d3d12
 				{
 					TextureView* view = backendCast<TextureView>(write.TextureView);
 
-					if ((view == nullptr) or (not view->m_Texture) or (view->m_Texture->m_Device.get() != m_Device.get()))
+					if ((view == nullptr) or (not view->m_Storage) or (view->m_Storage->m_Device.get() != m_Device.get()))
 					{
 						return ERR_INVALID_RESOURCE_TYPE;
 					}
@@ -284,7 +318,7 @@ namespace spall::d3d12
 						? TextureUsageFlags::Sampled
 						: TextureUsageFlags::Storage;
 
-					if ((view->m_Texture->m_Info.Usage & requiredUsage) == TextureUsageFlags::None)
+					if ((view->m_Storage->m_Info.Usage & requiredUsage) == TextureUsageFlags::None)
 					{
 						return ERR_INVALID_USAGE_FLAGS;
 					}

@@ -12,6 +12,7 @@
 #include <src/Backends/D3D12/Common/Mappings/D3D12_RayTracingMappings.h>
 #include <src/Backends/D3D12/Common/Mappings/D3D12_ResourceStateMappings.h>
 #include <src/Backends/D3D12/Common/Mappings/D3D12_SamplerMappings.h>
+#include <src/Backends/D3D12/Common/Mappings/D3D12_TextureTypeMappings.h>
 #include <src/Backends/D3D12/Common/Mappings/D3D12_TextureUsageMappings.h>
 #include <src/Backends/D3D12/Framebuffer/D3D12_Framebuffer.h>
 #include <src/Backends/D3D12/Queue/D3D12_GraphicsQueue.h>
@@ -122,17 +123,10 @@ namespace spall::d3d12
 		return m_GraphicsQueue->waitForFenceValue(fenceValue);
 	}
 
-	Status Device::createTexture(
-		const TextureCreateInfo& info,
-		Resource<ITexture>* texture)
+	Status Device::createTextureResource(
+		const TextureInfo& info,
+		ComPtr<ID3D12Resource>* resource)
 	{
-		if (texture == nullptr)
-		{
-			return ERR_INVALID_ARGUMENT;
-		}
-
-		SPALL_TRY(validateTextureCreateInfo(info));
-
 		const DXGI_FORMAT textureFormat = format(info.Format);
 
 		if (textureFormat == DXGI_FORMAT_UNKNOWN)
@@ -140,11 +134,42 @@ namespace spall::d3d12
 			return ERR_UNSUPPORTED_FORMAT;
 		}
 
-		if ((info.Width > D3D12_REQ_TEXTURE2D_U_OR_V_DIMENSION) or
-			(info.Height > D3D12_REQ_TEXTURE2D_U_OR_V_DIMENSION) or
-			(info.ArrayLayers > D3D12_REQ_TEXTURE2D_ARRAY_AXIS_DIMENSION))
+		switch (info.Type)
 		{
-			return ERR_INVALID_SIZE;
+			case TextureType::Texture1D:
+			{
+				if ((info.Width > D3D12_REQ_TEXTURE1D_U_DIMENSION) or
+					(info.ArrayLayers > D3D12_REQ_TEXTURE1D_ARRAY_AXIS_DIMENSION))
+				{
+					return ERR_INVALID_SIZE;
+				}
+
+				break;
+			}
+
+			case TextureType::Texture2D:
+			{
+				if ((info.Width > D3D12_REQ_TEXTURE2D_U_OR_V_DIMENSION) or
+					(info.Height > D3D12_REQ_TEXTURE2D_U_OR_V_DIMENSION) or
+					(info.ArrayLayers > D3D12_REQ_TEXTURE2D_ARRAY_AXIS_DIMENSION))
+				{
+					return ERR_INVALID_SIZE;
+				}
+
+				break;
+			}
+
+			case TextureType::Texture3D:
+			{
+				if ((info.Width > D3D12_REQ_TEXTURE3D_U_V_OR_W_DIMENSION) or
+					(info.Height > D3D12_REQ_TEXTURE3D_U_V_OR_W_DIMENSION) or
+					(info.Depth > D3D12_REQ_TEXTURE3D_U_V_OR_W_DIMENSION))
+				{
+					return ERR_INVALID_SIZE;
+				}
+
+				break;
+			}
 		}
 
 		if (info.Cubemap and (info.Width > D3D12_REQ_TEXTURECUBE_DIMENSION))
@@ -182,14 +207,12 @@ namespace spall::d3d12
 			}
 		}
 
-		const bool volume = (info.Depth > 1);
-
 		D3D12_RESOURCE_DESC resourceDesc = {};
-		resourceDesc.Dimension = volume ? D3D12_RESOURCE_DIMENSION_TEXTURE3D : D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+		resourceDesc.Dimension = textureType(info.Type);
 		resourceDesc.Alignment = 0;
 		resourceDesc.Width = info.Width;
 		resourceDesc.Height = info.Height;
-		resourceDesc.DepthOrArraySize = static_cast<UINT16>(volume ? info.Depth : info.ArrayLayers);
+		resourceDesc.DepthOrArraySize = static_cast<UINT16>((info.Type == TextureType::Texture3D) ? info.Depth : info.ArrayLayers);
 		resourceDesc.MipLevels = static_cast<UINT16>(info.MipLevels);
 		resourceDesc.Format = textureFormat;
 		resourceDesc.SampleDesc.Count = info.SampleCount;
@@ -210,24 +233,71 @@ namespace spall::d3d12
 		const D3D12_HEAP_PROPERTIES properties = heapProperties(D3D12_HEAP_TYPE_DEFAULT);
 		const D3D12_RESOURCE_STATES initialState = resourceState(info.InitialState);
 
-		ComPtr<ID3D12Resource> resource;
 		hr = m_Device->CreateCommittedResource(
 			&properties,
 			D3D12_HEAP_FLAG_NONE,
 			&resourceDesc,
 			initialState,
 			depthStencil ? &clearValue : nullptr,
-			IID_PPV_ARGS(&resource));
+			IID_PPV_ARGS(resource->GetAddressOf()));
 
 		if (FAILED(hr))
 		{
 			return mapStatus(hr);
 		}
 
+		return {};
+	}
+
+	Status Device::createTexture1D(
+		const Texture1DCreateInfo& info,
+		Resource<ITexture1D>* texture)
+	{
+		if (texture == nullptr)
+		{
+			return ERR_INVALID_ARGUMENT;
+		}
+
+		SPALL_TRY(validateTexture1DCreateInfo(info));
+
 		TextureInfo textureInfo = {};
+		textureInfo.Type = TextureType::Texture1D;
+		textureInfo.Width = info.Width;
+		textureInfo.Height = 1;
+		textureInfo.Depth = 1;
+		textureInfo.MipLevels = info.MipLevels;
+		textureInfo.ArrayLayers = info.ArrayLayers;
+		textureInfo.Format = info.Format;
+		textureInfo.Usage = info.Usage;
+		textureInfo.InitialState = info.InitialState;
+		textureInfo.KeepInitialState = info.KeepInitialState;
+		textureInfo.DebugName = info.DebugName;
+
+		ComPtr<ID3D12Resource> resource;
+
+		SPALL_TRY(createTextureResource(textureInfo, &resource));
+
+		*texture = Resource<ITexture1D>(new Texture1D(*this, textureInfo, std::move(resource)));
+
+		return {};
+	}
+
+	Status Device::createTexture2D(
+		const Texture2DCreateInfo& info,
+		Resource<ITexture2D>* texture)
+	{
+		if (texture == nullptr)
+		{
+			return ERR_INVALID_ARGUMENT;
+		}
+
+		SPALL_TRY(validateTexture2DCreateInfo(info));
+
+		TextureInfo textureInfo = {};
+		textureInfo.Type = TextureType::Texture2D;
 		textureInfo.Width = info.Width;
 		textureInfo.Height = info.Height;
-		textureInfo.Depth = info.Depth;
+		textureInfo.Depth = 1;
 		textureInfo.MipLevels = info.MipLevels;
 		textureInfo.ArrayLayers = info.ArrayLayers;
 		textureInfo.SampleCount = info.SampleCount;
@@ -238,7 +308,43 @@ namespace spall::d3d12
 		textureInfo.KeepInitialState = info.KeepInitialState;
 		textureInfo.DebugName = info.DebugName;
 
-		*texture = Resource<ITexture>(new Texture(*this, textureInfo, std::move(resource)));
+		ComPtr<ID3D12Resource> resource;
+
+		SPALL_TRY(createTextureResource(textureInfo, &resource));
+
+		*texture = Resource<ITexture2D>(new Texture2D(*this, textureInfo, std::move(resource)));
+
+		return {};
+	}
+
+	Status Device::createTexture3D(
+		const Texture3DCreateInfo& info,
+		Resource<ITexture3D>* texture)
+	{
+		if (texture == nullptr)
+		{
+			return ERR_INVALID_ARGUMENT;
+		}
+
+		SPALL_TRY(validateTexture3DCreateInfo(info));
+
+		TextureInfo textureInfo = {};
+		textureInfo.Type = TextureType::Texture3D;
+		textureInfo.Width = info.Width;
+		textureInfo.Height = info.Height;
+		textureInfo.Depth = info.Depth;
+		textureInfo.MipLevels = info.MipLevels;
+		textureInfo.Format = info.Format;
+		textureInfo.Usage = info.Usage;
+		textureInfo.InitialState = info.InitialState;
+		textureInfo.KeepInitialState = info.KeepInitialState;
+		textureInfo.DebugName = info.DebugName;
+
+		ComPtr<ID3D12Resource> resource;
+
+		SPALL_TRY(createTextureResource(textureInfo, &resource));
+
+		*texture = Resource<ITexture3D>(new Texture3D(*this, textureInfo, std::move(resource)));
 
 		return {};
 	}
@@ -254,7 +360,7 @@ namespace spall::d3d12
 
 		SPALL_TRY(validateTextureViewCreateInfo(info));
 
-		Texture* texture = backendCast<Texture>(info.Texture);
+		Texture* texture = textureStorage(info.Texture);
 
 		if (texture == nullptr)
 		{
@@ -291,7 +397,7 @@ namespace spall::d3d12
 
 		const bool layered = (subresources.ArrayLayers > 1) or (info.BaseArrayLayer != 0);
 		const bool multisampled = (texture->m_Info.SampleCount > 1);
-		const bool volume = (texture->m_Info.Depth > 1);
+		const bool volume = (texture->m_Info.Type == TextureType::Texture3D);
 
 		std::uint32_t renderTargetViewIndex = InvalidDescriptorIndex;
 		std::uint32_t depthStencilViewIndex = InvalidDescriptorIndex;
@@ -394,7 +500,7 @@ namespace spall::d3d12
 		}
 
 		*textureView = Resource<ITextureView>(
-			new TextureView(*texture, subresources, renderTargetViewIndex, depthStencilViewIndex));
+			new TextureView(*info.Texture, subresources, renderTargetViewIndex, depthStencilViewIndex));
 
 		return {};
 	}
@@ -421,7 +527,7 @@ namespace spall::d3d12
 		{
 			TextureView* colorView = backendCast<TextureView>(createInfo.ColorAttachments[attachmentIndex]);
 
-			if ((colorView == nullptr) or (not colorView->m_Texture) or (colorView->m_Texture->m_Device.get() != this))
+			if ((colorView == nullptr) or (not colorView->m_Storage) or (colorView->m_Storage->m_Device.get() != this))
 			{
 				return ERR_INVALID_RESOURCE_TYPE;
 			}
@@ -431,8 +537,8 @@ namespace spall::d3d12
 				return ERR_INVALID_USAGE_FLAGS;
 			}
 
-			const std::uint32_t width = mipLevelExtent(colorView->m_Texture->m_Info.Width, colorView->m_BaseMipLevel);
-			const std::uint32_t height = mipLevelExtent(colorView->m_Texture->m_Info.Height, colorView->m_BaseMipLevel);
+			const std::uint32_t width = mipLevelExtent(colorView->m_Storage->m_Info.Width, colorView->m_BaseMipLevel);
+			const std::uint32_t height = mipLevelExtent(colorView->m_Storage->m_Info.Height, colorView->m_BaseMipLevel);
 
 			if (not haveDimensions)
 			{
@@ -446,7 +552,7 @@ namespace spall::d3d12
 			}
 
 			colorViews[attachmentIndex] = colorView;
-			info.ColorFormats[attachmentIndex] = colorView->m_Texture->m_Info.Format;
+			info.ColorFormats[attachmentIndex] = colorView->m_Storage->m_Info.Format;
 		}
 
 		TextureView* depthView = nullptr;
@@ -455,7 +561,7 @@ namespace spall::d3d12
 		{
 			depthView = backendCast<TextureView>(createInfo.DepthAttachment);
 
-			if ((depthView == nullptr) or (not depthView->m_Texture) or (depthView->m_Texture->m_Device.get() != this))
+			if ((depthView == nullptr) or (not depthView->m_Storage) or (depthView->m_Storage->m_Device.get() != this))
 			{
 				return ERR_INVALID_RESOURCE_TYPE;
 			}
@@ -465,8 +571,8 @@ namespace spall::d3d12
 				return ERR_INVALID_USAGE_FLAGS;
 			}
 
-			const std::uint32_t width = mipLevelExtent(depthView->m_Texture->m_Info.Width, depthView->m_BaseMipLevel);
-			const std::uint32_t height = mipLevelExtent(depthView->m_Texture->m_Info.Height, depthView->m_BaseMipLevel);
+			const std::uint32_t width = mipLevelExtent(depthView->m_Storage->m_Info.Width, depthView->m_BaseMipLevel);
+			const std::uint32_t height = mipLevelExtent(depthView->m_Storage->m_Info.Height, depthView->m_BaseMipLevel);
 
 			if (not haveDimensions)
 			{
@@ -479,7 +585,7 @@ namespace spall::d3d12
 				return ERR_INVALID_RESOURCE;
 			}
 
-			info.DepthFormat = depthView->m_Texture->m_Info.Format;
+			info.DepthFormat = depthView->m_Storage->m_Info.Format;
 		}
 
 		TextureView* resolveViews[MaxColorAttachments] = {};
@@ -493,7 +599,7 @@ namespace spall::d3d12
 
 			TextureView* resolveView = backendCast<TextureView>(createInfo.ResolveAttachments[attachmentIndex]);
 
-			if ((resolveView == nullptr) or (not resolveView->m_Texture) or (resolveView->m_Texture->m_Device.get() != this))
+			if ((resolveView == nullptr) or (not resolveView->m_Storage) or (resolveView->m_Storage->m_Device.get() != this))
 			{
 				return ERR_INVALID_RESOURCE_TYPE;
 			}

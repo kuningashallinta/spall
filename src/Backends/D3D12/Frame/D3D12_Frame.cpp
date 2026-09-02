@@ -55,7 +55,7 @@ namespace spall::d3d12
 
 	ITexture& Frame::presentTexture()
 	{
-		return *m_PresentTexture;
+		return *textureInterface(*m_PresentTexture);
 	}
 
 	ITextureView& Frame::presentTextureView()

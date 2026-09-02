@@ -24,7 +24,7 @@ static void runBlockCompressedMipRoundTrip(
 	constexpr std::uint32_t Extent = 8;
 	constexpr std::uint32_t MipLevels = 4;
 
-	spall::TextureCreateInfo textureInfo = {};
+	spall::Texture2DCreateInfo textureInfo = {};
 	textureInfo.Width = Extent;
 	textureInfo.Height = Extent;
 	textureInfo.MipLevels = MipLevels;
@@ -33,8 +33,8 @@ static void runBlockCompressedMipRoundTrip(
 		spall::TextureUsageFlags::Sampled | spall::TextureUsageFlags::TransferSource |
 		spall::TextureUsageFlags::TransferDestination;
 
-	spall::Resource<spall::ITexture> texture;
-	REQUIRE(device.resources().createTexture(textureInfo, &texture) == spall::SUCCESS);
+	spall::Resource<spall::ITexture2D> texture;
+	REQUIRE(device.resources().createTexture2D(textureInfo, &texture) == spall::SUCCESS);
 
 	const std::uint32_t blockWidth = spall::formatBlockWidth(Format);
 	const std::uint32_t blockHeight = spall::formatBlockHeight(Format);

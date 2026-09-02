@@ -43,14 +43,14 @@ static void clearAndReadBack(
 	spall::IDevice& device,
 	std::uint32_t extent)
 {
-	spall::TextureCreateInfo textureInfo = {};
+	spall::Texture2DCreateInfo textureInfo = {};
 	textureInfo.Width = extent;
 	textureInfo.Height = extent;
 	textureInfo.Format = spall::Format::RGBA8;
 	textureInfo.Usage = spall::TextureUsageFlags::ColorAttachment | spall::TextureUsageFlags::TransferSource;
 
-	spall::Resource<spall::ITexture> texture;
-	REQUIRE(device.resources().createTexture(textureInfo, &texture) == spall::SUCCESS);
+	spall::Resource<spall::ITexture2D> texture;
+	REQUIRE(device.resources().createTexture2D(textureInfo, &texture) == spall::SUCCESS);
 
 	spall::TextureViewCreateInfo viewInfo = {};
 	viewInfo.Texture = texture.get();
@@ -286,14 +286,14 @@ TEST_CASE(
 	spall::Resource<spall::IBuffer> uniformBuffer;
 	REQUIRE(device.resources().createBuffer(uniformInfo, &uniformBuffer) == spall::SUCCESS);
 
-	spall::TextureCreateInfo textureInfo = {};
+	spall::Texture2DCreateInfo textureInfo = {};
 	textureInfo.Width = 8;
 	textureInfo.Height = 8;
 	textureInfo.Format = spall::Format::RGBA8;
 	textureInfo.Usage = spall::TextureUsageFlags::Sampled | spall::TextureUsageFlags::TransferDestination;
 
-	spall::Resource<spall::ITexture> texture;
-	REQUIRE(device.resources().createTexture(textureInfo, &texture) == spall::SUCCESS);
+	spall::Resource<spall::ITexture2D> texture;
+	REQUIRE(device.resources().createTexture2D(textureInfo, &texture) == spall::SUCCESS);
 
 	spall::TextureViewCreateInfo viewInfo = {};
 	viewInfo.Texture = texture.get();
@@ -443,14 +443,14 @@ TEST_CASE(
 	spall::Resource<spall::IPipeline> pipeline;
 	REQUIRE(device.pipelines().createPipeline(pipelineInfo, &pipeline) == spall::SUCCESS);
 
-	spall::TextureCreateInfo textureInfo = {};
+	spall::Texture2DCreateInfo textureInfo = {};
 	textureInfo.Width = Extent;
 	textureInfo.Height = Extent;
 	textureInfo.Format = spall::Format::RGBA8;
 	textureInfo.Usage = spall::TextureUsageFlags::ColorAttachment | spall::TextureUsageFlags::TransferSource;
 
-	spall::Resource<spall::ITexture> texture;
-	REQUIRE(device.resources().createTexture(textureInfo, &texture) == spall::SUCCESS);
+	spall::Resource<spall::ITexture2D> texture;
+	REQUIRE(device.resources().createTexture2D(textureInfo, &texture) == spall::SUCCESS);
 
 	spall::TextureViewCreateInfo viewInfo = {};
 	viewInfo.Texture = texture.get();
@@ -633,23 +633,23 @@ TEST_CASE(
 	spall::Resource<spall::IPipeline> pipeline;
 	REQUIRE(device.pipelines().createPipeline(pipelineInfo, &pipeline) == spall::SUCCESS);
 
-	spall::TextureCreateInfo colorInfo = {};
+	spall::Texture2DCreateInfo colorInfo = {};
 	colorInfo.Width = Extent;
 	colorInfo.Height = Extent;
 	colorInfo.Format = spall::Format::RGBA8;
 	colorInfo.Usage = spall::TextureUsageFlags::ColorAttachment | spall::TextureUsageFlags::TransferSource;
 
-	spall::Resource<spall::ITexture> colorTexture;
-	REQUIRE(device.resources().createTexture(colorInfo, &colorTexture) == spall::SUCCESS);
+	spall::Resource<spall::ITexture2D> colorTexture;
+	REQUIRE(device.resources().createTexture2D(colorInfo, &colorTexture) == spall::SUCCESS);
 
-	spall::TextureCreateInfo depthInfo = {};
+	spall::Texture2DCreateInfo depthInfo = {};
 	depthInfo.Width = Extent;
 	depthInfo.Height = Extent;
 	depthInfo.Format = spall::Format::Depth32Float;
 	depthInfo.Usage = spall::TextureUsageFlags::DepthStencilAttachment;
 
-	spall::Resource<spall::ITexture> depthTexture;
-	REQUIRE(device.resources().createTexture(depthInfo, &depthTexture) == spall::SUCCESS);
+	spall::Resource<spall::ITexture2D> depthTexture;
+	REQUIRE(device.resources().createTexture2D(depthInfo, &depthTexture) == spall::SUCCESS);
 
 	spall::TextureViewCreateInfo colorViewInfo = {};
 	colorViewInfo.Texture = colorTexture.get();
@@ -859,14 +859,14 @@ TEST_CASE(
 	spall::Resource<spall::IPipeline> pipeline;
 	REQUIRE(device.pipelines().createPipeline(pipelineInfo, &pipeline) == spall::SUCCESS);
 
-	spall::TextureCreateInfo colorInfo = {};
+	spall::Texture2DCreateInfo colorInfo = {};
 	colorInfo.Width = Extent;
 	colorInfo.Height = Extent;
 	colorInfo.Format = spall::Format::RGBA8;
 	colorInfo.Usage = spall::TextureUsageFlags::ColorAttachment | spall::TextureUsageFlags::TransferSource;
 
-	spall::Resource<spall::ITexture> colorTexture;
-	REQUIRE(device.resources().createTexture(colorInfo, &colorTexture) == spall::SUCCESS);
+	spall::Resource<spall::ITexture2D> colorTexture;
+	REQUIRE(device.resources().createTexture2D(colorInfo, &colorTexture) == spall::SUCCESS);
 
 	spall::TextureViewCreateInfo colorViewInfo = {};
 	colorViewInfo.Texture = colorTexture.get();
@@ -960,7 +960,7 @@ TEST_CASE(
 	constexpr std::uint32_t Extent = 8;
 	constexpr std::uint32_t MipLevels = 2;
 
-	spall::TextureCreateInfo textureInfo = {};
+	spall::Texture2DCreateInfo textureInfo = {};
 	textureInfo.Width = Extent;
 	textureInfo.Height = Extent;
 	textureInfo.MipLevels = MipLevels;
@@ -970,8 +970,8 @@ TEST_CASE(
 		spall::TextureUsageFlags::TransferSource |
 		spall::TextureUsageFlags::TransferDestination;
 
-	spall::Resource<spall::ITexture> texture;
-	REQUIRE(device.resources().createTexture(textureInfo, &texture) == spall::SUCCESS);
+	spall::Resource<spall::ITexture2D> texture;
+	REQUIRE(device.resources().createTexture2D(textureInfo, &texture) == spall::SUCCESS);
 
 	spall::Resource<spall::ICommandList> commands;
 	REQUIRE(device.createCommandList(&commands) == spall::SUCCESS);
@@ -1007,7 +1007,7 @@ TEST_CASE(
 	constexpr std::uint32_t Extent = 16;
 	constexpr std::uint32_t MipLevels = 5;
 
-	spall::TextureCreateInfo textureInfo = {};
+	spall::Texture2DCreateInfo textureInfo = {};
 	textureInfo.Width = Extent;
 	textureInfo.Height = Extent;
 	textureInfo.MipLevels = MipLevels;
@@ -1017,8 +1017,8 @@ TEST_CASE(
 		spall::TextureUsageFlags::TransferSource |
 		spall::TextureUsageFlags::TransferDestination;
 
-	spall::Resource<spall::ITexture> texture;
-	REQUIRE(device.resources().createTexture(textureInfo, &texture) == spall::SUCCESS);
+	spall::Resource<spall::ITexture2D> texture;
+	REQUIRE(device.resources().createTexture2D(textureInfo, &texture) == spall::SUCCESS);
 
 	const std::uint32_t basePitch = Extent * 4;
 	std::vector<std::uint8_t> baseLevel(basePitch * Extent);
@@ -1121,14 +1121,14 @@ TEST_CASE(
 
 	constexpr std::uint32_t Extent = 256;
 
-	spall::TextureCreateInfo textureInfo = {};
+	spall::Texture2DCreateInfo textureInfo = {};
 	textureInfo.Width = Extent;
 	textureInfo.Height = Extent;
 	textureInfo.Format = spall::Format::RGBA8;
 	textureInfo.Usage = spall::TextureUsageFlags::ColorAttachment;
 
-	spall::Resource<spall::ITexture> texture;
-	REQUIRE(device.resources().createTexture(textureInfo, &texture) == spall::SUCCESS);
+	spall::Resource<spall::ITexture2D> texture;
+	REQUIRE(device.resources().createTexture2D(textureInfo, &texture) == spall::SUCCESS);
 
 	spall::TextureViewCreateInfo viewInfo = {};
 	viewInfo.Texture = texture.get();

@@ -3,10 +3,13 @@
 #include <spall/Common/Limits.h>
 #include <spall/Common/Status/Status.h>
 #include <spall/Resources/Texture/ITexture.h>
-#include <spall/Resources/Texture/TextureCreateInfo.h>
+#include <spall/Resources/Texture/Texture1DCreateInfo.h>
+#include <spall/Resources/Texture/Texture2DCreateInfo.h>
+#include <spall/Resources/Texture/Texture3DCreateInfo.h>
 #include <spall/Resources/Texture/TextureSubresourceRange.h>
 #include <spall/Resources/TextureView/TextureViewCreateInfo.h>
 #include <src/Validation/Common/FormatValidation.h>
+#include <src/Validation/Common/ValidationMacros.h>
 
 #include <cstdint>
 
@@ -14,7 +17,8 @@ namespace spall
 {
 	inline std::uint32_t maxTextureMipLevels(
 		std::uint32_t width,
-		std::uint32_t height);
+		std::uint32_t height,
+		std::uint32_t depth);
 
 	inline std::uint32_t mipLevelExtent(
 		std::uint32_t baseExtent,
@@ -51,7 +55,20 @@ namespace spall
 		const TextureInfo& info,
 		const TextureSubresourceRange& range);
 
-	inline Status validateTextureCreateInfo(const TextureCreateInfo& info);
+	/// Validates the format and usage rules shared by every texture dimension.
+	inline Status validateTextureFormatUsage(
+		Format format,
+		TextureUsageFlags usage);
+
+	inline Status validateTextureInitialState(
+		ResourceStateFlags initialState,
+		TextureUsageFlags usage);
+
+	inline Status validateTexture1DCreateInfo(const Texture1DCreateInfo& info);
+
+	inline Status validateTexture2DCreateInfo(const Texture2DCreateInfo& info);
+
+	inline Status validateTexture3DCreateInfo(const Texture3DCreateInfo& info);
 
 	inline Status validateTextureViewCreateInfo(const TextureViewCreateInfo& info);
 } // namespace spall

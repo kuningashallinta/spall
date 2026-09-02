@@ -53,9 +53,17 @@ namespace spall::d3d12
 			QueueType type,
 			Resource<ICommandList>* commandList) override;
 
-		Status createTexture(
-			const TextureCreateInfo& info,
-			Resource<ITexture>* texture) override;
+		Status createTexture1D(
+			const Texture1DCreateInfo& info,
+			Resource<ITexture1D>* texture) override;
+
+		Status createTexture2D(
+			const Texture2DCreateInfo& info,
+			Resource<ITexture2D>* texture) override;
+
+		Status createTexture3D(
+			const Texture3DCreateInfo& info,
+			Resource<ITexture3D>* texture) override;
 
 		Status createTextureView(
 			const TextureViewCreateInfo& info,
@@ -130,6 +138,10 @@ namespace spall::d3d12
 			Resource<IPipeline>* pipeline) override;
 
 	private:
+		Status createTextureResource(
+			const TextureInfo& info,
+			ComPtr<ID3D12Resource>* resource);
+
 		/// Copies a whole buffer on a throwaway command list and waits for it, bypassing recorded state tracking.
 		Status copyBufferImmediate(
 			ID3D12Resource& destination,

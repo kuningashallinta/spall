@@ -138,7 +138,7 @@ namespace spall::d3d12
 			textureInfo.InitialState = ResourceStateFlags::Present;
 
 			BackBuffer backBufferResources = {};
-			backBufferResources.Texture = Resource<Texture>(new Texture(*m_Device, textureInfo, std::move(backBuffer), this));
+			backBufferResources.Texture = Resource<Texture2D>(new Texture2D(*m_Device, textureInfo, std::move(backBuffer), this));
 
 			std::uint32_t renderTargetViewIndex = InvalidDescriptorIndex;
 			Status error = m_Device->m_RenderTargetViews.allocate(&renderTargetViewIndex);

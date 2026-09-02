@@ -41,6 +41,61 @@ namespace spall::vk
 		return imageUsage;
 	}
 
+	inline VkImageType textureType(
+		TextureType type)
+	{
+		switch (type)
+		{
+			case TextureType::Texture1D:
+			{
+				return VK_IMAGE_TYPE_1D;
+			}
+
+			case TextureType::Texture2D:
+			{
+				return VK_IMAGE_TYPE_2D;
+			}
+
+			case TextureType::Texture3D:
+			{
+				return VK_IMAGE_TYPE_3D;
+			}
+		}
+
+		return VK_IMAGE_TYPE_2D;
+	}
+
+	inline VkImageViewType textureViewType(
+		TextureType type,
+		std::uint32_t arrayLayers,
+		bool cubemap)
+	{
+		switch (type)
+		{
+			case TextureType::Texture1D:
+			{
+				return (arrayLayers > 1) ? VK_IMAGE_VIEW_TYPE_1D_ARRAY : VK_IMAGE_VIEW_TYPE_1D;
+			}
+
+			case TextureType::Texture2D:
+			{
+				if (cubemap)
+				{
+					return (arrayLayers > 6) ? VK_IMAGE_VIEW_TYPE_CUBE_ARRAY : VK_IMAGE_VIEW_TYPE_CUBE;
+				}
+
+				return (arrayLayers > 1) ? VK_IMAGE_VIEW_TYPE_2D_ARRAY : VK_IMAGE_VIEW_TYPE_2D;
+			}
+
+			case TextureType::Texture3D:
+			{
+				return VK_IMAGE_VIEW_TYPE_3D;
+			}
+		}
+
+		return VK_IMAGE_VIEW_TYPE_2D;
+	}
+
 	inline std::optional<TextureStateInfo> textureState(
 		ResourceStateFlags state)
 	{

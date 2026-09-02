@@ -5,11 +5,27 @@
 
 namespace spall
 {
-	inline Resource<ITexture> IResourceFactory::createTexture(
-		const TextureCreateInfo& createInfo)
+	inline Resource<ITexture1D> IResourceFactory::createTexture1D(
+		const Texture1DCreateInfo& createInfo)
 	{
-		Resource<ITexture> texture;
-		createTexture(createInfo, &texture);
+		Resource<ITexture1D> texture;
+		createTexture1D(createInfo, &texture);
+		return texture;
+	}
+
+	inline Resource<ITexture2D> IResourceFactory::createTexture2D(
+		const Texture2DCreateInfo& createInfo)
+	{
+		Resource<ITexture2D> texture;
+		createTexture2D(createInfo, &texture);
+		return texture;
+	}
+
+	inline Resource<ITexture3D> IResourceFactory::createTexture3D(
+		const Texture3DCreateInfo& createInfo)
+	{
+		Resource<ITexture3D> texture;
+		createTexture3D(createInfo, &texture);
 		return texture;
 	}
 

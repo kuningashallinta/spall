@@ -14,7 +14,7 @@
 namespace spall::vk
 {
 	class SwapChain;
-	class Texture;
+	class Texture2D;
 	class TextureView;
 	class GraphicsQueue;
 
@@ -25,7 +25,7 @@ namespace spall::vk
 			SwapChain& swapChain,
 			std::uint32_t frameSlotIndex,
 			std::uint32_t imageIndex,
-			Texture& presentTexture,
+			Texture2D& presentTexture,
 			TextureView& presentTextureView);
 
 		~Frame(void) override;
@@ -41,7 +41,7 @@ namespace spall::vk
 		std::uint32_t m_FrameSlotIndex = 0;
 		std::uint32_t m_ImageIndex = 0;
 
-		Texture* m_PresentTexture = nullptr;
+		Texture2D* m_PresentTexture = nullptr;
 		TextureView* m_PresentTextureView = nullptr;
 
 	private:

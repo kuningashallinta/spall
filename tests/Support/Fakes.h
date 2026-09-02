@@ -61,6 +61,12 @@ class FakeTexture final : public FakeResource<spall::ITexture, spall::TextureInf
 {
 public:
 	using FakeResource::FakeResource;
+
+	spall::TextureType type(
+		void) const override
+	{
+		return info().Type;
+	}
 };
 
 class FakeBuffer final : public FakeResource<spall::IBuffer, spall::BufferInfo>

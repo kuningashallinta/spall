@@ -23,9 +23,23 @@ public:
 	{
 	}
 
-	spall::Status createTexture(
-		const spall::TextureCreateInfo&,
-		spall::Resource<spall::ITexture>*) override
+	spall::Status createTexture1D(
+		const spall::Texture1DCreateInfo&,
+		spall::Resource<spall::ITexture1D>*) override
+	{
+		return spall::ERR_UNSUPPORTED;
+	}
+
+	spall::Status createTexture2D(
+		const spall::Texture2DCreateInfo&,
+		spall::Resource<spall::ITexture2D>*) override
+	{
+		return spall::ERR_UNSUPPORTED;
+	}
+
+	spall::Status createTexture3D(
+		const spall::Texture3DCreateInfo&,
+		spall::Resource<spall::ITexture3D>*) override
 	{
 		return spall::ERR_UNSUPPORTED;
 	}
@@ -141,7 +155,9 @@ TEST_CASE(
 		{ backend.createDevice() } -> std::same_as<spall::Resource<spall::IDevice>>;
 		{ device.createCommandList() } -> std::same_as<spall::Resource<spall::ICommandList>>;
 		{ presentation.createSwapChain({}) } -> std::same_as<spall::Resource<spall::ISwapChain>>;
-		{ resources.createTexture({}) } -> std::same_as<spall::Resource<spall::ITexture>>;
+		{ resources.createTexture1D({}) } -> std::same_as<spall::Resource<spall::ITexture1D>>;
+		{ resources.createTexture2D({}) } -> std::same_as<spall::Resource<spall::ITexture2D>>;
+		{ resources.createTexture3D({}) } -> std::same_as<spall::Resource<spall::ITexture3D>>;
 		{ resources.createTextureView({}) } -> std::same_as<spall::Resource<spall::ITextureView>>;
 		{ resources.createFramebuffer({}) } -> std::same_as<spall::Resource<spall::IFramebuffer>>;
 		{ resources.createBuffer({}) } -> std::same_as<spall::Resource<spall::IBuffer>>;

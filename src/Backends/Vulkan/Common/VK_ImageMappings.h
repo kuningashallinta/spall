@@ -18,6 +18,13 @@ namespace spall::vk
 {
 	inline VkImageUsageFlags textureUsageFlags(TextureUsageFlags usage);
 
+	inline VkImageType textureType(TextureType type);
+
+	inline VkImageViewType textureViewType(
+		TextureType type,
+		std::uint32_t arrayLayers,
+		bool cubemap);
+
 	inline std::optional<TextureStateInfo> textureState(ResourceStateFlags state);
 } // namespace spall::vk
 

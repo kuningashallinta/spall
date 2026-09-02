@@ -10,11 +10,12 @@
 namespace spall::d3d12
 {
 	TextureView::TextureView(
-		Texture& texture,
+		ITexture& texture,
 		const Subresources& subresources,
 		std::uint32_t renderTargetViewIndex,
 		std::uint32_t depthStencilViewIndex)
 		: m_Texture(&texture),
+		  m_Storage(textureStorage(texture)),
 		  m_Aspects(subresources.Aspects),
 		  m_BaseMipLevel(subresources.BaseMipLevel),
 		  m_MipLevels(subresources.MipLevels),
@@ -30,12 +31,12 @@ namespace spall::d3d12
 	{
 		if (m_RenderTargetViewIndex != InvalidDescriptorIndex)
 		{
-			m_Texture->m_Device->m_RenderTargetViews.release(m_RenderTargetViewIndex);
+			m_Storage->m_Device->m_RenderTargetViews.release(m_RenderTargetViewIndex);
 		}
 
 		if (m_DepthStencilViewIndex != InvalidDescriptorIndex)
 		{
-			m_Texture->m_Device->m_DepthStencilViews.release(m_DepthStencilViewIndex);
+			m_Storage->m_Device->m_DepthStencilViews.release(m_DepthStencilViewIndex);
 		}
 	}
 
@@ -51,7 +52,7 @@ namespace spall::d3d12
 
 	Format TextureView::format() const
 	{
-		return m_Texture->m_Info.Format;
+		return m_Storage->m_Info.Format;
 	}
 
 	TextureAspectFlags TextureView::aspects() const

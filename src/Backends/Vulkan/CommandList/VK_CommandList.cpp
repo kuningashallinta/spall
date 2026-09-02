@@ -210,7 +210,7 @@ namespace spall::vk
 		ResourceStateFlags state)
 	{
 		return requireTextureState(
-			*textureView.m_Texture,
+			*textureView.m_Storage,
 			state,
 			TextureSubresourceRange {
 				textureView.m_BaseMipLevel,
@@ -368,13 +368,13 @@ namespace spall::vk
 				{
 					TextureView* textureView = backendCast<TextureView>(write->TextureView);
 
-					if ((textureView == nullptr) or (not textureView->m_Texture) or
-						(textureView->m_Texture->m_Device.get() != m_Device.get()))
+					if ((textureView == nullptr) or (not textureView->m_Storage) or
+						(textureView->m_Storage->m_Device.get() != m_Device.get()))
 					{
 						return ERR_INVALID_RESOURCE;
 					}
 
-					if (isRenderPassAttachment(*textureView->m_Texture))
+					if (isRenderPassAttachment(*textureView->m_Storage))
 					{
 						return ERR_INVALID_RESOURCE_STATE;
 					}
@@ -458,8 +458,8 @@ namespace spall::vk
 				TextureView* textureView = backendCast<TextureView>(write.TextureView);
 				Sampler* sampler = backendCast<Sampler>(write.Sampler);
 
-				if ((textureView == nullptr) or (not textureView->m_Texture) or
-					(textureView->m_Texture->m_Device.get() != m_Device.get()) or (sampler == nullptr) or (sampler->m_Device.get() != m_Device.get()))
+				if ((textureView == nullptr) or (not textureView->m_Storage) or
+					(textureView->m_Storage->m_Device.get() != m_Device.get()) or (sampler == nullptr) or (sampler->m_Device.get() != m_Device.get()))
 				{
 					return ERR_INVALID_RESOURCE;
 				}
@@ -482,8 +482,8 @@ namespace spall::vk
 			{
 				TextureView* textureView = backendCast<TextureView>(write.TextureView);
 
-				if ((textureView == nullptr) or (not textureView->m_Texture) or
-					(textureView->m_Texture->m_Device.get() != m_Device.get()))
+				if ((textureView == nullptr) or (not textureView->m_Storage) or
+					(textureView->m_Storage->m_Device.get() != m_Device.get()))
 				{
 					return ERR_INVALID_RESOURCE;
 				}
@@ -623,13 +623,15 @@ namespace spall::vk
 			return {};
 		}
 
-		if (m_ReferencedPresentTexture and (m_ReferencedPresentTexture.get() != texture))
+		ITexture* const self = textureInterface(*texture);
+
+		if (m_ReferencedPresentTexture and (m_ReferencedPresentTexture.get() != self))
 		{
 			return ERR_INVALID_RESOURCE_STATE;
 		}
 
-		retainResource(*texture);
-		m_ReferencedPresentTexture.reset(texture);
+		retainResource(*self);
+		m_ReferencedPresentTexture.reset(self);
 		m_ReferencedSwapChain = texture->m_SwapChain;
 
 		return {};
@@ -666,12 +668,12 @@ namespace spall::vk
 
 			TextureView* sampledView = backendCast<TextureView>(write.TextureView);
 
-			if ((sampledView == nullptr) or (not sampledView->m_Texture))
+			if ((sampledView == nullptr) or (not sampledView->m_Storage))
 			{
 				return ERR_INVALID_RESOURCE;
 			}
 
-			const void* sampledTexture = sampledView->m_Texture.get();
+			const void* sampledTexture = sampledView->m_Storage;
 
 			SPALL_TRY(validateNoSampledAttachmentAliasing(
 				std::span<const void* const>(&sampledTexture, 1),
@@ -772,7 +774,7 @@ namespace spall::vk
 
 		if (m_ReferencedPresentTexture)
 		{
-			error = requireTextureState(*m_ReferencedPresentTexture, ResourceStateFlags::Present);
+			error = requireTextureState(*textureStorage(*m_ReferencedPresentTexture), ResourceStateFlags::Present);
 
 			if (error != SUCCESS)
 			{
@@ -963,12 +965,12 @@ namespace spall::vk
 		{
 			TextureView* colorView = framebuffer->m_ColorViews[attachmentIndex].get();
 			colorViews.push_back(colorView);
-			colorFormats.push_back(colorView->m_Texture->m_Info.Format);
-			colorTextures[attachmentIndex] = colorView->m_Texture.get();
+			colorFormats.push_back(colorView->m_Storage->m_Info.Format);
+			colorTextures[attachmentIndex] = colorView->m_Storage;
 		}
 
 		TextureView* depthView = framebuffer->m_DepthView.get();
-		Texture* depthTexture = depthView != nullptr ? depthView->m_Texture.get() : nullptr;
+		Texture* depthTexture = depthView != nullptr ? depthView->m_Storage : nullptr;
 
 		for (ResourceSet* boundResourceSet : m_BoundResourceSets)
 		{
@@ -993,7 +995,7 @@ namespace spall::vk
 
 		for (TextureView* colorView : colorViews)
 		{
-			error = referencePresentTexture(colorView->m_Texture.get());
+			error = referencePresentTexture(colorView->m_Storage);
 
 			if (error != SUCCESS)
 			{
@@ -1017,7 +1019,7 @@ namespace spall::vk
 				continue;
 			}
 
-			error = referencePresentTexture(resolveView->m_Texture.get());
+			error = referencePresentTexture(resolveView->m_Storage);
 
 			if (error != SUCCESS)
 			{
@@ -1068,7 +1070,7 @@ namespace spall::vk
 		resumeDepthAttachment.DepthLoadAction = LoadAction::Load;
 		resumeDepthAttachment.StencilLoadAction = LoadAction::Load;
 
-		const Format depthFormat = depthView != nullptr ? depthView->m_Texture->m_Info.Format : Format::Unknown;
+		const Format depthFormat = depthView != nullptr ? depthView->m_Storage->m_Info.Format : Format::Unknown;
 
 		error = cachedRenderPass(
 			initialColorAttachments.data(),
@@ -1120,11 +1122,11 @@ namespace spall::vk
 
 		for (std::uint32_t attachmentIndex = 0; attachmentIndex < framebuffer->m_ColorCount; ++attachmentIndex)
 		{
-			m_RenderPassColorTextures[attachmentIndex] = colorViews[attachmentIndex]->m_Texture.get();
+			m_RenderPassColorTextures[attachmentIndex] = colorViews[attachmentIndex]->m_Storage;
 		}
 
 		m_RenderPassColorTextureCount = framebuffer->m_ColorCount;
-		m_RenderPassDepthTexture = depthView != nullptr ? depthView->m_Texture.get() : nullptr;
+		m_RenderPassDepthTexture = depthView != nullptr ? depthView->m_Storage : nullptr;
 		m_RenderPassSampleCount = framebuffer->m_Info.SampleCount;
 		m_RenderPassWidth = framebuffer->m_Info.Width;
 		m_RenderPassHeight = framebuffer->m_Info.Height;
@@ -1709,7 +1711,7 @@ namespace spall::vk
 			return error;
 		}
 
-		Texture* vulkanTexture = backendCast<Texture>(texture);
+		Texture* vulkanTexture = textureStorage(texture);
 
 		if ((vulkanTexture == nullptr) or (vulkanTexture->m_Device.get() != m_Device.get()))
 		{
@@ -1723,7 +1725,7 @@ namespace spall::vk
 			return error;
 		}
 
-		retainResource(*vulkanTexture);
+		retainResource(texture);
 		error = m_StateTracker.beginTrackingTextureState(*vulkanTexture, state, subresources);
 
 		if (error != SUCCESS)
@@ -1782,7 +1784,7 @@ namespace spall::vk
 			return error;
 		}
 
-		Texture* vulkanTexture = backendCast<Texture>(texture);
+		Texture* vulkanTexture = textureStorage(texture);
 
 		if ((vulkanTexture == nullptr) or (vulkanTexture->m_Device.get() != m_Device.get()))
 		{
@@ -1808,7 +1810,7 @@ namespace spall::vk
 			return error;
 		}
 
-		retainResource(*vulkanTexture);
+		retainResource(texture);
 		error = m_StateTracker.requireTextureState(*vulkanTexture, state, subresources);
 
 		if (error != SUCCESS)
@@ -1866,7 +1868,7 @@ namespace spall::vk
 			return error;
 		}
 
-		Texture* vulkanTexture = backendCast<Texture>(texture);
+		Texture* vulkanTexture = textureStorage(texture);
 
 		if ((vulkanTexture == nullptr) or (vulkanTexture->m_Device.get() != m_Device.get()))
 		{
@@ -1892,7 +1894,7 @@ namespace spall::vk
 			return error;
 		}
 
-		retainResource(*vulkanTexture);
+		retainResource(texture);
 		error = m_StateTracker.setPermanentTextureState(*vulkanTexture, state);
 
 		if (error != SUCCESS)
@@ -1941,7 +1943,7 @@ namespace spall::vk
 		ITexture& texture,
 		const TextureSubresourceRange& subresources) const
 	{
-		Texture* vulkanTexture = backendCast<Texture>(texture);
+		Texture* vulkanTexture = textureStorage(texture);
 
 		return ((vulkanTexture != nullptr) and (vulkanTexture->m_Device.get() == m_Device.get()))
 			? m_StateTracker.currentTextureState(*vulkanTexture, subresources)
@@ -2003,17 +2005,17 @@ namespace spall::vk
 
 					TextureView* textureView = backendCast<TextureView>(write->TextureView);
 
-					if ((textureView == nullptr) or (not textureView->m_Texture))
+					if ((textureView == nullptr) or (not textureView->m_Storage))
 					{
 						return fail(ERR_INVALID_RESOURCE_TYPE);
 					}
 
-					if (isRenderPassAttachment(*textureView->m_Texture))
+					if (isRenderPassAttachment(*textureView->m_Storage))
 					{
 						return fail(ERR_INVALID_RESOURCE_STATE);
 					}
 
-					error = referencePresentTexture(textureView->m_Texture.get());
+					error = referencePresentTexture(textureView->m_Storage);
 
 					if (error != SUCCESS)
 					{
@@ -2249,12 +2251,12 @@ namespace spall::vk
 				{
 					TextureView* textureView = backendCast<TextureView>(write->TextureView);
 
-					if ((textureView == nullptr) or (not textureView->m_Texture))
+					if ((textureView == nullptr) or (not textureView->m_Storage))
 					{
 						return ERR_INVALID_RESOURCE_TYPE;
 					}
 
-					Status reference = referencePresentTexture(textureView->m_Texture.get());
+					Status reference = referencePresentTexture(textureView->m_Storage);
 
 					if (reference != SUCCESS)
 					{
@@ -2267,7 +2269,7 @@ namespace spall::vk
 				{
 					TextureView* textureView = backendCast<TextureView>(write->TextureView);
 
-					if ((textureView == nullptr) or (not textureView->m_Texture))
+					if ((textureView == nullptr) or (not textureView->m_Storage))
 					{
 						return ERR_INVALID_RESOURCE_TYPE;
 					}
@@ -2867,7 +2869,7 @@ namespace spall::vk
 			return ERR_INVALID_STATE;
 		}
 
-		Texture* destinationTexture = backendCast<Texture>(destination);
+		Texture* destinationTexture = textureStorage(destination);
 		Buffer* sourceBuffer = backendCast<Buffer>(source);
 
 		if ((destinationTexture == nullptr) or
@@ -2900,7 +2902,7 @@ namespace spall::vk
 			return ERR_INVALID_RANGE;
 		}
 
-		retainResource(*destinationTexture);
+		retainResource(destination);
 		retainResource(*sourceBuffer);
 
 		error = referencePresentTexture(destinationTexture);
@@ -2973,7 +2975,7 @@ namespace spall::vk
 		}
 
 		Buffer* destinationBuffer = backendCast<Buffer>(destination);
-		Texture* sourceTexture = backendCast<Texture>(source);
+		Texture* sourceTexture = textureStorage(source);
 
 		if ((destinationBuffer == nullptr) or (sourceTexture == nullptr) or
 			(destinationBuffer->m_Device.get() != m_Device.get()) or (sourceTexture->m_Device.get() != m_Device.get()) or
@@ -3014,7 +3016,7 @@ namespace spall::vk
 		}
 
 		retainResource(*destinationBuffer);
-		retainResource(*sourceTexture);
+		retainResource(source);
 
 		error = referencePresentTexture(sourceTexture);
 
@@ -3088,8 +3090,8 @@ namespace spall::vk
 			return ERR_INVALID_STATE;
 		}
 
-		Texture* destinationTexture = backendCast<Texture>(destination);
-		Texture* sourceTexture = backendCast<Texture>(source);
+		Texture* destinationTexture = textureStorage(destination);
+		Texture* sourceTexture = textureStorage(source);
 
 		if ((destinationTexture == nullptr) or
 			(sourceTexture == nullptr) or
@@ -3106,8 +3108,8 @@ namespace spall::vk
 			return error;
 		}
 
-		retainResource(*destinationTexture);
-		retainResource(*sourceTexture);
+		retainResource(destination);
+		retainResource(source);
 
 		error = referencePresentTexture(destinationTexture);
 
@@ -3245,14 +3247,14 @@ namespace spall::vk
 			return ERR_INVALID_STATE;
 		}
 
-		Texture* vkTexture = backendCast<Texture>(texture);
+		Texture* vkTexture = textureStorage(texture);
 
 		if ((vkTexture == nullptr) or (vkTexture->m_Device.get() != m_Device.get()))
 		{
 			return ERR_INVALID_RESOURCE_TYPE;
 		}
 
-		error = validateGenerateMipsArguments(*vkTexture);
+		error = validateGenerateMipsArguments(texture);
 
 		if (error != SUCCESS)
 		{
@@ -3279,7 +3281,7 @@ namespace spall::vk
 			return ERR_UNSUPPORTED_FORMAT;
 		}
 
-		retainResource(*vkTexture);
+		retainResource(texture);
 
 		const ResourceStateFlags originalState = m_StateTracker.currentTextureState(*vkTexture);
 
@@ -3340,14 +3342,14 @@ namespace spall::vk
 			blit.srcSubresource.layerCount = vkTexture->m_Info.ArrayLayers;
 			blit.srcOffsets[1].x = static_cast<std::int32_t>(mipLevelExtent(vkTexture->m_Info.Width, mipLevel - 1));
 			blit.srcOffsets[1].y = static_cast<std::int32_t>(mipLevelExtent(vkTexture->m_Info.Height, mipLevel - 1));
-			blit.srcOffsets[1].z = 1;
+			blit.srcOffsets[1].z = static_cast<std::int32_t>(mipLevelExtent(vkTexture->m_Info.Depth, mipLevel - 1));
 			blit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 			blit.dstSubresource.mipLevel = mipLevel;
 			blit.dstSubresource.baseArrayLayer = 0;
 			blit.dstSubresource.layerCount = vkTexture->m_Info.ArrayLayers;
 			blit.dstOffsets[1].x = static_cast<std::int32_t>(mipLevelExtent(vkTexture->m_Info.Width, mipLevel));
 			blit.dstOffsets[1].y = static_cast<std::int32_t>(mipLevelExtent(vkTexture->m_Info.Height, mipLevel));
-			blit.dstOffsets[1].z = 1;
+			blit.dstOffsets[1].z = static_cast<std::int32_t>(mipLevelExtent(vkTexture->m_Info.Depth, mipLevel));
 
 			vkCmdBlitImage(
 				m_CommandBuffer,

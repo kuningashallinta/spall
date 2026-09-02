@@ -2,9 +2,21 @@ namespace spall
 {
 	inline std::uint32_t maxTextureMipLevels(
 		std::uint32_t width,
-		std::uint32_t height)
+		std::uint32_t height,
+		std::uint32_t depth)
 	{
-		std::uint32_t largestDimension = (width > height) ? width : height;
+		std::uint32_t largestDimension = width;
+
+		if (height > largestDimension)
+		{
+			largestDimension = height;
+		}
+
+		if (depth > largestDimension)
+		{
+			largestDimension = depth;
+		}
+
 		std::uint32_t levels = 1;
 
 		while (largestDimension > 1)
@@ -63,8 +75,9 @@ namespace spall
 		return {};
 	}
 
-	inline Status validateTextureCreateInfo(
-		const TextureCreateInfo& info)
+	inline Status validateTextureFormatUsage(
+		Format format,
+		TextureUsageFlags usage)
 	{
 		constexpr std::uint32_t knownUsageMask =
 			static_cast<std::uint32_t>(TextureUsageFlags::ColorAttachment) |
@@ -74,7 +87,170 @@ namespace spall
 			static_cast<std::uint32_t>(TextureUsageFlags::Sampled) |
 			static_cast<std::uint32_t>(TextureUsageFlags::Storage);
 
-		if ((info.Width == 0) or (info.Height == 0) or (info.Depth == 0))
+		if (format == Format::Unknown)
+		{
+			return ERR_INVALID_FORMAT;
+		}
+
+		if (not isTextureFormat(format))
+		{
+			return ERR_INVALID_FORMAT;
+		}
+
+		if (usage == TextureUsageFlags::None)
+		{
+			return ERR_INVALID_USAGE_FLAGS;
+		}
+
+		if ((static_cast<std::uint32_t>(usage) & ~knownUsageMask) != 0)
+		{
+			return ERR_INVALID_USAGE_FLAGS;
+		}
+
+		const bool hasColorUsage = ((usage & TextureUsageFlags::ColorAttachment) != TextureUsageFlags::None);
+		const bool hasDepthUsage = ((usage & TextureUsageFlags::DepthStencilAttachment) != TextureUsageFlags::None);
+
+		if (hasColorUsage and hasDepthUsage)
+		{
+			return ERR_INVALID_USAGE_FLAGS;
+		}
+
+		if (isDepthFormat(format) and hasColorUsage)
+		{
+			return ERR_INVALID_USAGE_FLAGS;
+		}
+
+		if ((not isDepthFormat(format)) and hasDepthUsage)
+		{
+			return ERR_INVALID_USAGE_FLAGS;
+		}
+
+		if (isDepthFormat(format) and ((usage & TextureUsageFlags::Sampled) != TextureUsageFlags::None))
+		{
+			return ERR_UNSUPPORTED_USAGE;
+		}
+
+		if (isDepthFormat(format) and ((usage & TextureUsageFlags::Storage) != TextureUsageFlags::None))
+		{
+			return ERR_UNSUPPORTED_USAGE;
+		}
+
+		return {};
+	}
+
+	inline Status validateTextureInitialState(
+		ResourceStateFlags initialState,
+		TextureUsageFlags usage)
+	{
+		constexpr std::uint32_t supportedTextureStateMask =
+			static_cast<std::uint32_t>(ResourceStateFlags::Common) |
+			static_cast<std::uint32_t>(ResourceStateFlags::ShaderResource) |
+			static_cast<std::uint32_t>(ResourceStateFlags::UnorderedAccess) |
+			static_cast<std::uint32_t>(ResourceStateFlags::RenderTarget) |
+			static_cast<std::uint32_t>(ResourceStateFlags::DepthWrite) |
+			static_cast<std::uint32_t>(ResourceStateFlags::DepthRead) |
+			static_cast<std::uint32_t>(ResourceStateFlags::CopySource) |
+			static_cast<std::uint32_t>(ResourceStateFlags::CopyDest);
+
+		const std::uint32_t stateBits = static_cast<std::uint32_t>(initialState);
+
+		if ((stateBits == 0) or ((stateBits & ~supportedTextureStateMask) != 0))
+		{
+			return ERR_INVALID_RESOURCE_STATE;
+		}
+
+		switch (initialState)
+		{
+			case ResourceStateFlags::Common:
+			{
+				break;
+			}
+
+			case ResourceStateFlags::ShaderResource:
+			{
+				if ((usage & TextureUsageFlags::Sampled) == TextureUsageFlags::None)
+				{
+					return ERR_INVALID_RESOURCE_STATE;
+				}
+
+				break;
+			}
+
+			case ResourceStateFlags::UnorderedAccess:
+			{
+				if ((usage & TextureUsageFlags::Storage) == TextureUsageFlags::None)
+				{
+					return ERR_INVALID_RESOURCE_STATE;
+				}
+
+				break;
+			}
+
+			case ResourceStateFlags::RenderTarget:
+			{
+				if ((usage & TextureUsageFlags::ColorAttachment) == TextureUsageFlags::None)
+				{
+					return ERR_INVALID_RESOURCE_STATE;
+				}
+
+				break;
+			}
+
+			case ResourceStateFlags::DepthWrite:
+			{
+				if ((usage & TextureUsageFlags::DepthStencilAttachment) == TextureUsageFlags::None)
+				{
+					return ERR_INVALID_RESOURCE_STATE;
+				}
+
+				break;
+			}
+
+			case ResourceStateFlags::DepthRead:
+			{
+				if ((usage & TextureUsageFlags::DepthStencilAttachment) == TextureUsageFlags::None)
+				{
+					return ERR_INVALID_RESOURCE_STATE;
+				}
+
+				break;
+			}
+
+			case ResourceStateFlags::CopySource:
+			{
+				if ((usage & TextureUsageFlags::TransferSource) == TextureUsageFlags::None)
+				{
+					return ERR_INVALID_RESOURCE_STATE;
+				}
+
+				break;
+			}
+
+			case ResourceStateFlags::CopyDest:
+			{
+				if ((usage & TextureUsageFlags::TransferDestination) == TextureUsageFlags::None)
+				{
+					return ERR_INVALID_RESOURCE_STATE;
+				}
+
+				break;
+			}
+
+			default:
+			{
+				return ERR_INVALID_RESOURCE_STATE;
+			}
+		}
+
+		return {};
+	}
+
+	inline Status validateTexture1DCreateInfo(
+		const Texture1DCreateInfo& info)
+	{
+		constexpr TextureUsageFlags attachmentUsage = TextureUsageFlags::ColorAttachment | TextureUsageFlags::DepthStencilAttachment;
+
+		if (info.Width == 0)
 		{
 			return ERR_INVALID_SIZE;
 		}
@@ -84,7 +260,45 @@ namespace spall
 			return ERR_INVALID_SIZE;
 		}
 
-		if (info.MipLevels > maxTextureMipLevels(info.Width, info.Height))
+		if (info.MipLevels > maxTextureMipLevels(info.Width, 1, 1))
+		{
+			return ERR_INVALID_SIZE;
+		}
+
+		if (info.ArrayLayers == 0)
+		{
+			return ERR_INVALID_SIZE;
+		}
+
+		if ((info.Usage & attachmentUsage) != TextureUsageFlags::None)
+		{
+			return ERR_UNSUPPORTED_USAGE;
+		}
+
+		SPALL_TRY(validateTextureFormatUsage(info.Format, info.Usage));
+
+		if (isBlockCompressedFormat(info.Format))
+		{
+			return ERR_UNSUPPORTED_USAGE;
+		}
+
+		return validateTextureInitialState(info.InitialState, info.Usage);
+	}
+
+	inline Status validateTexture2DCreateInfo(
+		const Texture2DCreateInfo& info)
+	{
+		if ((info.Width == 0) or (info.Height == 0))
+		{
+			return ERR_INVALID_SIZE;
+		}
+
+		if (info.MipLevels == 0)
+		{
+			return ERR_INVALID_SIZE;
+		}
+
+		if (info.MipLevels > maxTextureMipLevels(info.Width, info.Height, 1))
 		{
 			return ERR_INVALID_SIZE;
 		}
@@ -137,80 +351,11 @@ namespace spall
 			}
 		}
 
-		if (info.Depth > 1)
-		{
-			if (info.ArrayLayers != 1)
-			{
-				return ERR_INVALID_SIZE;
-			}
-
-			if (info.Cubemap)
-			{
-				return ERR_UNSUPPORTED_USAGE;
-			}
-
-			if (info.SampleCount != 1)
-			{
-				return ERR_UNSUPPORTED_USAGE;
-			}
-
-			if ((info.Usage & TextureUsageFlags::DepthStencilAttachment) != TextureUsageFlags::None)
-			{
-				return ERR_INVALID_USAGE_FLAGS;
-			}
-		}
-
-		if (info.Format == Format::Unknown)
-		{
-			return ERR_INVALID_FORMAT;
-		}
-
-		if (not isTextureFormat(info.Format))
-		{
-			return ERR_INVALID_FORMAT;
-		}
-
-		if (info.Usage == TextureUsageFlags::None)
-		{
-			return ERR_INVALID_USAGE_FLAGS;
-		}
-
-		if ((static_cast<std::uint32_t>(info.Usage) & ~knownUsageMask) != 0)
-		{
-			return ERR_INVALID_USAGE_FLAGS;
-		}
-
-		const bool hasColorUsage = ((info.Usage & TextureUsageFlags::ColorAttachment) != TextureUsageFlags::None);
-		const bool hasDepthUsage = ((info.Usage & TextureUsageFlags::DepthStencilAttachment) != TextureUsageFlags::None);
-
-		if (hasColorUsage and hasDepthUsage)
-		{
-			return ERR_INVALID_USAGE_FLAGS;
-		}
-
-		if (isDepthFormat(info.Format) and hasColorUsage)
-		{
-			return ERR_INVALID_USAGE_FLAGS;
-		}
-
-		if ((not isDepthFormat(info.Format)) and hasDepthUsage)
-		{
-			return ERR_INVALID_USAGE_FLAGS;
-		}
-
-		if (isDepthFormat(info.Format) and ((info.Usage & TextureUsageFlags::Sampled) != TextureUsageFlags::None))
-		{
-			return ERR_UNSUPPORTED_USAGE;
-		}
-
-		if (isDepthFormat(info.Format) and ((info.Usage & TextureUsageFlags::Storage) != TextureUsageFlags::None))
-		{
-			return ERR_UNSUPPORTED_USAGE;
-		}
+		SPALL_TRY(validateTextureFormatUsage(info.Format, info.Usage));
 
 		if (isBlockCompressedFormat(info.Format))
 		{
-			if (hasColorUsage)
+			if ((info.Usage & TextureUsageFlags::ColorAttachment) != TextureUsageFlags::None)
 			{
 				return ERR_UNSUPPORTED_USAGE;
 			}
@@ -226,106 +371,40 @@ namespace spall
 			}
 		}
 
-		const std::uint32_t initialState = static_cast<std::uint32_t>(info.InitialState);
-		constexpr std::uint32_t supportedTextureStateMask =
-			static_cast<std::uint32_t>(ResourceStateFlags::Common) |
-			static_cast<std::uint32_t>(ResourceStateFlags::ShaderResource) |
-			static_cast<std::uint32_t>(ResourceStateFlags::UnorderedAccess) |
-			static_cast<std::uint32_t>(ResourceStateFlags::RenderTarget) |
-			static_cast<std::uint32_t>(ResourceStateFlags::DepthWrite) |
-			static_cast<std::uint32_t>(ResourceStateFlags::DepthRead) |
-			static_cast<std::uint32_t>(ResourceStateFlags::CopySource) |
-			static_cast<std::uint32_t>(ResourceStateFlags::CopyDest);
+		return validateTextureInitialState(info.InitialState, info.Usage);
+	}
 
-		if ((initialState == 0) or ((initialState & ~supportedTextureStateMask) != 0))
+	inline Status validateTexture3DCreateInfo(
+		const Texture3DCreateInfo& info)
+	{
+		if ((info.Width == 0) or (info.Height == 0) or (info.Depth == 0))
 		{
-			return ERR_INVALID_RESOURCE_STATE;
+			return ERR_INVALID_SIZE;
 		}
 
-		switch (info.InitialState)
+		if (info.MipLevels == 0)
 		{
-			case ResourceStateFlags::Common:
-			{
-				break;
-			}
-
-			case ResourceStateFlags::ShaderResource:
-			{
-				if ((info.Usage & TextureUsageFlags::Sampled) == TextureUsageFlags::None)
-				{
-					return ERR_INVALID_RESOURCE_STATE;
-				}
-
-				break;
-			}
-
-			case ResourceStateFlags::UnorderedAccess:
-			{
-				if ((info.Usage & TextureUsageFlags::Storage) == TextureUsageFlags::None)
-				{
-					return ERR_INVALID_RESOURCE_STATE;
-				}
-
-				break;
-			}
-
-			case ResourceStateFlags::RenderTarget:
-			{
-				if ((info.Usage & TextureUsageFlags::ColorAttachment) == TextureUsageFlags::None)
-				{
-					return ERR_INVALID_RESOURCE_STATE;
-				}
-
-				break;
-			}
-
-			case ResourceStateFlags::DepthWrite:
-			{
-				if ((info.Usage & TextureUsageFlags::DepthStencilAttachment) == TextureUsageFlags::None)
-				{
-					return ERR_INVALID_RESOURCE_STATE;
-				}
-
-				break;
-			}
-
-			case ResourceStateFlags::DepthRead:
-			{
-				if ((info.Usage & TextureUsageFlags::DepthStencilAttachment) == TextureUsageFlags::None)
-				{
-					return ERR_INVALID_RESOURCE_STATE;
-				}
-
-				break;
-			}
-
-			case ResourceStateFlags::CopySource:
-			{
-				if ((info.Usage & TextureUsageFlags::TransferSource) == TextureUsageFlags::None)
-				{
-					return ERR_INVALID_RESOURCE_STATE;
-				}
-
-				break;
-			}
-
-			case ResourceStateFlags::CopyDest:
-			{
-				if ((info.Usage & TextureUsageFlags::TransferDestination) == TextureUsageFlags::None)
-				{
-					return ERR_INVALID_RESOURCE_STATE;
-				}
-
-				break;
-			}
-
-			default:
-			{
-				return ERR_INVALID_RESOURCE_STATE;
-			}
+			return ERR_INVALID_SIZE;
 		}
 
-		return {};
+		if (info.MipLevels > maxTextureMipLevels(info.Width, info.Height, info.Depth))
+		{
+			return ERR_INVALID_SIZE;
+		}
+
+		if ((info.Usage & TextureUsageFlags::DepthStencilAttachment) != TextureUsageFlags::None)
+		{
+			return ERR_INVALID_USAGE_FLAGS;
+		}
+
+		SPALL_TRY(validateTextureFormatUsage(info.Format, info.Usage));
+
+		if (isBlockCompressedFormat(info.Format))
+		{
+			return ERR_UNSUPPORTED_USAGE;
+		}
+
+		return validateTextureInitialState(info.InitialState, info.Usage);
 	}
 
 	inline Status validateTextureViewCreateInfo(

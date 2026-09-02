@@ -6,6 +6,7 @@
 #include <spall/Common/Resource/Resource.h>
 #include <spall/Common/Resource/SharedObject.h>
 
+#include <spall/Resources/Texture/ITexture.h>
 #include <spall/Resources/TextureView/ITextureView.h>
 #include <src/Backends/Vulkan/Common/VK_Error.h>
 
@@ -31,7 +32,7 @@ namespace spall::vk
 		};
 
 		TextureView(
-			Texture& texture,
+			ITexture& texture,
 			const Subresources& subresources,
 			VkImageView view,
 			bool ownsView = true);
@@ -49,7 +50,8 @@ namespace spall::vk
 		bool isCubemap(void) const override;
 
 	private:
-		Resource<Texture> m_Texture;
+		Resource<ITexture> m_Texture;
+		Texture* m_Storage = nullptr;
 
 		TextureAspectFlags m_Aspects = TextureAspectFlags::None;
 		std::uint32_t m_BaseMipLevel = 0;

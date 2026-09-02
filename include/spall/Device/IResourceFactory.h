@@ -15,8 +15,12 @@
 #include <spall/Resources/Query/QueryPoolCreateInfo.h>
 #include <spall/Resources/Sampler/ISampler.h>
 #include <spall/Resources/Sampler/SamplerCreateInfo.h>
-#include <spall/Resources/Texture/ITexture.h>
-#include <spall/Resources/Texture/TextureCreateInfo.h>
+#include <spall/Resources/Texture/ITexture1D.h>
+#include <spall/Resources/Texture/ITexture2D.h>
+#include <spall/Resources/Texture/ITexture3D.h>
+#include <spall/Resources/Texture/Texture1DCreateInfo.h>
+#include <spall/Resources/Texture/Texture2DCreateInfo.h>
+#include <spall/Resources/Texture/Texture3DCreateInfo.h>
 #include <spall/Resources/TextureView/ITextureView.h>
 #include <spall/Resources/TextureView/TextureViewCreateInfo.h>
 
@@ -36,11 +40,23 @@ namespace spall
 	public:
 		virtual ~IResourceFactory(void) = default;
 
-		Resource<ITexture> createTexture(const TextureCreateInfo& createInfo);
+		Resource<ITexture1D> createTexture1D(const Texture1DCreateInfo& createInfo);
 
-		virtual Status createTexture(
-			const TextureCreateInfo& createInfo,
-			Resource<ITexture>* texture) = 0;
+		virtual Status createTexture1D(
+			const Texture1DCreateInfo& createInfo,
+			Resource<ITexture1D>* texture) = 0;
+
+		Resource<ITexture2D> createTexture2D(const Texture2DCreateInfo& createInfo);
+
+		virtual Status createTexture2D(
+			const Texture2DCreateInfo& createInfo,
+			Resource<ITexture2D>* texture) = 0;
+
+		Resource<ITexture3D> createTexture3D(const Texture3DCreateInfo& createInfo);
+
+		virtual Status createTexture3D(
+			const Texture3DCreateInfo& createInfo,
+			Resource<ITexture3D>* texture) = 0;
 
 		Resource<ITextureView> createTextureView(const TextureViewCreateInfo& info);
 

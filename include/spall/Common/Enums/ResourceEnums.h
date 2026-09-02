@@ -18,4 +18,5 @@
 #include <spall/Common/Enums/ResourceBindingType.h>
 #include <spall/Common/Enums/StoreAction.h>
 #include <spall/Common/Enums/TextureAspectFlags.h>
+#include <spall/Common/Enums/TextureType.h>
 #include <spall/Common/Enums/TextureUsageFlags.h>

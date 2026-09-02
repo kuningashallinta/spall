@@ -10,11 +10,12 @@
 namespace spall::vk
 {
 	TextureView::TextureView(
-		Texture& texture,
+		ITexture& texture,
 		const Subresources& subresources,
 		VkImageView view,
 		bool ownsView)
 		: m_Texture(&texture),
+		  m_Storage(textureStorage(texture)),
 		  m_Aspects(subresources.Aspects),
 		  m_BaseMipLevel(subresources.BaseMipLevel),
 		  m_MipLevels(subresources.MipLevels),
@@ -28,14 +29,14 @@ namespace spall::vk
 
 	TextureView::~TextureView()
 	{
-		if ((not m_Texture) or (not m_Texture->m_Device) or not m_OwnsView)
+		if ((m_Storage == nullptr) or (not m_Storage->m_Device) or not m_OwnsView)
 		{
 			return;
 		}
 
 		if (m_View != VK_NULL_HANDLE)
 		{
-			vkDestroyImageView(m_Texture->m_Device->m_Device, m_View, nullptr);
+			vkDestroyImageView(m_Storage->m_Device->m_Device, m_View, nullptr);
 		}
 	}
 
@@ -51,7 +52,7 @@ namespace spall::vk
 
 	Format TextureView::format() const
 	{
-		return m_Texture->m_Info.Format;
+		return m_Storage->m_Info.Format;
 	}
 
 	TextureAspectFlags TextureView::aspects() const

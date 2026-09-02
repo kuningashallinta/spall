@@ -10,6 +10,7 @@
 #include <src/Backends/D3D12/Common/Mappings/D3D12_HeapMappings.h>
 #include <src/Backends/D3D12/Common/Mappings/D3D12_RayTracingMappings.h>
 #include <src/Backends/D3D12/Common/Mappings/D3D12_ResourceStateMappings.h>
+#include <src/Backends/D3D12/Common/Mappings/D3D12_TextureTypeMappings.h>
 #include <src/Backends/D3D12/Common/Resources/D3D12_CopyLayout.h>
 #include <src/Backends/D3D12/Device/D3D12_Device.h>
 #include <src/Backends/D3D12/Framebuffer/D3D12_Framebuffer.h>
@@ -183,7 +184,7 @@ namespace spall::d3d12
 		ResourceStateFlags state)
 	{
 		return requireTextureState(
-			*textureView.m_Texture,
+			*textureView.m_Storage,
 			state,
 			TextureSubresourceRange {
 				textureView.m_BaseMipLevel,
@@ -253,10 +254,10 @@ namespace spall::d3d12
 		SPALL_ASSERT(resource != nullptr);
 
 		D3D12_RESOURCE_DESC resourceDesc = {};
-		resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+		resourceDesc.Dimension = textureType(info.Type);
 		resourceDesc.Width = info.Width;
 		resourceDesc.Height = info.Height;
-		resourceDesc.DepthOrArraySize = static_cast<UINT16>(info.ArrayLayers);
+		resourceDesc.DepthOrArraySize = static_cast<UINT16>((info.Type == TextureType::Texture3D) ? info.Depth : info.ArrayLayers);
 		resourceDesc.MipLevels = static_cast<UINT16>(info.MipLevels);
 		resourceDesc.Format = format(info.Format);
 		resourceDesc.SampleDesc.Count = 1;
@@ -289,13 +290,15 @@ namespace spall::d3d12
 			return {};
 		}
 
-		if (m_ReferencedPresentTexture and (m_ReferencedPresentTexture.get() != texture))
+		ITexture* const self = textureInterface(*texture);
+
+		if (m_ReferencedPresentTexture and (m_ReferencedPresentTexture.get() != self))
 		{
 			return ERR_INVALID_RESOURCE_STATE;
 		}
 
-		retainResource(*texture);
-		m_ReferencedPresentTexture.reset(texture);
+		retainResource(*self);
+		m_ReferencedPresentTexture.reset(self);
 		m_ReferencedSwapChain = texture->m_SwapChain;
 
 		return {};
@@ -427,7 +430,7 @@ namespace spall::d3d12
 
 		if (m_ReferencedPresentTexture)
 		{
-			Status error = m_StateTracker.requireTextureState(*m_ReferencedPresentTexture, ResourceStateFlags::Present);
+			Status error = m_StateTracker.requireTextureState(*textureStorage(*m_ReferencedPresentTexture), ResourceStateFlags::Present);
 
 			if (error != SUCCESS)
 			{
@@ -538,7 +541,7 @@ namespace spall::d3d12
 		{
 			TextureView* colorView = framebuffer->m_ColorViews[attachmentIndex].get();
 
-			Status error = referencePresentTexture(colorView->m_Texture.get());
+			Status error = referencePresentTexture(colorView->m_Storage);
 
 			if (error != SUCCESS)
 			{
@@ -553,10 +556,10 @@ namespace spall::d3d12
 			}
 
 			colorHandles[attachmentIndex] = m_Device->m_RenderTargetViews.cpuHandle(colorView->m_RenderTargetViewIndex);
-			m_RenderPassColorTextures[attachmentIndex] = colorView->m_Texture.get();
+			m_RenderPassColorTextures[attachmentIndex] = colorView->m_Storage;
 
 			TextureView* const resolveView = framebuffer->m_ResolveViews[attachmentIndex].get();
-			m_RenderPassResolveTextures[attachmentIndex] = resolveView != nullptr ? resolveView->m_Texture.get() : nullptr;
+			m_RenderPassResolveTextures[attachmentIndex] = resolveView != nullptr ? resolveView->m_Storage : nullptr;
 		}
 
 		TextureView* depthView = framebuffer->m_DepthView.get();
@@ -572,7 +575,7 @@ namespace spall::d3d12
 			}
 
 			depthHandle = m_Device->m_DepthStencilViews.cpuHandle(depthView->m_DepthStencilViewIndex);
-			m_RenderPassDepthTexture = depthView->m_Texture.get();
+			m_RenderPassDepthTexture = depthView->m_Storage;
 		}
 
 		Status error = m_StateTracker.commitBarriers();
@@ -616,7 +619,7 @@ namespace spall::d3d12
 			}
 
 			if ((beginInfo.DepthAttachment.StencilLoadAction == LoadAction::Clear) and
-				hasStencilAspect(depthView->m_Texture->m_Info.Format))
+				hasStencilAspect(depthView->m_Storage->m_Info.Format))
 			{
 				clearFlags |= D3D12_CLEAR_FLAG_STENCIL;
 			}
@@ -760,7 +763,7 @@ namespace spall::d3d12
 	{
 		SPALL_TRY(spall::validateRecordingState(m_ExecutionState == ExecutionState::Recording, true));
 
-		Texture* backendTexture = backendCast<Texture>(texture);
+		Texture* backendTexture = textureStorage(texture);
 
 		if (backendTexture == nullptr)
 		{
@@ -785,7 +788,7 @@ namespace spall::d3d12
 	{
 		SPALL_TRY(spall::validateRecordingState(m_ExecutionState == ExecutionState::Recording, true));
 
-		Texture* backendTexture = backendCast<Texture>(texture);
+		Texture* backendTexture = textureStorage(texture);
 
 		if (backendTexture == nullptr)
 		{
@@ -808,7 +811,7 @@ namespace spall::d3d12
 	{
 		SPALL_TRY(spall::validateRecordingState(m_ExecutionState == ExecutionState::Recording, true));
 
-		Texture* backendTexture = backendCast<Texture>(texture);
+		Texture* backendTexture = textureStorage(texture);
 
 		if (backendTexture == nullptr)
 		{
@@ -846,7 +849,7 @@ namespace spall::d3d12
 		ITexture& texture,
 		const TextureSubresourceRange& subresources) const
 	{
-		Texture* backendTexture = backendCast<Texture>(texture);
+		Texture* backendTexture = textureStorage(texture);
 
 		if ((backendTexture == nullptr) or (backendTexture->m_Device.get() != m_Device.get()))
 		{
@@ -1219,7 +1222,7 @@ namespace spall::d3d12
 
 					case ResourceBindingType::SampledTexture:
 					{
-						SPALL_TRY(requireTextureState(*bound.TextureView->m_Texture, ResourceStateFlags::ShaderResource));
+						SPALL_TRY(requireTextureState(*bound.TextureView->m_Storage, ResourceStateFlags::ShaderResource));
 						break;
 					}
 
@@ -1236,7 +1239,7 @@ namespace spall::d3d12
 					case ResourceBindingType::StorageTexture:
 					default:
 					{
-						SPALL_TRY(requireTextureState(*bound.TextureView->m_Texture, ResourceStateFlags::UnorderedAccess));
+						SPALL_TRY(requireTextureState(*bound.TextureView->m_Storage, ResourceStateFlags::UnorderedAccess));
 						break;
 					}
 				}
@@ -1991,7 +1994,7 @@ namespace spall::d3d12
 			return ERR_INVALID_STATE;
 		}
 
-		Texture* destinationTexture = backendCast<Texture>(destination);
+		Texture* destinationTexture = textureStorage(destination);
 		Buffer* sourceBuffer = backendCast<Buffer>(source);
 
 		if ((destinationTexture == nullptr) or (sourceBuffer == nullptr))
@@ -2125,7 +2128,7 @@ namespace spall::d3d12
 		}
 
 		Buffer* destinationBuffer = backendCast<Buffer>(destination);
-		Texture* sourceTexture = backendCast<Texture>(source);
+		Texture* sourceTexture = textureStorage(source);
 
 		if ((destinationBuffer == nullptr) or (sourceTexture == nullptr))
 		{
@@ -2260,7 +2263,7 @@ namespace spall::d3d12
 			return ERR_INVALID_STATE;
 		}
 
-		Texture* backendTexture = backendCast<Texture>(texture);
+		Texture* backendTexture = textureStorage(texture);
 
 		if (backendTexture == nullptr)
 		{
@@ -2278,7 +2281,7 @@ namespace spall::d3d12
 
 		ID3D12RootSignature* rootSignature = nullptr;
 		ID3D12PipelineState* pipelineState = nullptr;
-		SPALL_TRY(m_Device->m_MipmapGenerator.pipelineState(*m_Device, info.Format, &rootSignature, &pipelineState));
+		SPALL_TRY(m_Device->m_MipmapGenerator.pipelineState(*m_Device, info.Type, info.Format, &rootSignature, &pipelineState));
 
 		ComPtr<ID3D12Resource> scratch;
 		SPALL_TRY(createMipmapScratchTexture(info, &scratch));
@@ -2344,34 +2347,43 @@ namespace spall::d3d12
 				D3D12_SHADER_RESOURCE_VIEW_DESC sourceViewDesc = {};
 				sourceViewDesc.Format = format(info.Format);
 				sourceViewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-				sourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
-				sourceViewDesc.Texture2DArray.MostDetailedMip = mipLevel - 1;
-				sourceViewDesc.Texture2DArray.MipLevels = 1;
-				sourceViewDesc.Texture2DArray.FirstArraySlice = arrayLayer;
-				sourceViewDesc.Texture2DArray.ArraySize = 1;
+
+				switch (info.Type)
+				{
+					case TextureType::Texture1D:
+					{
+						sourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE1DARRAY;
+						sourceViewDesc.Texture1DArray.MostDetailedMip = mipLevel - 1;
+						sourceViewDesc.Texture1DArray.MipLevels = 1;
+						sourceViewDesc.Texture1DArray.FirstArraySlice = arrayLayer;
+						sourceViewDesc.Texture1DArray.ArraySize = 1;
+						break;
+					}
+
+					case TextureType::Texture2D:
+					{
+						sourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
+						sourceViewDesc.Texture2DArray.MostDetailedMip = mipLevel - 1;
+						sourceViewDesc.Texture2DArray.MipLevels = 1;
+						sourceViewDesc.Texture2DArray.FirstArraySlice = arrayLayer;
+						sourceViewDesc.Texture2DArray.ArraySize = 1;
+						break;
+					}
+
+					case TextureType::Texture3D:
+					{
+						sourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE3D;
+						sourceViewDesc.Texture3D.MostDetailedMip = mipLevel - 1;
+						sourceViewDesc.Texture3D.MipLevels = 1;
+						break;
+					}
+				}
 
 				m_Device->m_Device->CreateShaderResourceView(sourceResource, &sourceViewDesc, sourceDescriptor);
 
-				std::uint32_t renderTargetIndex = InvalidDescriptorIndex;
-				error = m_Device->m_RenderTargetViews.allocate(&renderTargetIndex);
-
-				if (error != SUCCESS)
-				{
-					return fail(error);
-				}
-
-				D3D12_RENDER_TARGET_VIEW_DESC targetViewDesc = {};
-				targetViewDesc.Format = format(info.Format);
-				targetViewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY;
-				targetViewDesc.Texture2DArray.MipSlice = mipLevel;
-				targetViewDesc.Texture2DArray.FirstArraySlice = arrayLayer;
-				targetViewDesc.Texture2DArray.ArraySize = 1;
-
-				const D3D12_CPU_DESCRIPTOR_HANDLE targetDescriptor = m_Device->m_RenderTargetViews.cpuHandle(renderTargetIndex);
-				m_Device->m_Device->CreateRenderTargetView(scratch.Get(), &targetViewDesc, targetDescriptor);
-
 				const std::uint32_t targetWidth = mipLevelExtent(info.Width, mipLevel);
 				const std::uint32_t targetHeight = mipLevelExtent(info.Height, mipLevel);
+				const std::uint32_t targetDepth = mipLevelExtent(info.Depth, mipLevel);
 
 				D3D12_VIEWPORT viewport = {};
 				viewport.Width = static_cast<float>(targetWidth);
@@ -2384,11 +2396,65 @@ namespace spall::d3d12
 
 				m_CommandList->RSSetViewports(1, &viewport);
 				m_CommandList->RSSetScissorRects(1, &scissor);
-				m_CommandList->OMSetRenderTargets(1, &targetDescriptor, FALSE, nullptr);
 				m_CommandList->SetGraphicsRootDescriptorTable(0, sourceTable);
-				m_CommandList->DrawInstanced(3, 1, 0, 0);
 
-				m_Device->m_RenderTargetViews.release(renderTargetIndex);
+				for (std::uint32_t slice = 0; slice < targetDepth; ++slice)
+				{
+					std::uint32_t renderTargetIndex = InvalidDescriptorIndex;
+					error = m_Device->m_RenderTargetViews.allocate(&renderTargetIndex);
+
+					if (error != SUCCESS)
+					{
+						return fail(error);
+					}
+
+					D3D12_RENDER_TARGET_VIEW_DESC targetViewDesc = {};
+					targetViewDesc.Format = format(info.Format);
+
+					switch (info.Type)
+					{
+						case TextureType::Texture1D:
+						{
+							targetViewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE1DARRAY;
+							targetViewDesc.Texture1DArray.MipSlice = mipLevel;
+							targetViewDesc.Texture1DArray.FirstArraySlice = arrayLayer;
+							targetViewDesc.Texture1DArray.ArraySize = 1;
+							break;
+						}
+
+						case TextureType::Texture2D:
+						{
+							targetViewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY;
+							targetViewDesc.Texture2DArray.MipSlice = mipLevel;
+							targetViewDesc.Texture2DArray.FirstArraySlice = arrayLayer;
+							targetViewDesc.Texture2DArray.ArraySize = 1;
+							break;
+						}
+
+						case TextureType::Texture3D:
+						{
+							targetViewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE3D;
+							targetViewDesc.Texture3D.MipSlice = mipLevel;
+							targetViewDesc.Texture3D.FirstWSlice = slice;
+							targetViewDesc.Texture3D.WSize = 1;
+							break;
+						}
+					}
+
+					const D3D12_CPU_DESCRIPTOR_HANDLE targetDescriptor = m_Device->m_RenderTargetViews.cpuHandle(renderTargetIndex);
+					m_Device->m_Device->CreateRenderTargetView(scratch.Get(), &targetViewDesc, targetDescriptor);
+
+					if (info.Type == TextureType::Texture3D)
+					{
+						const float sliceDepth = (static_cast<float>(slice) + 0.5f) / static_cast<float>(targetDepth);
+						m_CommandList->SetGraphicsRoot32BitConstants(1, 1, &sliceDepth, 0);
+					}
+
+					m_CommandList->OMSetRenderTargets(1, &targetDescriptor, FALSE, nullptr);
+					m_CommandList->DrawInstanced(3, 1, 0, 0);
+
+					m_Device->m_RenderTargetViews.release(renderTargetIndex);
+				}
 			}
 		}
 
@@ -2439,8 +2505,8 @@ namespace spall::d3d12
 			return ERR_INVALID_STATE;
 		}
 
-		Texture* destinationTexture = backendCast<Texture>(destination);
-		Texture* sourceTexture = backendCast<Texture>(source);
+		Texture* destinationTexture = textureStorage(destination);
+		Texture* sourceTexture = textureStorage(source);
 
 		if ((destinationTexture == nullptr) or (sourceTexture == nullptr))
 		{

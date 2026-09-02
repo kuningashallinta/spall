@@ -132,7 +132,7 @@ namespace spall::vk
 				TextureView* textureView = dynamic_cast<TextureView*>(write.TextureView);
 				Sampler* sampler = dynamic_cast<Sampler*>(write.Sampler);
 
-				if ((textureView == nullptr) or (not textureView->m_Texture) or (textureView->m_Texture->m_Device.get() != m_Device.get()) or
+				if ((textureView == nullptr) or (not textureView->m_Storage) or (textureView->m_Storage->m_Device.get() != m_Device.get()) or
 					(textureView->m_View == VK_NULL_HANDLE) or (sampler == nullptr) or (sampler->m_Device.get() != m_Device.get()) or
 					(sampler->m_Sampler == VK_NULL_HANDLE))
 				{
@@ -172,8 +172,8 @@ namespace spall::vk
 			{
 				TextureView* textureView = dynamic_cast<TextureView*>(write.TextureView);
 
-				if ((textureView == nullptr) or (not textureView->m_Texture) or
-					(textureView->m_Texture->m_Device.get() != m_Device.get()) or
+				if ((textureView == nullptr) or (not textureView->m_Storage) or
+					(textureView->m_Storage->m_Device.get() != m_Device.get()) or
 					(textureView->m_View == VK_NULL_HANDLE))
 				{
 					return ERR_INVALID_RESOURCE;

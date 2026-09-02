@@ -19,6 +19,7 @@ namespace spall::d3d12
 	class Frame;
 	class GraphicsQueue;
 	class Texture;
+	class Texture2D;
 	class TextureView;
 
 	class SwapChain final : public SharedObject<ISwapChain>
@@ -26,7 +27,7 @@ namespace spall::d3d12
 	public:
 		struct BackBuffer
 		{
-			Resource<spall::d3d12::Texture> Texture;
+			Resource<spall::d3d12::Texture2D> Texture;
 			Resource<spall::d3d12::TextureView> View;
 
 			/// Queue fence value that retires the work last submitted against this back buffer.

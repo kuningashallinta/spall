@@ -307,7 +307,7 @@ namespace spall::vk
 		Buffer* m_IndexBuffer = nullptr;
 		ResourceSet* m_BoundResourceSets[MaxResourceSets] = {};
 
-		Resource<Texture> m_ReferencedPresentTexture;
+		Resource<ITexture> m_ReferencedPresentTexture;
 		SwapChain* m_ReferencedSwapChain = nullptr;
 
 		Texture* m_RenderPassColorTextures[MaxColorAttachments] = {};

@@ -16,7 +16,7 @@
 
 struct RecordingWork
 {
-	spall::Resource<spall::ITexture> Texture;
+	spall::Resource<spall::ITexture2D> Texture;
 	spall::Resource<spall::IBuffer> Upload;
 	spall::Resource<spall::ICommandList> Commands;
 	bool Recorded = false;
@@ -29,7 +29,7 @@ static bool createWork(
 	spall::IDevice& device,
 	RecordingWork* work)
 {
-	spall::TextureCreateInfo textureInfo = {};
+	spall::Texture2DCreateInfo textureInfo = {};
 	textureInfo.Width = Extent;
 	textureInfo.Height = Extent;
 	textureInfo.MipLevels = MipLevels;
@@ -38,7 +38,7 @@ static bool createWork(
 		spall::TextureUsageFlags::Sampled | spall::TextureUsageFlags::TransferSource |
 		spall::TextureUsageFlags::TransferDestination;
 
-	if (device.resources().createTexture(textureInfo, &work->Texture) != spall::SUCCESS)
+	if (device.resources().createTexture2D(textureInfo, &work->Texture) != spall::SUCCESS)
 	{
 		return false;
 	}

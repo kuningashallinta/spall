@@ -10,20 +10,19 @@
 
 namespace spall
 {
-	/// Describes a texture to be created by a resource factory.
-	struct TextureCreateInfo
+	/// Describes a three-dimensional texture to be created by a resource factory.
+	///
+	/// Volume textures are never arrayed, multisampled, or depth-stencil targets.
+	struct Texture3DCreateInfo
 	{
 		std::uint32_t Width = 0;
 		std::uint32_t Height = 0;
-		std::uint32_t Depth = 1;
+		std::uint32_t Depth = 0;
 
 		/// Number of mip levels to allocate.
 		///
 		/// Levels beyond the first are created without initial contents.
 		std::uint32_t MipLevels = 1;
-		std::uint32_t ArrayLayers = 1;
-		std::uint32_t SampleCount = 1;
-		bool Cubemap = false;
 
 		spall::Format Format = spall::Format::Unknown;
 		TextureUsageFlags Usage = TextureUsageFlags::None;

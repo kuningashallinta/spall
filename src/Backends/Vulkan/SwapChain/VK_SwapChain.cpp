@@ -486,7 +486,7 @@ namespace spall::vk
 			swapChainBinding.Owner = this;
 			swapChainBinding.Generation = m_Generation;
 
-			Texture* texture = new Texture(
+			Texture2D* texture = new Texture2D(
 				*m_Device,
 				textureInfo,
 				image,
@@ -495,7 +495,7 @@ namespace spall::vk
 				false,
 				std::move(swapChainBinding));
 
-			backBuffer.Texture = Resource<Texture>(texture);
+			backBuffer.Texture = Resource<Texture2D>(texture);
 
 			VkImageSubresourceRange subresourceRange = {};
 			subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;

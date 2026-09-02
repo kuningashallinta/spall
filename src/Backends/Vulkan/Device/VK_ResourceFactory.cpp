@@ -39,17 +39,11 @@ namespace spall::vk
 		return (aspectMask != 0) ? aspectMask : VK_IMAGE_ASPECT_COLOR_BIT;
 	}
 
-	Status Device::createTexture(
-		const TextureCreateInfo& info,
-		Resource<ITexture>* texture)
+	Status Device::createImage(
+		const TextureInfo& info,
+		VkImage* image,
+		VmaAllocation* allocation)
 	{
-		if (texture == nullptr)
-		{
-			return ERR_INVALID_ARGUMENT;
-		}
-
-		SPALL_TRY(validateTextureCreateInfo(info));
-
 		const std::optional<VkFormat> format = toVkFormat(info.Format);
 
 		if (not format.has_value())
@@ -59,11 +53,49 @@ namespace spall::vk
 
 		const VkPhysicalDeviceLimits& limits = m_Properties.limits;
 
-		if ((info.Width > limits.maxImageDimension2D) or (info.Height > limits.maxImageDimension2D) or
-			(info.ArrayLayers > limits.maxImageArrayLayers) or
-			((((info.Usage & TextureUsageFlags::ColorAttachment) != TextureUsageFlags::None) or
-				 ((info.Usage & TextureUsageFlags::DepthStencilAttachment) != TextureUsageFlags::None)) and
-				((info.Width > limits.maxFramebufferWidth) or (info.Height > limits.maxFramebufferHeight))))
+		switch (info.Type)
+		{
+			case TextureType::Texture1D:
+			{
+				if (info.Width > limits.maxImageDimension1D)
+				{
+					return ERR_INVALID_SIZE;
+				}
+
+				break;
+			}
+
+			case TextureType::Texture2D:
+			{
+				if ((info.Width > limits.maxImageDimension2D) or (info.Height > limits.maxImageDimension2D))
+				{
+					return ERR_INVALID_SIZE;
+				}
+
+				break;
+			}
+
+			case TextureType::Texture3D:
+			{
+				if ((info.Width > limits.maxImageDimension3D) or (info.Height > limits.maxImageDimension3D) or
+					(info.Depth > limits.maxImageDimension3D))
+				{
+					return ERR_INVALID_SIZE;
+				}
+
+				break;
+			}
+		}
+
+		if (info.ArrayLayers > limits.maxImageArrayLayers)
+		{
+			return ERR_INVALID_SIZE;
+		}
+
+		constexpr TextureUsageFlags attachmentUsage = TextureUsageFlags::ColorAttachment | TextureUsageFlags::DepthStencilAttachment;
+
+		if (((info.Usage & attachmentUsage) != TextureUsageFlags::None) and
+			((info.Width > limits.maxFramebufferWidth) or (info.Height > limits.maxFramebufferHeight)))
 		{
 			return ERR_INVALID_SIZE;
 		}
@@ -120,7 +152,7 @@ namespace spall::vk
 
 		VkImageCreateInfo imageCreateInfo = {};
 		imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-		imageCreateInfo.imageType = (info.Depth > 1) ? VK_IMAGE_TYPE_3D : VK_IMAGE_TYPE_2D;
+		imageCreateInfo.imageType = textureType(info.Type);
 		imageCreateInfo.extent.width = info.Width;
 		imageCreateInfo.extent.height = info.Height;
 		imageCreateInfo.extent.depth = info.Depth;
@@ -137,26 +169,133 @@ namespace spall::vk
 		VmaAllocationCreateInfo allocationCreateInfo = {};
 		allocationCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
 
-		VkImage image = VK_NULL_HANDLE;
-		VmaAllocation allocation = VK_NULL_HANDLE;
-		const VkResult vkResult = vmaCreateImage(m_Allocator, &imageCreateInfo, &allocationCreateInfo, &image, &allocation, nullptr);
+		const VkResult vkResult = vmaCreateImage(m_Allocator, &imageCreateInfo, &allocationCreateInfo, image, allocation, nullptr);
 
 		if (vkResult != VK_SUCCESS)
 		{
 			return mapStatus(vkResult);
 		}
 
-		const VkImageAspectFlags aspectMask = imageAspectMask(info.Format);
+		return {};
+	}
 
-		Texture* vkTexture = new Texture(
+	Status Device::createTexture1D(
+		const Texture1DCreateInfo& info,
+		Resource<ITexture1D>* texture)
+	{
+		if (texture == nullptr)
+		{
+			return ERR_INVALID_ARGUMENT;
+		}
+
+		SPALL_TRY(validateTexture1DCreateInfo(info));
+
+		TextureInfo textureInfo = {};
+		textureInfo.Type = TextureType::Texture1D;
+		textureInfo.Width = info.Width;
+		textureInfo.Height = 1;
+		textureInfo.Depth = 1;
+		textureInfo.MipLevels = info.MipLevels;
+		textureInfo.ArrayLayers = info.ArrayLayers;
+		textureInfo.Format = info.Format;
+		textureInfo.Usage = info.Usage;
+		textureInfo.InitialState = info.InitialState;
+		textureInfo.KeepInitialState = info.KeepInitialState;
+		textureInfo.DebugName = info.DebugName;
+
+		VkImage image = VK_NULL_HANDLE;
+		VmaAllocation allocation = VK_NULL_HANDLE;
+
+		SPALL_TRY(createImage(textureInfo, &image, &allocation));
+
+		*texture = Resource<ITexture1D>(new Texture1D(
 			*this,
-			TextureInfo {info.Width, info.Height, info.Depth, info.MipLevels, info.ArrayLayers, info.SampleCount, info.Cubemap, info.Format, info.Usage, info.InitialState, info.KeepInitialState, info.DebugName},
+			textureInfo,
 			image,
 			allocation,
-			aspectMask,
-			true);
+			imageAspectMask(info.Format),
+			true));
 
-		*texture = Resource<ITexture>(vkTexture);
+		return {};
+	}
+
+	Status Device::createTexture2D(
+		const Texture2DCreateInfo& info,
+		Resource<ITexture2D>* texture)
+	{
+		if (texture == nullptr)
+		{
+			return ERR_INVALID_ARGUMENT;
+		}
+
+		SPALL_TRY(validateTexture2DCreateInfo(info));
+
+		TextureInfo textureInfo = {};
+		textureInfo.Type = TextureType::Texture2D;
+		textureInfo.Width = info.Width;
+		textureInfo.Height = info.Height;
+		textureInfo.Depth = 1;
+		textureInfo.MipLevels = info.MipLevels;
+		textureInfo.ArrayLayers = info.ArrayLayers;
+		textureInfo.SampleCount = info.SampleCount;
+		textureInfo.Cubemap = info.Cubemap;
+		textureInfo.Format = info.Format;
+		textureInfo.Usage = info.Usage;
+		textureInfo.InitialState = info.InitialState;
+		textureInfo.KeepInitialState = info.KeepInitialState;
+		textureInfo.DebugName = info.DebugName;
+
+		VkImage image = VK_NULL_HANDLE;
+		VmaAllocation allocation = VK_NULL_HANDLE;
+
+		SPALL_TRY(createImage(textureInfo, &image, &allocation));
+
+		*texture = Resource<ITexture2D>(new Texture2D(
+			*this,
+			textureInfo,
+			image,
+			allocation,
+			imageAspectMask(info.Format),
+			true));
+
+		return {};
+	}
+
+	Status Device::createTexture3D(
+		const Texture3DCreateInfo& info,
+		Resource<ITexture3D>* texture)
+	{
+		if (texture == nullptr)
+		{
+			return ERR_INVALID_ARGUMENT;
+		}
+
+		SPALL_TRY(validateTexture3DCreateInfo(info));
+
+		TextureInfo textureInfo = {};
+		textureInfo.Type = TextureType::Texture3D;
+		textureInfo.Width = info.Width;
+		textureInfo.Height = info.Height;
+		textureInfo.Depth = info.Depth;
+		textureInfo.MipLevels = info.MipLevels;
+		textureInfo.Format = info.Format;
+		textureInfo.Usage = info.Usage;
+		textureInfo.InitialState = info.InitialState;
+		textureInfo.KeepInitialState = info.KeepInitialState;
+		textureInfo.DebugName = info.DebugName;
+
+		VkImage image = VK_NULL_HANDLE;
+		VmaAllocation allocation = VK_NULL_HANDLE;
+
+		SPALL_TRY(createImage(textureInfo, &image, &allocation));
+
+		*texture = Resource<ITexture3D>(new Texture3D(
+			*this,
+			textureInfo,
+			image,
+			allocation,
+			imageAspectMask(info.Format),
+			true));
 
 		return {};
 	}
@@ -172,7 +311,7 @@ namespace spall::vk
 
 		SPALL_TRY(validateTextureViewCreateInfo(info));
 
-		Texture* texture = dynamic_cast<Texture*>(info.Texture);
+		Texture* texture = textureStorage(info.Texture);
 
 		if (texture == nullptr)
 		{
@@ -208,11 +347,7 @@ namespace spall::vk
 		VkImageViewCreateInfo viewCreateInfo = {};
 		viewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		viewCreateInfo.image = texture->m_Image;
-		viewCreateInfo.viewType = (texture->m_Info.Depth > 1)
-			? VK_IMAGE_VIEW_TYPE_3D
-			: (info.Cubemap
-					  ? ((arrayLayers > 6) ? VK_IMAGE_VIEW_TYPE_CUBE_ARRAY : VK_IMAGE_VIEW_TYPE_CUBE)
-					  : ((arrayLayers > 1) ? VK_IMAGE_VIEW_TYPE_2D_ARRAY : VK_IMAGE_VIEW_TYPE_2D));
+		viewCreateInfo.viewType = textureViewType(texture->m_Info.Type, arrayLayers, info.Cubemap);
 		viewCreateInfo.format = vkFormat.value();
 		viewCreateInfo.subresourceRange.aspectMask = aspectMask(aspects);
 		viewCreateInfo.subresourceRange.baseMipLevel = info.BaseMipLevel;
@@ -236,7 +371,7 @@ namespace spall::vk
 		subresources.ArrayLayers = arrayLayers;
 		subresources.Cubemap = info.Cubemap;
 
-		TextureView* vkTextureView = new TextureView(*texture, subresources, view, true);
+		TextureView* vkTextureView = new TextureView(*info.Texture, subresources, view, true);
 
 		*textureView = Resource<ITextureView>(vkTextureView);
 
@@ -264,22 +399,22 @@ namespace spall::vk
 		{
 			TextureView* colorView = dynamic_cast<TextureView*>(createInfo.ColorAttachments[attachmentIndex]);
 
-			if ((colorView == nullptr) or (not colorView->m_Texture) or (colorView->m_Texture->m_Device.get() != this))
+			if ((colorView == nullptr) or (not colorView->m_Storage) or (colorView->m_Storage->m_Device.get() != this))
 			{
 				return ERR_INVALID_RESOURCE_TYPE;
 			}
 
 			colorViews[attachmentIndex] = colorView;
-			info.ColorFormats[attachmentIndex] = colorView->m_Texture->m_Info.Format;
+			info.ColorFormats[attachmentIndex] = colorView->m_Storage->m_Info.Format;
 
 			if (not haveDimensions)
 			{
-				info.Width = mipLevelExtent(colorView->m_Texture->m_Info.Width, colorView->m_BaseMipLevel);
-				info.Height = mipLevelExtent(colorView->m_Texture->m_Info.Height, colorView->m_BaseMipLevel);
+				info.Width = mipLevelExtent(colorView->m_Storage->m_Info.Width, colorView->m_BaseMipLevel);
+				info.Height = mipLevelExtent(colorView->m_Storage->m_Info.Height, colorView->m_BaseMipLevel);
 				haveDimensions = true;
 			}
-			else if ((info.Width != mipLevelExtent(colorView->m_Texture->m_Info.Width, colorView->m_BaseMipLevel)) or
-				(info.Height != mipLevelExtent(colorView->m_Texture->m_Info.Height, colorView->m_BaseMipLevel)))
+			else if ((info.Width != mipLevelExtent(colorView->m_Storage->m_Info.Width, colorView->m_BaseMipLevel)) or
+				(info.Height != mipLevelExtent(colorView->m_Storage->m_Info.Height, colorView->m_BaseMipLevel)))
 			{
 				return ERR_INVALID_RESOURCE;
 			}
@@ -291,21 +426,21 @@ namespace spall::vk
 		{
 			depthView = dynamic_cast<TextureView*>(createInfo.DepthAttachment);
 
-			if ((depthView == nullptr) or (not depthView->m_Texture) or (depthView->m_Texture->m_Device.get() != this))
+			if ((depthView == nullptr) or (not depthView->m_Storage) or (depthView->m_Storage->m_Device.get() != this))
 			{
 				return ERR_INVALID_RESOURCE_TYPE;
 			}
 
-			info.DepthFormat = depthView->m_Texture->m_Info.Format;
+			info.DepthFormat = depthView->m_Storage->m_Info.Format;
 
 			if (not haveDimensions)
 			{
-				info.Width = mipLevelExtent(depthView->m_Texture->m_Info.Width, depthView->m_BaseMipLevel);
-				info.Height = mipLevelExtent(depthView->m_Texture->m_Info.Height, depthView->m_BaseMipLevel);
+				info.Width = mipLevelExtent(depthView->m_Storage->m_Info.Width, depthView->m_BaseMipLevel);
+				info.Height = mipLevelExtent(depthView->m_Storage->m_Info.Height, depthView->m_BaseMipLevel);
 				haveDimensions = true;
 			}
-			else if ((info.Width != mipLevelExtent(depthView->m_Texture->m_Info.Width, depthView->m_BaseMipLevel)) or
-				(info.Height != mipLevelExtent(depthView->m_Texture->m_Info.Height, depthView->m_BaseMipLevel)))
+			else if ((info.Width != mipLevelExtent(depthView->m_Storage->m_Info.Width, depthView->m_BaseMipLevel)) or
+				(info.Height != mipLevelExtent(depthView->m_Storage->m_Info.Height, depthView->m_BaseMipLevel)))
 			{
 				return ERR_INVALID_RESOURCE;
 			}
@@ -323,7 +458,7 @@ namespace spall::vk
 
 			TextureView* resolveView = dynamic_cast<TextureView*>(createInfo.ResolveAttachments[attachmentIndex]);
 
-			if ((resolveView == nullptr) or (not resolveView->m_Texture) or (resolveView->m_Texture->m_Device.get() != this))
+			if ((resolveView == nullptr) or (not resolveView->m_Storage) or (resolveView->m_Storage->m_Device.get() != this))
 			{
 				return ERR_INVALID_RESOURCE_TYPE;
 			}

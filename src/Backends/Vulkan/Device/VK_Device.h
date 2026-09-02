@@ -72,9 +72,17 @@ namespace spall::vk
 		IPipelineFactory& pipelines(void) override;
 		IPresentationFactory& presentation(void) override;
 
-		Status createTexture(
-			const TextureCreateInfo& info,
-			Resource<ITexture>* texture) override;
+		Status createTexture1D(
+			const Texture1DCreateInfo& info,
+			Resource<ITexture1D>* texture) override;
+
+		Status createTexture2D(
+			const Texture2DCreateInfo& info,
+			Resource<ITexture2D>* texture) override;
+
+		Status createTexture3D(
+			const Texture3DCreateInfo& info,
+			Resource<ITexture3D>* texture) override;
 
 		Status createTextureView(
 			const TextureViewCreateInfo& info,
@@ -159,6 +167,11 @@ namespace spall::vk
 
 	private:
 		static VkImageAspectFlags imageAspectMask(Format format);
+
+		Status createImage(
+			const TextureInfo& info,
+			VkImage* image,
+			VmaAllocation* allocation);
 
 		Status createPipelineLayout(
 			std::span<const IResourceSetLayout* const> layouts,
