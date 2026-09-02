@@ -26,14 +26,6 @@ add_executable(spall_tests
 	"Validation/SwapChainValidationTests.cpp"
 	"Validation/TextureValidationTests.cpp")
 
-if(SPALL_BUILD_RUNTIME)
-	target_sources(spall_tests PRIVATE
-		"Runtime/RendererFrameTests.cpp"
-		"Runtime/RendererTests.cpp")
-
-	target_link_libraries(spall_tests PRIVATE spall::runtime)
-endif()
-
 if(SPALL_ENABLE_D3D12)
 	target_sources(spall_tests PRIVATE
 		"Backends/D3D12/D3D12DeviceTests.cpp"

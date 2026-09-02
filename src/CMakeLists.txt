@@ -8,7 +8,6 @@ file(GLOB_RECURSE SPALL_CORE_HEADERS CONFIGURE_DEPENDS
 
 list(FILTER SPALL_CORE_HEADERS EXCLUDE REGEX "/include/spall/Backends/")
 list(FILTER SPALL_CORE_HEADERS EXCLUDE REGEX "/include/spall/Backend/BackendFactory\\.h$")
-list(FILTER SPALL_CORE_HEADERS EXCLUDE REGEX "/include/spall/Runtime/")
 
 spall_static_library(spall 20)
 add_library(spall::spall ALIAS spall)
@@ -152,34 +151,5 @@ if(SPALL_ENABLE_VULKAN)
 endif()
 
 list(APPEND SPALL_INSTALL_TARGETS spall_backends)
-
-# ---------------------------------------------------------------------------
-# spall::runtime — optional managed renderer and frame loop
-# ---------------------------------------------------------------------------
-if(SPALL_BUILD_RUNTIME)
-	file(GLOB_RECURSE SPALL_RUNTIME_SOURCES CONFIGURE_DEPENDS
-		"${CMAKE_CURRENT_SOURCE_DIR}/Runtime/*.h"
-		"${CMAKE_CURRENT_SOURCE_DIR}/Runtime/*.cpp")
-
-	file(GLOB_RECURSE SPALL_RUNTIME_HEADERS CONFIGURE_DEPENDS
-		"${PROJECT_SOURCE_DIR}/include/spall/Runtime/*.h")
-
-	spall_static_library(spall_runtime 20
-		SOURCES ${SPALL_RUNTIME_SOURCES})
-	add_library(spall::runtime ALIAS spall_runtime)
-	set_target_properties(spall_runtime PROPERTIES EXPORT_NAME runtime)
-
-	target_sources(spall_runtime
-		PUBLIC
-			FILE_SET public_headers
-			TYPE HEADERS
-			BASE_DIRS "${PROJECT_SOURCE_DIR}/include"
-			FILES ${SPALL_RUNTIME_HEADERS})
-
-	target_include_directories(spall_runtime PRIVATE "${PROJECT_SOURCE_DIR}")
-	target_link_libraries(spall_runtime PUBLIC spall::backends)
-
-	list(APPEND SPALL_INSTALL_TARGETS spall_runtime)
-endif()
 
 set(SPALL_INSTALL_TARGETS ${SPALL_INSTALL_TARGETS} PARENT_SCOPE)

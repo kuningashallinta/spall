@@ -3,24 +3,30 @@
 
 #include "Shaders.h"
 
+#include <spall/Backend/BackendFactory.h>
 #include <spall/CommandList/ICommandList.h>
 #include <spall/Device/IDevice.h>
+#include <spall/Frame/IFrame.h>
+#include <spall/Framebuffer/IFramebuffer.h>
 #include <spall/Pipeline/Binding/IResourceSet.h>
 #include <spall/Pipeline/Binding/IResourceSetLayout.h>
 #include <spall/Pipeline/Pipeline/IPipeline.h>
 #include <spall/Pipeline/Shader/IShader.h>
 #include <spall/Queue/IGraphicsQueue.h>
+#include <spall/RenderPass/RenderPassBeginInfo.h>
 #include <spall/Resources/Sampler/ISampler.h>
 #include <spall/Resources/Texture/ITexture.h>
 #include <spall/Resources/TextureView/ITextureView.h>
-#include <spall/Runtime/Renderer.h>
+#include <spall/SwapChain/ISwapChain.h>
 
 #include <windows.h>
 
 #include <chrono>
 #include <cstdint>
 #include <cstdlib>
+#include <memory>
 #include <span>
+#include <vector>
 
 static constexpr std::uint32_t WindowWidth = 800;
 static constexpr std::uint32_t WindowHeight = 600;
@@ -85,19 +91,30 @@ int WINAPI wWinMain(
 
 	ShowWindow(window, showCommand);
 
-	spall::Renderer renderer = spall::Renderer::create({.Backend = BackendType,
-		.SwapChain = {
-			.Window = {.Value = window},
-			.Width = WindowWidth,
-			.Height = WindowHeight,
-			.Format = spall::Format::BGRA8Srgb}});
+	const std::unique_ptr<spall::IBackend> backend = spall::createBackend(BackendType);
 
-	if (not renderer)
+	if (backend == nullptr)
 	{
 		return EXIT_FAILURE;
 	}
 
-	spall::IDevice& device = renderer.device();
+	const spall::Resource<spall::IDevice> device = backend->createDevice();
+
+	if (not device)
+	{
+		return EXIT_FAILURE;
+	}
+
+	const spall::Resource<spall::ISwapChain> swapChain = device->presentation().createSwapChain({
+		.Window = {.Value = window},
+		.Width = WindowWidth,
+		.Height = WindowHeight,
+		.Format = spall::Format::BGRA8Srgb});
+
+	if (not swapChain)
+	{
+		return EXIT_FAILURE;
+	}
 
 	spall::Resource<spall::IShader> computeShader;
 	spall::Resource<spall::IShader> vertexShader;
@@ -111,9 +128,9 @@ int WINAPI wWinMain(
 	{
 		case spall::RenderBackendType::D3D12:
 		{
-			computeShader = device.pipelines().createShader(spall::ShaderStage::Compute, spall::HlslCompute);
-			vertexShader = device.pipelines().createShader(spall::ShaderStage::Vertex, spall::HlslVertex);
-			fragmentShader = device.pipelines().createShader(spall::ShaderStage::Fragment, spall::HlslFragment);
+			computeShader = device->pipelines().createShader(spall::ShaderStage::Compute, spall::HlslCompute);
+			vertexShader = device->pipelines().createShader(spall::ShaderStage::Vertex, spall::HlslVertex);
+			fragmentShader = device->pipelines().createShader(spall::ShaderStage::Fragment, spall::HlslFragment);
 
 			computeEntryPoint = "csMain";
 			vertexEntryPoint = "vsMain";
@@ -123,9 +140,9 @@ int WINAPI wWinMain(
 
 		case spall::RenderBackendType::Vulkan:
 		{
-			computeShader = device.pipelines().createShader(spall::ShaderStage::Compute, spall::VulkanCompute);
-			vertexShader = device.pipelines().createShader(spall::ShaderStage::Vertex, spall::VulkanVertex);
-			fragmentShader = device.pipelines().createShader(spall::ShaderStage::Fragment, spall::VulkanFragment);
+			computeShader = device->pipelines().createShader(spall::ShaderStage::Compute, spall::VulkanCompute);
+			vertexShader = device->pipelines().createShader(spall::ShaderStage::Vertex, spall::VulkanVertex);
+			fragmentShader = device->pipelines().createShader(spall::ShaderStage::Fragment, spall::VulkanFragment);
 
 			computeEntryPoint = "main";
 			vertexEntryPoint = "main";
@@ -134,28 +151,28 @@ int WINAPI wWinMain(
 		}
 	}
 
-	const spall::Resource<spall::ITexture> texture = device.resources().createTexture({.Width = ImageWidth,
+	const spall::Resource<spall::ITexture> texture = device->resources().createTexture({.Width = ImageWidth,
 		.Height = ImageHeight,
 		.Format = spall::Format::RGBA8,
 		.Usage = spall::TextureUsageFlags::Storage | spall::TextureUsageFlags::Sampled});
 
-	const spall::Resource<spall::ITextureView> textureView = device.resources().createTextureView({.Texture = texture.get(),
+	const spall::Resource<spall::ITextureView> textureView = device->resources().createTextureView({.Texture = texture.get(),
 		.Aspects = spall::TextureAspectFlags::Color});
 
-	const spall::Resource<spall::ISampler> sampler = device.resources().createSampler({});
+	const spall::Resource<spall::ISampler> sampler = device->resources().createSampler({});
 
 	const spall::ResourceBindingInfo computeBinding = {0, spall::ResourceBindingType::StorageTexture, spall::ShaderStageFlags::Compute};
-	const spall::Resource<spall::IResourceSetLayout> computeLayout = device.pipelines().createResourceSetLayout({std::span {&computeBinding, 1}});
+	const spall::Resource<spall::IResourceSetLayout> computeLayout = device->pipelines().createResourceSetLayout({std::span {&computeBinding, 1}});
 
 	const spall::ResourceBindingInfo sampleBinding = {0, spall::ResourceBindingType::SampledTexture, spall::ShaderStageFlags::Fragment};
-	const spall::Resource<spall::IResourceSetLayout> sampleLayout = device.pipelines().createResourceSetLayout({std::span {&sampleBinding, 1}});
+	const spall::Resource<spall::IResourceSetLayout> sampleLayout = device->pipelines().createResourceSetLayout({std::span {&sampleBinding, 1}});
 
 	const spall::ResourceWrite computeWrite = {
 		.Binding = 0,
 		.Type = spall::ResourceBindingType::StorageTexture,
 		.TextureView = textureView.get()};
 
-	const spall::Resource<spall::IResourceSet> computeSet = device.pipelines().createResourceSet(
+	const spall::Resource<spall::IResourceSet> computeSet = device->pipelines().createResourceSet(
 		{computeLayout.get(), std::span {&computeWrite, 1}});
 
 	const spall::ResourceWrite sampleWrite = {
@@ -164,27 +181,38 @@ int WINAPI wWinMain(
 		.TextureView = textureView.get(),
 		.Sampler = sampler.get()};
 
-	const spall::Resource<spall::IResourceSet> sampleSet = device.pipelines().createResourceSet(
+	const spall::Resource<spall::IResourceSet> sampleSet = device->pipelines().createResourceSet(
 		{sampleLayout.get(), std::span {&sampleWrite, 1}});
 
 	const spall::IResourceSetLayout* const computeLayouts[] = {computeLayout.get()};
 
-	const spall::Resource<spall::IPipeline> computePipeline = device.pipelines().createComputePipeline({.ComputeShader = {computeShader.get(), computeEntryPoint},
+	const spall::Resource<spall::IPipeline> computePipeline = device->pipelines().createComputePipeline({.ComputeShader = {computeShader.get(), computeEntryPoint},
 		.ResourceSetLayouts = computeLayouts,
 		.PushConstants = {spall::ShaderStageFlags::Compute, sizeof(float)}});
 
 	const spall::IResourceSetLayout* const sampleLayouts[] = {sampleLayout.get()};
 
-	const spall::Resource<spall::IPipeline> pipeline = device.pipelines().createPipeline({.VertexShader = {vertexShader.get(), vertexEntryPoint},
+	const spall::Resource<spall::IPipeline> pipeline = device->pipelines().createPipeline({.VertexShader = {vertexShader.get(), vertexEntryPoint},
 		.FragmentShader = {fragmentShader.get(), fragmentEntryPoint},
 		.ResourceSetLayouts = sampleLayouts,
 		.PrimitiveTopology = spall::PrimitiveTopology::TriangleList,
-		.ColorTargetFormats = {renderer.colorFormat()},
+		.ColorTargetFormats = {swapChain->format()},
 		.ColorTargetFormatCount = 1});
 
-	const spall::FrameBeginInfo frameInfo = {.ClearColor = {0.02f, 0.03f, 0.05f, 1.0f}};
+	std::vector<spall::Resource<spall::IFramebuffer>> framebuffers(swapChain->frameCount());
+	std::vector<spall::Resource<spall::ICommandList>> commandLists(swapChain->frameCount());
 
-	const spall::Resource<spall::ICommandList> compute = device.createCommandList();
+	spall::RenderPassBeginInfo renderPass = {};
+	renderPass.ColorAttachments[0].LoadAction = spall::LoadAction::Clear;
+	renderPass.ColorAttachments[0].ClearColor = {0.02f, 0.03f, 0.05f, 1.0f};
+
+	const spall::Viewport viewport = {
+		.Width = static_cast<float>(WindowWidth),
+		.Height = static_cast<float>(WindowHeight)};
+
+	const spall::Scissor scissor = {.Width = WindowWidth, .Height = WindowHeight};
+
+	const spall::Resource<spall::ICommandList> compute = device->createCommandList();
 	const auto start = std::chrono::steady_clock::now();
 	MSG message = {};
 
@@ -206,19 +234,43 @@ int WINAPI wWinMain(
 		compute->dispatch(groupCount(ImageWidth), groupCount(ImageHeight), 1);
 		compute->end();
 
-		device.graphicsQueue().submit(*compute);
+		device->graphicsQueue().submit(*compute);
 
-		spall::Frame frame = renderer.beginFrame(frameInfo);
+		const spall::Resource<spall::IFrame> frame = device->graphicsQueue().acquireFrame(*swapChain);
+		const std::uint32_t frameIndex = frame->index();
 
-		spall::ICommandList& commands = frame.commands();
+		if (not framebuffers[frameIndex])
+		{
+			framebuffers[frameIndex] = device->resources().createFramebuffer({
+				.ColorAttachments = {&frame->presentTextureView()},
+				.ColorAttachmentCount = 1});
+		}
+
+		if (not commandLists[frameIndex])
+		{
+			commandLists[frameIndex] = device->createCommandList();
+		}
+
+		spall::ICommandList& commands = *commandLists[frameIndex];
+		renderPass.Framebuffer = framebuffers[frameIndex].get();
+
+		commands.begin();
+		commands.beginRenderPass(renderPass);
+		commands.setViewport(viewport);
+		commands.setScissor(scissor);
 		commands.bindGraphicsPipeline(*pipeline);
 		commands.bindResourceSet(0, *sampleSet);
 		commands.draw(3, 0);
+		commands.endRenderPass();
+		commands.end();
 
-		frame.end();
+		device->graphicsQueue().submit(commands);
+		device->graphicsQueue().present(*frame);
 
-		device.graphicsQueue().waitIdle();
+		device->graphicsQueue().waitIdle();
 	}
+
+	device->graphicsQueue().waitIdle();
 
 	return EXIT_SUCCESS;
 }

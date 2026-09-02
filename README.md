@@ -19,7 +19,6 @@ At least one backend must be enabled. Relevant configure options are:
 ```text
 SPALL_ENABLE_D3D12
 SPALL_ENABLE_VULKAN
-SPALL_BUILD_RUNTIME
 SPALL_BUILD_EXAMPLES
 SPALL_BUILD_TESTS
 ```
@@ -30,14 +29,14 @@ Installed package:
 
 ```cmake
 find_package(spall CONFIG REQUIRED)
-target_link_libraries(app PRIVATE spall::runtime)
+target_link_libraries(app PRIVATE spall::backends)
 ```
 
 In-tree dependency:
 
 ```cmake
 add_subdirectory(path/to/spall)
-target_link_libraries(app PRIVATE spall::runtime)
+target_link_libraries(app PRIVATE spall::backends)
 ```
 
 Link the highest layer used by the application:
@@ -45,7 +44,6 @@ Link the highest layer used by the application:
 - `spall::spall`: backend-independent API
 - `spall::d3d12` or `spall::vulkan`: specific backend
 - `spall::backends`: backend factory
-- `spall::runtime`: managed device, swap chain, and frame lifecycle
 
 ## License
 

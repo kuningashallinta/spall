@@ -4,4 +4,4 @@ add_executable(spinning_cube WIN32
 spall_configure_target(spinning_cube 20)
 
 target_link_libraries(spinning_cube PRIVATE
-	spall::runtime)
+	spall::backends)

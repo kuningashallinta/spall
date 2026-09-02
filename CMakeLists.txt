@@ -21,7 +21,6 @@ else()
 endif()
 
 option(SPALL_ENABLE_VULKAN "Build the Vulkan backend" ON)
-option(SPALL_BUILD_RUNTIME "Build the optional Spall RHI runtime layer" ON)
 option(SPALL_BUILD_EXAMPLES "Build the Spall RHI examples" ${PROJECT_IS_TOP_LEVEL})
 option(SPALL_BUILD_TESTS "Build the Spall RHI tests" ${PROJECT_IS_TOP_LEVEL})
 
@@ -58,7 +57,7 @@ if(SPALL_ENABLE_VULKAN AND (SPALL_BUILD_EXAMPLES OR SPALL_BUILD_TESTS))
 		VERBATIM)
 endif()
 
-if(SPALL_BUILD_EXAMPLES AND SPALL_BUILD_RUNTIME AND SPALL_ENABLE_D3D12 AND SPALL_ENABLE_VULKAN)
+if(SPALL_BUILD_EXAMPLES AND SPALL_ENABLE_D3D12 AND SPALL_ENABLE_VULKAN)
 	add_subdirectory(examples/spinning_cube)
 	add_subdirectory(examples/compute_image)
 	set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT spinning_cube)
