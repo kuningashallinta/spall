@@ -2044,6 +2044,13 @@ namespace spall::d3d12
 		retainResource(destination);
 		retainResource(source);
 
+		error = referencePresentTexture(destinationTexture);
+
+		if (error != SUCCESS)
+		{
+			return fail(error);
+		}
+
 		ID3D12Resource* footprintResource = sourceBuffer->m_Resource.Get();
 		std::uint64_t footprintOffset = sourceOffset;
 		std::uint32_t footprintRowPitch = sourceRowPitch;
@@ -2182,6 +2189,13 @@ namespace spall::d3d12
 		retainResource(destination);
 		retainResource(source);
 
+		error = referencePresentTexture(sourceTexture);
+
+		if (error != SUCCESS)
+		{
+			return fail(error);
+		}
+
 		const std::uint32_t copyRows = layout.RowCount * resolved.Depth;
 
 		const bool aligned = ((destinationOffset % D3D12_TEXTURE_DATA_PLACEMENT_ALIGNMENT) == 0) and
@@ -2318,6 +2332,13 @@ namespace spall::d3d12
 		}
 
 		retainResource(texture);
+
+		error = referencePresentTexture(backendTexture);
+
+		if (error != SUCCESS)
+		{
+			return fail(error);
+		}
 
 		for (std::uint32_t arrayLayer = 0; arrayLayer < info.ArrayLayers; ++arrayLayer)
 		{
@@ -2543,6 +2564,20 @@ namespace spall::d3d12
 
 		retainResource(destination);
 		retainResource(source);
+
+		error = referencePresentTexture(destinationTexture);
+
+		if (error != SUCCESS)
+		{
+			return fail(error);
+		}
+
+		error = referencePresentTexture(sourceTexture);
+
+		if (error != SUCCESS)
+		{
+			return fail(error);
+		}
 
 		m_CommandList->CopyResource(destinationTexture->m_Resource.Get(), sourceTexture->m_Resource.Get());
 
