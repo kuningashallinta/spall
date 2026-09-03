@@ -505,8 +505,10 @@ namespace spall
 			return ERR_INVALID_USAGE_FLAGS;
 		}
 
-		if (usesColorAspect and
-			((textureInfo.Usage & (TextureUsageFlags::ColorAttachment | TextureUsageFlags::Sampled)) == TextureUsageFlags::None))
+		constexpr TextureUsageFlags colorAspectUsage =
+			TextureUsageFlags::ColorAttachment | TextureUsageFlags::Sampled | TextureUsageFlags::Storage;
+
+		if (usesColorAspect and ((textureInfo.Usage & colorAspectUsage) == TextureUsageFlags::None))
 		{
 			return ERR_INVALID_USAGE_FLAGS;
 		}
