@@ -184,6 +184,18 @@ namespace spall::vk
 				return ERR_SWAP_CHAIN_ACQUIRE_FAILED;
 			}
 
+			SwapChain::BackBuffer& acquired = backendSwapChain->m_BackBuffers[imageIndex];
+
+			SPALL_ASSERT(static_cast<bool>(acquired.InFlightCommandList) == (acquired.InFlightSubmissionSerial != 0));
+
+			if (acquired.InFlightCommandList)
+			{
+				SPALL_TRY(acquired.InFlightCommandList->waitForSubmission(acquired.InFlightSubmissionSerial));
+
+				acquired.InFlightCommandList.reset();
+				acquired.InFlightSubmissionSerial = 0;
+			}
+
 			std::unique_ptr<Frame> vkFrame = std::make_unique<Frame>(
 				*backendSwapChain,
 				frameSlotIndex,
@@ -263,6 +275,7 @@ namespace spall::vk
 		++signalCount;
 
 		SwapChain::FrameResources* submittedFrameResources = nullptr;
+		SwapChain::BackBuffer* submittedBackBuffer = nullptr;
 
 		if (backendCommandList->m_ReferencedPresentTexture)
 		{
@@ -295,6 +308,7 @@ namespace spall::vk
 			++signalCount;
 
 			submittedFrameResources = &frameResources;
+			submittedBackBuffer = &backBuffer;
 		}
 
 		VkTimelineSemaphoreSubmitInfo timelineInfo = {};
@@ -397,6 +411,8 @@ namespace spall::vk
 		{
 			submittedFrameResources->InFlightCommandList.reset(backendCommandList);
 			submittedFrameResources->InFlightSubmissionSerial = submissionSerial;
+			submittedBackBuffer->InFlightCommandList.reset(backendCommandList);
+			submittedBackBuffer->InFlightSubmissionSerial = submissionSerial;
 			m_ActiveFrameSubmitted = true;
 		}
 

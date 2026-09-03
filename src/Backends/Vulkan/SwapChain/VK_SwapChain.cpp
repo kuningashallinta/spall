@@ -570,6 +570,9 @@ namespace spall::vk
 		{
 			for (BackBuffer& backBuffer : m_BackBuffers)
 			{
+				backBuffer.InFlightCommandList.reset();
+				backBuffer.InFlightSubmissionSerial = 0;
+
 				if (backBuffer.RenderFinishedSemaphore != VK_NULL_HANDLE)
 				{
 					vkDestroySemaphore(m_Device->m_Device, backBuffer.RenderFinishedSemaphore, nullptr);

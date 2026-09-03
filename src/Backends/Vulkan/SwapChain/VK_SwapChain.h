@@ -37,6 +37,11 @@ namespace spall::vk
 
 			/// Presentation keeps this semaphore in use until the image is acquired again, so it is owned per image rather than per frame slot.
 			VkSemaphore RenderFinishedSemaphore = VK_NULL_HANDLE;
+
+			/// The frame slot an acquire waits on is not the image it returns, so the
+			/// submission that last wrote this image is tracked separately.
+			Resource<CommandList> InFlightCommandList;
+			std::uint64_t InFlightSubmissionSerial = 0;
 		};
 
 		struct FrameResources
