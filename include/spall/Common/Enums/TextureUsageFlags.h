@@ -13,14 +13,14 @@ namespace spall
 	enum class TextureUsageFlags : std::uint32_t
 	{
 		None = 0,
-		ColorAttachment = BIT(0),
-		DepthStencilAttachment = BIT(1),
-		TransferSource = BIT(2),
-		TransferDestination = BIT(3),
-		Sampled = BIT(4),
-		Storage = BIT(5)
+		ColorAttachment = SPALL_BIT(0),
+		DepthStencilAttachment = SPALL_BIT(1),
+		TransferSource = SPALL_BIT(2),
+		TransferDestination = SPALL_BIT(3),
+		Sampled = SPALL_BIT(4),
+		Storage = SPALL_BIT(5)
 	};
 
-	ENUM_CLASS_BITWISE_OPERATORS(
+	SPALL_ENUM_CLASS_BITWISE_OPERATORS(
 		TextureUsageFlags)
 } // namespace spall

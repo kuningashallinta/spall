@@ -16,10 +16,10 @@ namespace spall
 	enum class AccelerationStructureGeometryFlags : std::uint32_t
 	{
 		None = 0,
-		Opaque = BIT(0),
-		NoDuplicateAnyHitInvocation = BIT(1)
+		Opaque = SPALL_BIT(0),
+		NoDuplicateAnyHitInvocation = SPALL_BIT(1)
 	};
 
-	ENUM_CLASS_BITWISE_OPERATORS(
+	SPALL_ENUM_CLASS_BITWISE_OPERATORS(
 		AccelerationStructureGeometryFlags)
 } // namespace spall

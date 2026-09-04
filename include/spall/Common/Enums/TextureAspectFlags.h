@@ -12,11 +12,11 @@ namespace spall
 	enum class TextureAspectFlags : std::uint32_t
 	{
 		None = 0,
-		Color = BIT(0),
-		Depth = BIT(1),
-		Stencil = BIT(2)
+		Color = SPALL_BIT(0),
+		Depth = SPALL_BIT(1),
+		Stencil = SPALL_BIT(2)
 	};
 
-	ENUM_CLASS_BITWISE_OPERATORS(
+	SPALL_ENUM_CLASS_BITWISE_OPERATORS(
 		TextureAspectFlags)
 } // namespace spall

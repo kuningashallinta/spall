@@ -5,9 +5,9 @@
 
 #include <type_traits>
 
-#define BIT(x) (1u << (x))
+#define SPALL_BIT(x) (1u << (x))
 
-#define ENUM_CLASS_BITWISE_OPERATORS(type)                                                                \
+#define SPALL_ENUM_CLASS_BITWISE_OPERATORS(type)                                                          \
 	constexpr inline type operator|(type left, type right)                                                \
 	{                                                                                                     \
 		using UnderlyingType = std::underlying_type_t<type>;                                              \

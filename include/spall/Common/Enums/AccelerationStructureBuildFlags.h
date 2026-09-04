@@ -17,13 +17,13 @@ namespace spall
 	enum class AccelerationStructureBuildFlags : std::uint32_t
 	{
 		None = 0,
-		AllowUpdate = BIT(0),
-		PreferFastTrace = BIT(1),
-		PreferFastBuild = BIT(2),
-		MinimizeMemory = BIT(3),
-		AllowCompaction = BIT(4)
+		AllowUpdate = SPALL_BIT(0),
+		PreferFastTrace = SPALL_BIT(1),
+		PreferFastBuild = SPALL_BIT(2),
+		MinimizeMemory = SPALL_BIT(3),
+		AllowCompaction = SPALL_BIT(4)
 	};
 
-	ENUM_CLASS_BITWISE_OPERATORS(
+	SPALL_ENUM_CLASS_BITWISE_OPERATORS(
 		AccelerationStructureBuildFlags)
 } // namespace spall

@@ -8,13 +8,13 @@
 enum class TestFlags : std::uint32_t
 {
 	None = 0,
-	First = BIT(0),
-	Second = BIT(1),
-	Third = BIT(2),
-	High = BIT(31)
+	First = SPALL_BIT(0),
+	Second = SPALL_BIT(1),
+	Third = SPALL_BIT(2),
+	High = SPALL_BIT(31)
 };
 
-ENUM_CLASS_BITWISE_OPERATORS(
+SPALL_ENUM_CLASS_BITWISE_OPERATORS(
 	TestFlags)
 
 static_assert(spall::hasOnlyKnownFlags(TestFlags::First, TestFlags::First | TestFlags::Second));

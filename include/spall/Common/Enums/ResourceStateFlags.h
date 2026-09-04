@@ -16,21 +16,21 @@ namespace spall
 	enum class ResourceStateFlags : std::uint32_t
 	{
 		Unknown = 0,
-		Common = BIT(0),
-		VertexBuffer = BIT(1),
-		IndexBuffer = BIT(2),
-		ConstantBuffer = BIT(3),
-		ShaderResource = BIT(5),
-		UnorderedAccess = BIT(6),
-		RenderTarget = BIT(7),
-		DepthWrite = BIT(8),
-		DepthRead = BIT(9),
-		CopySource = BIT(10),
-		CopyDest = BIT(11),
-		Present = BIT(12),
-		IndirectArgument = BIT(13)
+		Common = SPALL_BIT(0),
+		VertexBuffer = SPALL_BIT(1),
+		IndexBuffer = SPALL_BIT(2),
+		ConstantBuffer = SPALL_BIT(3),
+		ShaderResource = SPALL_BIT(5),
+		UnorderedAccess = SPALL_BIT(6),
+		RenderTarget = SPALL_BIT(7),
+		DepthWrite = SPALL_BIT(8),
+		DepthRead = SPALL_BIT(9),
+		CopySource = SPALL_BIT(10),
+		CopyDest = SPALL_BIT(11),
+		Present = SPALL_BIT(12),
+		IndirectArgument = SPALL_BIT(13)
 	};
 
-	ENUM_CLASS_BITWISE_OPERATORS(
+	SPALL_ENUM_CLASS_BITWISE_OPERATORS(
 		ResourceStateFlags)
 } // namespace spall
