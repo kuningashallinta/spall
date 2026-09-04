@@ -67,7 +67,10 @@ namespace spall::d3d12
 	Status FenceTimeline::waitForFenceValue(
 		std::uint64_t fenceValue)
 	{
-		if ((fenceValue == 0) or (not m_Fence) or (m_Fence->GetCompletedValue() >= fenceValue))
+		if ((fenceValue == 0) or
+			(not m_Fence) or
+			(m_FenceEvent == nullptr) or
+			(m_Fence->GetCompletedValue() >= fenceValue))
 		{
 			return {};
 		}
