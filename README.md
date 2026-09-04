@@ -1,6 +1,17 @@
-# Spall
 
-C++20 RHI for Direct3D 12 and Vulkan 1.2. Presentation currently requires Win32.
+<p align="center">
+  <img src="assets/render.png" alt="Spall" width="60%">
+</p>
+
+<p align="center">
+  <b>A C++20 rendering hardware interface for Direct3D 12 and Vulkan 1.2.</b>
+</p>
+
+<p align="center">
+  <img alt="Apache-2.0" src="https://img.shields.io/badge/License-Apache_2.0-2f333b?style=flat-square">
+</p>
+
+Spall provides one API over different GAPIs. Devices, queues, frames and swap chains stay where you put them, and the backend is picked at run time from whichever backends were built. Presentation currently requires Win32.
 
 ## Build
 
@@ -44,6 +55,11 @@ Link the highest layer used by the application:
 - `spall::spall`: backend-independent API
 - `spall::d3d12` or `spall::vulkan`: specific backend
 - `spall::backends`: backend factory
+
+## Examples
+
+- [`examples/spinning_cube`](examples/spinning_cube): render pass, vertex input and push constants on D3D12
+- [`examples/compute_image`](examples/compute_image): compute dispatch into a storage texture, sampled for display, on Vulkan
 
 ## License
 
