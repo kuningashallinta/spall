@@ -203,10 +203,7 @@ namespace spall::d3d12
 	{
 		if (texture.m_PermanentState != ResourceStateFlags::Unknown)
 		{
-			const std::uint32_t permanentState = static_cast<std::uint32_t>(texture.m_PermanentState);
-			const std::uint32_t required = static_cast<std::uint32_t>(requiredState);
-
-			if ((permanentState & required) != required)
+			if ((texture.m_PermanentState & requiredState) != requiredState)
 			{
 				return ERR_INVALID_RESOURCE_STATE;
 			}
@@ -230,10 +227,7 @@ namespace spall::d3d12
 	{
 		if (buffer.m_PermanentState != ResourceStateFlags::Unknown)
 		{
-			const std::uint32_t permanentState = static_cast<std::uint32_t>(buffer.m_PermanentState);
-			const std::uint32_t required = static_cast<std::uint32_t>(requiredState);
-
-			if ((permanentState & required) != required)
+			if ((buffer.m_PermanentState & requiredState) != requiredState)
 			{
 				return ERR_INVALID_RESOURCE_STATE;
 			}

@@ -122,8 +122,7 @@ namespace spall
 				}
 			}
 
-			if ((static_cast<std::uint32_t>(blendState.ColorWriteMask) &
-					~static_cast<std::uint32_t>(ColorComponentFlags::All)) != 0)
+			if ((blendState.ColorWriteMask & ~ColorComponentFlags::All) != ColorComponentFlags::None)
 			{
 				return ERR_INVALID_ARGUMENT;
 			}

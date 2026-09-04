@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdint>
-
 namespace spall
 {
 	template <typename Flags>
@@ -9,7 +7,7 @@ namespace spall
 		Flags value,
 		Flags known)
 	{
-		return (static_cast<std::uint32_t>(value) & ~static_cast<std::uint32_t>(known)) == 0;
+		return (value & ~known) == Flags {};
 	}
 
 	template <typename Flags>
@@ -17,6 +15,6 @@ namespace spall
 		Flags value,
 		Flags flag)
 	{
-		return (static_cast<std::uint32_t>(value) & static_cast<std::uint32_t>(flag)) != 0;
+		return (value & flag) != Flags {};
 	}
 } // namespace spall
