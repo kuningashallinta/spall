@@ -834,11 +834,22 @@ namespace spall::vk
 		Resource<IPipeline> created(rayTracingPipeline);
 
 		const VkDeviceSize handleSize = m_ShaderGroupHandleSize;
-		const VkDeviceSize recordStride = Alignment::up(handleSize, m_ShaderGroupHandleAlignment);
-		const VkDeviceSize rayGenerationSize = Alignment::up(recordStride, m_ShaderGroupBaseAlignment);
+		VkDeviceSize recordStride = 0;
+		VkDeviceSize rayGenerationSize = 0;
+
+		SPALL_TRY(Alignment::up(handleSize, m_ShaderGroupHandleAlignment, &recordStride));
+		SPALL_TRY(Alignment::up(recordStride, m_ShaderGroupBaseAlignment, &rayGenerationSize));
+
 		const VkDeviceSize missOffset = rayGenerationSize;
-		const VkDeviceSize hitOffset = missOffset + Alignment::up(missCount * recordStride, m_ShaderGroupBaseAlignment);
-		const VkDeviceSize tableSize = hitOffset + Alignment::up(hitGroupCount * recordStride, m_ShaderGroupBaseAlignment);
+
+		VkDeviceSize missSize = 0;
+		VkDeviceSize hitSize = 0;
+
+		SPALL_TRY(Alignment::up(missCount * recordStride, m_ShaderGroupBaseAlignment, &missSize));
+		SPALL_TRY(Alignment::up(hitGroupCount * recordStride, m_ShaderGroupBaseAlignment, &hitSize));
+
+		const VkDeviceSize hitOffset = missOffset + missSize;
+		const VkDeviceSize tableSize = hitOffset + hitSize;
 
 		VkBufferCreateInfo tableCreateInfo = {};
 		tableCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;

@@ -592,8 +592,14 @@ namespace spall::d3d12
 		constexpr std::uint64_t tableAlignment = D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT;
 
 		const std::uint64_t missOffset = tableAlignment;
-		const std::uint64_t hitOffset = missOffset + Alignment::up(missCount * recordStride, tableAlignment);
-		const std::uint64_t tableSize = hitOffset + Alignment::up(hitGroupCount * recordStride, tableAlignment);
+		std::uint64_t missSize = 0;
+		std::uint64_t hitSize = 0;
+
+		SPALL_TRY(Alignment::up(missCount * recordStride, tableAlignment, &missSize));
+		SPALL_TRY(Alignment::up(hitGroupCount * recordStride, tableAlignment, &hitSize));
+
+		const std::uint64_t hitOffset = missOffset + missSize;
+		const std::uint64_t tableSize = hitOffset + hitSize;
 
 		std::vector<std::byte> tableData(static_cast<std::size_t>(tableSize));
 

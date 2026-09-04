@@ -2062,7 +2062,15 @@ namespace spall::d3d12
 
 		if (not aligned)
 		{
-			const std::uint64_t alignedRowPitch = Alignment::up(layout.RowBytes, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
+			std::uint32_t rowPitch = 0;
+			error = Alignment::up(layout.RowBytes, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT, &rowPitch);
+
+			if (error != SUCCESS)
+			{
+				return fail(error);
+			}
+
+			const std::uint64_t alignedRowPitch = rowPitch;
 			const std::uint64_t scratchSize = (alignedRowPitch * (copyRows - 1)) + layout.RowBytes;
 
 			ID3D12Resource* scratchBuffer = nullptr;
@@ -2208,7 +2216,16 @@ namespace spall::d3d12
 
 		if (not aligned)
 		{
-			footprintRowPitch = Alignment::up(layout.RowBytes, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT);
+			std::uint32_t rowPitch = 0;
+			error = Alignment::up(layout.RowBytes, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT, &rowPitch);
+
+			if (error != SUCCESS)
+			{
+				return fail(error);
+			}
+
+			footprintRowPitch = rowPitch;
+
 			const std::uint64_t scratchSize = (footprintRowPitch * (copyRows - 1)) + layout.RowBytes;
 
 			error = createScratchBuffer(scratchSize, D3D12_RESOURCE_FLAG_NONE, &scratchBuffer);

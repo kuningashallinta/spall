@@ -60,10 +60,13 @@ namespace spall::d3d12
 			{
 				Buffer* buffer = backendCast<Buffer>(write.Buffer);
 
+				std::uint32_t alignedSize = 0;
+
+				SPALL_TRY(Alignment::up(buffer->m_Info.Size, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT, &alignedSize));
+
 				D3D12_CONSTANT_BUFFER_VIEW_DESC viewDesc = {};
 				viewDesc.BufferLocation = buffer->m_Resource->GetGPUVirtualAddress();
-				viewDesc.SizeInBytes = static_cast<UINT>(
-					Alignment::up(buffer->m_Info.Size, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT));
+				viewDesc.SizeInBytes = static_cast<UINT>(alignedSize);
 
 				m_Device->m_Device->CreateConstantBufferView(&viewDesc, handle);
 
