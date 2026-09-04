@@ -14,7 +14,7 @@
 #include <src/Backends/Vulkan/Common/VK_TextureStateInfo.h>
 #include <src/Backends/Vulkan/Common/VK_VertexFormatProperties.h>
 #include <src/Validation/Common/FormatValidation.h>
-#include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan.h>
 
 namespace spall::vk
 {

@@ -4,7 +4,7 @@
 #pragma once
 
 #include <cstdint>
-#include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan.h>
 
 namespace spall::vk
 {

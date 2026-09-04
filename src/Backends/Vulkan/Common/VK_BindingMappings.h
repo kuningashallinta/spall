@@ -12,7 +12,7 @@
 #include <src/Backends/Vulkan/Common/VK_TextureFormatProperties.h>
 #include <src/Backends/Vulkan/Common/VK_TextureStateInfo.h>
 #include <src/Backends/Vulkan/Common/VK_VertexFormatProperties.h>
-#include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan.h>
 
 namespace spall::vk
 {

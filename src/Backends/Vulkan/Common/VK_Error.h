@@ -5,7 +5,7 @@
 
 #include <spall/Common/Status/Status.h>
 
-#include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan.h>
 
 namespace spall::vk
 {

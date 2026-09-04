@@ -7,7 +7,7 @@
 
 #include <cstdint>
 #include <optional>
-#include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan.h>
 
 namespace spall::vk
 {

@@ -3,7 +3,7 @@
 #include <spall/Common/Status/Status.h>
 #include <spall/Resources/Buffer/BufferCreateInfo.h>
 
-#include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan.h>
 
 namespace spall::vk
 {

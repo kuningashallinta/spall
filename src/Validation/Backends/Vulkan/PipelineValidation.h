@@ -4,7 +4,7 @@
 #include <spall/Pipeline/Binding/ResourceBindingInfo.h>
 #include <spall/Pipeline/Pipeline/PipelineCreateInfo.h>
 
-#include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan.h>
 
 #include <span>
 

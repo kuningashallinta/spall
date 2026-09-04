@@ -5,7 +5,7 @@
 
 #include <spall/Common/Enums/ResourceEnums.h>
 
-#include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan.h>
 
 namespace spall::vk
 {
