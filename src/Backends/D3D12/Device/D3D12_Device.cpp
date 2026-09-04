@@ -33,6 +33,11 @@ namespace spall::d3d12
 		{
 			m_GraphicsQueue->waitIdle();
 		}
+
+		if (m_ComputeQueue)
+		{
+			m_ComputeQueue->waitIdle();
+		}
 	}
 
 	Status Device::initialize()

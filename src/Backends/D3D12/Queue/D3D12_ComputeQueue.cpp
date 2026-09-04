@@ -95,6 +95,11 @@ namespace spall::d3d12
 
 	Status ComputeQueue::waitIdle()
 	{
+		if (m_FenceTimeline.fence() == nullptr)
+		{
+			return {};
+		}
+
 		std::uint64_t fenceValue = 0;
 		SPALL_TRY(m_FenceTimeline.signal(*m_CommandQueue, &fenceValue));
 
