@@ -7,6 +7,7 @@
 #include <spall/Common/Limits.h>
 #include <src/Backends/D3D12/Common/D3D12_BackendCast.h>
 #include <src/Backends/D3D12/Common/D3D12_Limits.h>
+#include <src/Backends/D3D12/Common/D3D12_ObjectName.h>
 #include <src/Backends/D3D12/Common/Mappings/D3D12_HeapMappings.h>
 #include <src/Backends/D3D12/Common/Mappings/D3D12_PipelineMappings.h>
 #include <src/Backends/D3D12/Common/Mappings/D3D12_RayTracingMappings.h>
@@ -276,6 +277,7 @@ namespace spall::d3d12
 		ComPtr<ID3D12Resource> resource;
 
 		SPALL_TRY(createTextureResource(textureInfo, &resource));
+		SPALL_TRY(setObjectName(*resource.Get(), textureInfo.DebugName));
 
 		*texture = Resource<ITexture1D>(new Texture1D(*this, textureInfo, std::move(resource)));
 
@@ -311,6 +313,7 @@ namespace spall::d3d12
 		ComPtr<ID3D12Resource> resource;
 
 		SPALL_TRY(createTextureResource(textureInfo, &resource));
+		SPALL_TRY(setObjectName(*resource.Get(), textureInfo.DebugName));
 
 		*texture = Resource<ITexture2D>(new Texture2D(*this, textureInfo, std::move(resource)));
 
@@ -343,6 +346,7 @@ namespace spall::d3d12
 		ComPtr<ID3D12Resource> resource;
 
 		SPALL_TRY(createTextureResource(textureInfo, &resource));
+		SPALL_TRY(setObjectName(*resource.Get(), textureInfo.DebugName));
 
 		*texture = Resource<ITexture3D>(new Texture3D(*this, textureInfo, std::move(resource)));
 
@@ -691,6 +695,8 @@ namespace spall::d3d12
 			return mapStatus(hr);
 		}
 
+		SPALL_TRY(setObjectName(*resource.Get(), info.DebugName));
+
 		const BufferInfo bufferInfo {info.Size, info.Usage, info.CpuAccess, info.InitialState, info.KeepInitialState, info.DebugName};
 
 		*buffer = Resource<IBuffer>(new Buffer(*this, bufferInfo, std::move(resource), heapType));
@@ -959,6 +965,8 @@ namespace spall::d3d12
 			return mapStatus(hr);
 		}
 
+		SPALL_TRY(setObjectName(*queryHeap.Get(), info.DebugName));
+
 		const QueryPoolInfo poolInfo {info.TimestampCount, info.DebugName};
 
 		*queryPool = Resource<IQueryPool>(new QueryPool(*this, poolInfo, std::move(queryHeap), std::move(resultBuffer)));
@@ -1181,6 +1189,8 @@ namespace spall::d3d12
 		{
 			return mapStatus(hr);
 		}
+
+		SPALL_TRY(setObjectName(*resource.Get(), info.DebugName));
 
 		AccelerationStructureInfo structureInfo = {};
 		structureInfo.Type = info.Type;
