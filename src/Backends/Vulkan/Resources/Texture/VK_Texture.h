@@ -29,6 +29,13 @@ namespace spall::vk
 	class ResourceSet;
 	class SwapChainGeneration;
 
+	struct SwapChainBinding
+	{
+		bool IsSwapChainTexture = false;
+		SwapChain* Owner = nullptr;
+		std::shared_ptr<SwapChainGeneration> Generation;
+	};
+
 	/// Image storage shared by every texture dimension.
 	///
 	/// This is not an ITexture. Texture1D, Texture2D and Texture3D each implement
@@ -37,13 +44,6 @@ namespace spall::vk
 	class Texture
 	{
 	public:
-		struct SwapChainBinding
-		{
-			bool IsSwapChainTexture = false;
-			SwapChain* Owner = nullptr;
-			std::shared_ptr<SwapChainGeneration> Generation;
-		};
-
 		Texture(
 			Device& device,
 			const TextureInfo& info,

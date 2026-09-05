@@ -481,7 +481,7 @@ namespace spall::vk
 			textureInfo.KeepInitialState = true;
 
 			BackBuffer backBuffer = {};
-			Texture::SwapChainBinding swapChainBinding = {};
+			SwapChainBinding swapChainBinding = {};
 			swapChainBinding.IsSwapChainTexture = true;
 			swapChainBinding.Owner = this;
 			swapChainBinding.Generation = m_Generation;
