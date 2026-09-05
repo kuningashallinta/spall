@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 King Hallinta
+// SPDX-License-Identifier: Apache-2.0
+
 namespace spall::d3d12
 {
 	inline Status wideDebugLabel(
