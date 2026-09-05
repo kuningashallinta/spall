@@ -8,6 +8,7 @@
 </p>
 
 <p align="center">
+  <img alt="Build" src="https://img.shields.io/github/actions/workflow/status/kuningashallinta/spall/ci.yml?branch=master&style=flat-square">
   <img alt="Apache-2.0" src="https://img.shields.io/badge/License-Apache_2.0-2f333b?style=flat-square">
 </p>
 
