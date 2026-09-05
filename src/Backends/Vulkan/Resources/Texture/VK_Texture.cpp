@@ -81,16 +81,16 @@ namespace spall::vk
 		bool ownsImage,
 		SwapChainBinding swapChainBinding)
 		: m_Device(&device),
-		m_SwapChain(swapChainBinding.Owner),
-		m_SwapChainGeneration(std::move(swapChainBinding.Generation)),
-		m_DebugName(info.DebugName != nullptr ? info.DebugName : ""),
-		m_Info(info),
-		m_Image(image),
-		m_Allocation(allocation),
-		m_AspectMask(aspectMask),
-		m_SubresourceStates(textureSubresourceCount(info), SubresourceState {info.InitialState, false}),
-		m_OwnsImage(ownsImage),
-		m_IsSwapChainTexture(swapChainBinding.IsSwapChainTexture)
+		  m_SwapChain(swapChainBinding.Owner),
+		  m_SwapChainGeneration(std::move(swapChainBinding.Generation)),
+		  m_DebugName(info.DebugName != nullptr ? info.DebugName : ""),
+		  m_Info(info),
+		  m_Image(image),
+		  m_Allocation(allocation),
+		  m_AspectMask(aspectMask),
+		  m_SubresourceStates(textureSubresourceCount(info), SubresourceState {info.InitialState, false}),
+		  m_OwnsImage(ownsImage),
+		  m_IsSwapChainTexture(swapChainBinding.IsSwapChainTexture)
 	{
 		m_Info.DebugName = m_DebugName.empty() ? nullptr : m_DebugName.c_str();
 		setDebugName(

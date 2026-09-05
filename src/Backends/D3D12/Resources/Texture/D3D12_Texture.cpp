@@ -76,7 +76,7 @@ namespace spall::d3d12
 		ComPtr<ID3D12Resource> resource,
 		SwapChain* swapChain)
 		: m_Device(&device), m_SwapChain(swapChain), m_Info(info), m_Resource(std::move(resource)),
-		m_IsSwapChainTexture(swapChain != nullptr)
+		  m_IsSwapChainTexture(swapChain != nullptr)
 	{
 		m_SubresourceStates.assign(textureSubresourceCount(info), info.InitialState);
 
